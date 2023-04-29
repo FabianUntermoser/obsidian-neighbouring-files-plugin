@@ -1,6 +1,6 @@
 {
 	"name": "obsidian-neighbouring-files-plugin",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "Navigate to the next and previous file in the current directory",
 	"main": "main.js",
 	"scripts": {
