@@ -2,10 +2,17 @@
 
 This [Obsidian](https://obsidian.md/) Plugin adds two commands.
 
-- Neighbouring Files: Navigate to next file in folder
-- Neighbouring Files: Navigate to prev file in folder
+- Neighbouring Files: Navigate to next file
+- Neighbouring Files: Navigate to prev file
 
-It enables you to navigate to the file next/previous to the currently active one based on a name sort.
+This enables you to navigate to a file located immediately before or after the currently active one.
+Files are sorted based on their file name.
+
+Examples:
+
+- Navigate to the next weekly from `2023-W17` to `2023-W18`
+- Navigate to the next daily from `2023-04-31` to `2023-05-01`
+- Navigate to the next file from `CS4` to `CS5`
 
 ## How I use this
 
@@ -22,8 +29,4 @@ nmap gp :prev_file
 
 This enables me to navigate to neighbouring files quickly.
 
-Examples:
-
-- Navigate to the next daily from `2023-04-31` to `2023-05-01`
-- Navigate to the next weekly from `2023-W17` to `2023-W18`
-- Navigate to the next lecture note from `CS4` to `CS5`
+Caveat: This only works when the editor mode is on.

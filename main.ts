@@ -30,13 +30,13 @@ export default class NeighbouringFileNavigator extends Plugin {
 	async onload() {
 		this.addCommand({
 			id: "next",
-			name: "Navigate to next file in folder",
+			name: "Navigate to next file",
 			callback: () => this.navigateToNeighbouringFile(true),
 		});
 
 		this.addCommand({
 			id: "prev",
-			name: "Navigate to previous file in folder",
+			name: "Navigate to previous file",
 			callback: () => this.navigateToNeighbouringFile(false),
 		});
 	}
