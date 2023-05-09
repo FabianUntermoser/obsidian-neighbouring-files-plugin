@@ -8,7 +8,7 @@ This [Obsidian](https://obsidian.md/) Plugin adds two commands.
 This enables you to navigate to a file located immediately before or after the currently active one.
 Files are sorted based on their file name.
 
-Examples:
+## Examples
 
 - Navigate to the next weekly from `2023-W17` to `2023-W18`
 - Navigate to the next daily from `2023-04-31` to `2023-05-01`
