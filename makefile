@@ -2,7 +2,7 @@ VAULT=${HOME}/notes
 FILES=main.js styles.css manifest.json
 
 clean:
-	-rm -rf $(FILES)
+	-rm -rf *.js *.css
 
 build:
 	npm run build
