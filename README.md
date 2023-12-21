@@ -21,8 +21,8 @@ Here's my configuration from my `.obsidian.vimrc`.
 
 ```vimrc
 " navigation to neighbouring files
-exmap next_file obcommand obsidian-neighbouring-files-plugin:next
-exmap prev_file obcommand obsidian-neighbouring-files-plugin:prev
+exmap next_file obcommand neighbouring-files-plugin:next
+exmap prev_file obcommand neighbouring-files-plugin:prev
 nmap gn :next_file
 nmap gp :prev_file
 ```
