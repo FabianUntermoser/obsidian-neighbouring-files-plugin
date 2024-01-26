@@ -1,6 +1,6 @@
 {
 	"name": "neighbouring-files",
-	"version": "1.0.3",
+	"version": "1.0.4",
 	"description": "Navigate to the next and previous file in the current directory",
 	"main": "main.js",
 	"scripts": {
