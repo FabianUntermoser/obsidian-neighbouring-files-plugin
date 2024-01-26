@@ -8,7 +8,8 @@ export default class NeighbouringFileNavigator extends Plugin {
 
 	navigateToNeighbouringFile(next?: boolean) {
 		const activeFile = this.app.workspace.getActiveFile();
-		const files = activeFile?.parent?.children;
+		const files = activeFile?.parent?.children?.filter(file => file.extension === 'md');
+		
 		files?.sort((a, b) => (a.name > b.name ? 1 : -1));
 		if (!activeFile || !files) return;
 
