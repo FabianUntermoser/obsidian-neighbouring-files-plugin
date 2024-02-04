@@ -1,22 +1,13 @@
+import NeighbouringFileNavigator from "NeighbouringFileNavigator";
 import { Plugin, TFile } from "obsidian";
 
-export default class NeighbouringFileNavigator extends Plugin {
-	getNeighbouringFiles(file: TFile) {
-		const files = file.parent?.children;
-		const filteredFiles = files?.filter(file => file instanceof TFile && file.extension === 'md');
-		const sortedFiles = filteredFiles?.sort((a, b) =>
-			a.name.localeCompare(b.name, undefined, {
-				numeric: true,
-				sensitivity: 'base',
-			}))
-		return sortedFiles;
-	}
+export default class NeighbouringFileNavigatorPlugin extends Plugin {
 
 	navigateToNeighbouringFile(next?: boolean) {
 		const activeFile = this.app.workspace.getActiveFile();
 		if (!activeFile) return;
 
-		const files = this.getNeighbouringFiles(activeFile);
+		const files = NeighbouringFileNavigator.getNeighbouringFiles(activeFile);
 		if (!files) return;
 
 		const currentItem = files.findIndex(
