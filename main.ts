@@ -3,15 +3,21 @@ import { Plugin, TFile } from "obsidian";
 export default class NeighbouringFileNavigator extends Plugin {
 	getNeighbouringFiles(file: TFile) {
 		const files = file.parent?.children;
-		return files;
+		const filteredFiles = files?.filter(file => file instanceof TFile && file.extension === 'md');
+		const sortedFiles = filteredFiles?.sort((a, b) =>
+			a.name.localeCompare(b.name, undefined, {
+				numeric: true,
+				sensitivity: 'base',
+			}))
+		return sortedFiles;
 	}
 
 	navigateToNeighbouringFile(next?: boolean) {
 		const activeFile = this.app.workspace.getActiveFile();
-		const files = activeFile?.parent?.children?.filter(file => file instanceof TFile && file.extension === 'md');
+		if (!activeFile) return;
 
-		files?.sort((a, b) => (a.name > b.name ? 1 : -1));
-		if (!activeFile || !files) return;
+		const files = this.getNeighbouringFiles(activeFile);
+		if (!files) return;
 
 		const currentItem = files.findIndex(
 			(item) => item.name === activeFile.name
@@ -20,12 +26,12 @@ export default class NeighbouringFileNavigator extends Plugin {
 		const toFile = next
 			? files[(currentItem + 1) % files.length]
 			: files[
-					currentItem == 0
-						? files.length - 1
-						: (currentItem - 1) % files.length
-			  ];
+			currentItem == 0
+				? files.length - 1
+				: (currentItem - 1) % files.length
+			];
 
-		this.app.workspace.openLinkText(toFile.path, "", false);
+		this.app.workspace.getLeaf(false).openFile(toFile as TFile);
 	}
 
 	async onload() {
@@ -42,5 +48,5 @@ export default class NeighbouringFileNavigator extends Plugin {
 		});
 	}
 
-	onunload() {}
+	onunload() { }
 }

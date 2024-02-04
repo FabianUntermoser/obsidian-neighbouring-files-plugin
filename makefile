@@ -1,5 +1,5 @@
 VAULT=${HOME}/notes
-FILES=main.js styles.css manifest.json
+FILES=main.js manifest.json
 
 clean:
 	-rm -rf *.js *.css
@@ -7,9 +7,9 @@ clean:
 build:
 	npm run build
 
-install:
-	-mkdir $(VAULT)/.obsidian/plugins/obsidian-neighbouring-files-plugin/
-	-cp -rf $(FILES) $(VAULT)/.obsidian/plugins/obsidian-neighbouring-files-plugin/
+install: build
+	-mkdir $(VAULT)/.obsidian/plugins/neighbouring-files/
+	-cp -rf $(FILES) $(VAULT)/.obsidian/plugins/neighbouring-files/
 
 dev:
 	npm run dev
