@@ -4,7 +4,11 @@ export default class NeighbouringFileNavigator extends Plugin {
 	getNeighbouringFiles(file: TFile) {
 		const files = file.parent?.children;
 		const filteredFiles = files?.filter(file => file instanceof TFile && file.extension === 'md');
-		const sortedFiles = filteredFiles?.sort((a, b) => (a.name > b.name ? 1 : -1));
+		const sortedFiles = filteredFiles?.sort((a, b) =>
+			a.name.localeCompare(b.name, undefined, {
+				numeric: true,
+				sensitivity: 'base',
+			}))
 		return sortedFiles;
 	}
 
