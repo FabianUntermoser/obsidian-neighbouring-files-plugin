@@ -31,7 +31,7 @@ export default class NeighbouringFileNavigator extends Plugin {
 				: (currentItem - 1) % files.length
 			];
 
-		this.app.workspace.openLinkText(toFile.path, "", false);
+		this.app.workspace.getLeaf(false).openFile(toFile as TFile);
 	}
 
 	async onload() {
