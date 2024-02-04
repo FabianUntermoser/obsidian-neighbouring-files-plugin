@@ -1,12 +1,12 @@
 import NeighbouringFileNavigator from "NeighbouringFileNavigator";
 import { TFile, TFolder } from "obsidian";
 
-const addFile = (name: string, dir: TFolder): TFile => {
+const addFile = (name: string, dir?: TFolder): TFile => {
 	const file = new TFile();
-	file.extension = 'md';
-	file.basename = name;
-	file.name = `${name}.md`;
-	dir.children.push(file);
+	file.name = name;
+	file.extension = name.split('.').pop() || '';
+	file.basename = name.split('.').shift() || '';
+	dir?.children.push(file);
 	return file;
 };
 
@@ -20,16 +20,36 @@ const createFolder = (name: string, neighbours: string[]): TFile => {
 }
 
 describe('NeighbouringFileNavigator', () => {
+
 	it('should contain all files', () => {
 		// GIVEN
-		const file: TFile = createFolder('1', ['2', '3']);
+		const file: TFile = createFolder('1.md', ['2.md', '3.md']);
 
 		// WHEN
 		const files = NeighbouringFileNavigator.getNeighbouringFiles(file)
+
+		console.log(files?.map(f => f.name));
 
 		// THEN
 		expect(files).toBeTruthy();
 		expect(files).toContain(file);
 		file.parent?.children.forEach(child => expect(files).toContain(child));
 	});
+
+	it('should only filter for markdown files', () => {
+		// GIVEN
+		const file: TFile = createFolder('1.md', ['2.md', '3.pdf']);
+
+		// WHEN
+		const files = NeighbouringFileNavigator.getNeighbouringFiles(file)
+
+		console.log(files?.map(f => f.name));
+
+		// THEN
+		expect(files).toBeTruthy();
+		expect(files).toHaveLength(2)
+		expect(files).toContain(file.parent?.children[0]);
+		expect(files).toContain(file.parent?.children[1]);
+	});
+
 });
