@@ -1,15 +1,6 @@
 import NeighbouringFileNavigator from "NeighbouringFileNavigator";
 import { TAbstractFile, TFile, TFolder } from "obsidian";
 
-const addFile = (name: string, dir?: TFolder): TFile => {
-	const file = new TFile();
-	file.name = name;
-	file.extension = name.split('.').pop() || '';
-	file.basename = name.split('.').shift() || '';
-	dir?.children.push(file);
-	return file;
-};
-
 const createFile = (name: string, extension: string = "md"): TFile => {
 	const f = new TFile();
 	f.basename = name;
@@ -32,62 +23,59 @@ const setup = (children: Array<TAbstractFile>) => {
 	return children;
 };
 
-const createFolder = (name: string, neighbours: string[]): TFile => {
-	const dir = new TFolder();
-	dir.children = [];
-	const currentFile = addFile(name, dir);
-	currentFile.parent = dir;
-	neighbours.forEach(f => addFile(f, dir));
-	return currentFile;
-}
-
 describe('NeighbouringFileNavigator', () => {
 
 	it('should contain all files', () => {
 		// GIVEN
-		const file: TFile = createFolder('1.md', ['2.md', '3.md']);
+		const files = setup([
+			createFile("1"),
+			createFile("2"),
+			createFile("3"),
+		]);
 
 		// WHEN
-		const files = NeighbouringFileNavigator.getNeighbouringFiles(file)
+		const neighbours = NeighbouringFileNavigator.getNeighbouringFiles(files[0] as TFile)
 
-		console.log(files?.map(f => f.name));
+		console.log(neighbours?.map(f => f.name));
 
 		// THEN
-		expect(files).toBeTruthy();
-		expect(files).toContain(file);
-		file.parent?.children.forEach(child => expect(files).toContain(child));
+		expect(neighbours).toHaveLength(3)
+		files.forEach(child => expect(neighbours).toContain(child));
 	});
 
 	it('should only filter for markdown files', () => {
 		// GIVEN
-		const file: TFile = createFolder('1.md', ['2.md', '3.pdf']);
+		const files = setup([
+			createFile("1"),
+			createFile("2"),
+			createFile("3", "pdf"),
+		]);
 
 		// WHEN
-		const files = NeighbouringFileNavigator.getNeighbouringFiles(file)
+		const neighbours = NeighbouringFileNavigator.getNeighbouringFiles(files[0] as TFile)
 
-		console.log(files?.map(f => f.name));
+		console.log(neighbours?.map(f => f.name));
 
 		// THEN
-		expect(files).toBeTruthy();
-		expect(files).toHaveLength(2)
-		expect(files).toContain(file.parent?.children[0]);
-		expect(files).toContain(file.parent?.children[1]);
+		expect(neighbours).toHaveLength(2)
+		expect(neighbours).toContain(files[0]);
+		expect(neighbours).toContain(files[1]);
 	});
 
 	it('should filter out directories', () => {
 		// GIVEN
-		const dir = setup([
+		const files = setup([
 			createFile("1"),
 			createDir("somedir")
 		]);
 
 		// WHEN
-		const files = NeighbouringFileNavigator.getNeighbouringFiles(dir[0] as TFile)
+		const neighbours = NeighbouringFileNavigator.getNeighbouringFiles(files[0] as TFile)
 
-		console.log(files?.map(f => f.name));
+		console.log(neighbours?.map(f => f.name));
 
 		// THEN
-		expect(files).toHaveLength(1)
-		expect(files).toContain(dir[0]);
+		expect(neighbours).toHaveLength(1)
+		expect(neighbours).toContain(files[0]);
 	});
 });
