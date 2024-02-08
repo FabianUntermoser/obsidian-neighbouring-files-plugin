@@ -36,8 +36,6 @@ describe('NeighbouringFileNavigator', () => {
 		// WHEN
 		const neighbours = NeighbouringFileNavigator.getNeighbouringFiles(files[0] as TFile)
 
-		console.log(neighbours?.map(f => f.name));
-
 		// THEN
 		expect(neighbours).toHaveLength(3)
 		files.forEach(child => expect(neighbours).toContain(child));
@@ -53,8 +51,6 @@ describe('NeighbouringFileNavigator', () => {
 
 		// WHEN
 		const neighbours = NeighbouringFileNavigator.getNeighbouringFiles(files[0] as TFile)
-
-		console.log(neighbours?.map(f => f.name));
 
 		// THEN
 		expect(neighbours).toHaveLength(2)
@@ -72,10 +68,27 @@ describe('NeighbouringFileNavigator', () => {
 		// WHEN
 		const neighbours = NeighbouringFileNavigator.getNeighbouringFiles(files[0] as TFile)
 
-		console.log(neighbours?.map(f => f.name));
-
 		// THEN
 		expect(neighbours).toHaveLength(1)
 		expect(neighbours).toContain(files[0]);
+	});
+
+	it('should sort files', () => {
+		// GIVEN
+		const files = setup([
+			createFile("2"),
+			createFile("1"),
+			createFile("3"),
+		]);
+
+		// WHEN
+		const neighbours = NeighbouringFileNavigator.getNeighbouringFiles(files[0] as TFile)
+
+		// THEN
+		console.log(neighbours?.map(f => f.name));
+		expect(neighbours).toHaveLength(3)
+		expect(neighbours?.at(0)?.name).toBe("1.md");
+		expect(neighbours?.at(1)?.name).toBe("2.md");
+		expect(neighbours?.at(2)?.name).toBe("3.md");
 	});
 });
