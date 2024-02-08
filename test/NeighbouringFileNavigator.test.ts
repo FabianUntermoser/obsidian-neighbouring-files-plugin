@@ -85,10 +85,23 @@ describe('NeighbouringFileNavigator', () => {
 		const neighbours = NeighbouringFileNavigator.getNeighbouringFiles(files[0] as TFile)
 
 		// THEN
-		console.log(neighbours?.map(f => f.name));
-		expect(neighbours).toHaveLength(3)
-		expect(neighbours?.at(0)?.name).toBe("1.md");
-		expect(neighbours?.at(1)?.name).toBe("2.md");
-		expect(neighbours?.at(2)?.name).toBe("3.md");
+		expect(neighbours?.map(n => n.name)).toEqual(["1.md", "2.md", "3.md"])
+	});
+
+	it('should sort files and ignore case', () => {
+		// GIVEN
+		const files = setup([
+			createFile("test - 3"),
+			createFile("Test - 2"),
+			createFile("test - 1"),
+		]);
+
+		// WHEN
+		const neighbours = NeighbouringFileNavigator.getNeighbouringFiles(files[0] as TFile)
+
+		// THEN
+		expect(neighbours?.at(0)?.name).toBe("test - 1.md");
+		expect(neighbours?.at(1)?.name).toBe("Test - 2.md");
+		expect(neighbours?.at(2)?.name).toBe("test - 3.md");
 	});
 });
