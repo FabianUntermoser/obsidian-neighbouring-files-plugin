@@ -23,15 +23,21 @@ const setup = (children: Array<TAbstractFile>) => {
 	return children;
 };
 
+const setupFiles = (names: Array<string>) => {
+	const children = names.map(c => createFile(c));
+	return setup(children);
+};
+
+const expectNeighbours = (files : Array<TFile> ) => {
+	const names = files?.map(n => n.basename)
+	return expect(names)
+}
+
 describe('NeighbouringFileNavigator', () => {
 
 	it('should contain all files', () => {
 		// GIVEN
-		const files = setup([
-			createFile("1"),
-			createFile("2"),
-			createFile("3"),
-		]);
+		const files = setupFiles(["1", "2", "3"]);
 
 		// WHEN
 		const neighbours = NeighbouringFileNavigator.getNeighbouringFiles(files[0] as TFile)
@@ -75,55 +81,53 @@ describe('NeighbouringFileNavigator', () => {
 
 	it('should sort files', () => {
 		// GIVEN
-		const files = setup([
-			createFile("2"),
-			createFile("1"),
-			createFile("3"),
-		]);
+		const files = setupFiles(["2", "1", "3"]);
 
 		// WHEN
 		const neighbours = NeighbouringFileNavigator.getNeighbouringFiles(files[0] as TFile)
 
 		// THEN
-		expect(neighbours?.map(n => n.name)).toEqual(["1.md", "2.md", "3.md"])
+		expectNeighbours(neighbours).toEqual(["1", "2", "3"])
 	});
 
 	it('should sort ignoring case', () => {
 		// GIVEN
-		const files = setup([
-			createFile("test - 3"),
-			createFile("Test - 2"),
-			createFile("test - 1"),
-		]);
+		const files = setupFiles(["test - 3", "Test - 2", "test - 1"]);
 
 		// WHEN
 		const neighbours = NeighbouringFileNavigator.getNeighbouringFiles(files[0] as TFile)
 
 		// THEN
-		expect(neighbours?.at(0)?.name).toBe("test - 1.md");
-		expect(neighbours?.at(1)?.name).toBe("Test - 2.md");
-		expect(neighbours?.at(2)?.name).toBe("test - 3.md");
+		expectNeighbours(neighbours).toEqual(["test - 1", "Test - 2", "test - 3"]);
 	});
 
 	it('should sort johny decimal', () => {
 		// GIVEN
-		const files = setup([
-			createFile("2"),
-			createFile("2.1"),
-			createFile("2.2"),
-			createFile("2.9"),
-			createFile("2.10"),
+		const files = setupFiles([
+			"2.2",
+			"1",
+			"2.9",
+			"2.1",
+			"2",
+			"3",
+			"2.11",
+			"2.10",
 		]);
 
 		// WHEN
-		const neighbours = NeighbouringFileNavigator.getNeighbouringFiles(files[0] as TFile)
+		const neighbours = NeighbouringFileNavigator.getNeighbouringFiles(files[0] as TFile);
 
 		// THEN
-		expect(neighbours?.at(0)?.name).toBe("2.md");
-		expect(neighbours?.at(1)?.name).toBe("2.1.md");
-		expect(neighbours?.at(2)?.name).toBe("2.2.md");
-		expect(neighbours?.at(3)?.name).toBe("2.9.md");
-		expect(neighbours?.at(4)?.name).toBe("2.10.md");
+		expectNeighbours(neighbours).toEqual([
+			"1",
+			"2",
+			"2.1",
+			"2.2",
+			"2.9",
+			"2.10",
+			"2.11",
+			"3"
+		]);
 	});
 
 });
