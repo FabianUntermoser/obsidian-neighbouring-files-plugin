@@ -12,7 +12,10 @@ Files are sorted based on their file name.
 
 - Navigate to the next weekly from `2023-W17` to `2023-W18`
 - Navigate to the next daily from `2023-04-31` to `2023-05-01`
-- Navigate to the next file from `CS4` to `CS5`
+- Navigate to the next file from `A4` to `A5`
+
+[obsidian-neighbouring-files.webm](https://github.com/user-attachments/assets/cdc04e2b-e3d9-4d77-8b2c-cbfa4ef4436d)
+
 
 ## How I use this
 
