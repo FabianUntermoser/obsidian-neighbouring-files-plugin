@@ -26,8 +26,8 @@ Here's my configuration from my `.obsidian.vimrc`.
 " navigation to neighbouring files
 exmap next_file obcommand neighbouring-files:next
 exmap prev_file obcommand neighbouring-files:prev
-nmap gn :next_file
-nmap gp :prev_file
+nmap gn :next_file<cr>
+nmap gp :prev_file<cr>
 ```
 
 This enables me to navigate to neighbouring files quickly.
