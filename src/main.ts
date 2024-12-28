@@ -1,4 +1,4 @@
-import NeighbouringFileNavigator from "NeighbouringFileNavigator";
+import { NeighbouringFileNavigator } from "NeighbouringFileNavigator";
 import { Plugin } from "obsidian";
 
 export default class NeighbouringFileNavigatorPlugin extends Plugin {

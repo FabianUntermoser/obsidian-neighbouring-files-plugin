@@ -1,5 +1,7 @@
-import NeighbouringFileNavigator from "NeighbouringFileNavigator";
+import { NeighbouringFileNavigator, SortFn } from "NeighbouringFileNavigator";
 import { FileStats, TAbstractFile, TFile, TFolder } from "obsidian";
+
+const createNote = (name: string, stats?: FileStats): TFile => createFile(name, "md", stats);
 
 const createFile = (name: string, extension: string, stats?: FileStats): TFile => {
 	const f = new TFile();
@@ -8,10 +10,6 @@ const createFile = (name: string, extension: string, stats?: FileStats): TFile =
 	f.name = `${name}.${extension}`;
 	f.stat = stats ? stats : { ctime: 1, mtime: 1, size: 1, };
 	return f;
-};
-
-const createNote = (name: string, stats?: FileStats): TFile => {
-	return createFile(name, "md", stats)
 };
 
 const createDir = (name: string): TFolder => {
@@ -33,9 +31,14 @@ const setupFiles = (names: Array<string>) => {
 	return setup(children);
 };
 
-const expectNeighbours = (files : Array<TFile> ) => {
+const expectNeighbours = (files: Array<TFile> ) => {
 	const names = files?.map(n => n.basename)
 	return expect(names)
+}
+
+const getNeighbouringFiles = (file: TFile | TAbstractFile, sortFn: SortFn = NeighbouringFileNavigator.localeSorter): Array<TFile> => {
+	const neighbours = NeighbouringFileNavigator.getNeighbouringFiles(file as TFile, sortFn)
+	return neighbours;
 }
 
 describe('NeighbouringFileNavigator', () => {
@@ -45,7 +48,7 @@ describe('NeighbouringFileNavigator', () => {
 		const files = setupFiles(["1", "2", "3"]);
 
 		// WHEN
-		const neighbours = NeighbouringFileNavigator.getNeighbouringFiles(files[0] as TFile)
+		const neighbours = getNeighbouringFiles(files[0])
 
 		// THEN
 		expect(neighbours).toHaveLength(3)
@@ -61,7 +64,7 @@ describe('NeighbouringFileNavigator', () => {
 		]);
 
 		// WHEN
-		const neighbours = NeighbouringFileNavigator.getNeighbouringFiles(files[0] as TFile)
+		const neighbours = getNeighbouringFiles(files[0])
 
 		// THEN
 		expect(neighbours).toHaveLength(2)
@@ -77,7 +80,7 @@ describe('NeighbouringFileNavigator', () => {
 		]);
 
 		// WHEN
-		const neighbours = NeighbouringFileNavigator.getNeighbouringFiles(files[0] as TFile)
+		const neighbours = getNeighbouringFiles(files[0])
 
 		// THEN
 		expect(neighbours).toHaveLength(1)
@@ -89,7 +92,7 @@ describe('NeighbouringFileNavigator', () => {
 		const files = setupFiles(["2", "1", "3"]);
 
 		// WHEN
-		const neighbours = NeighbouringFileNavigator.getNeighbouringFiles(files[0] as TFile)
+		const neighbours = getNeighbouringFiles(files[0])
 
 		// THEN
 		expectNeighbours(neighbours).toEqual(["1", "2", "3"])
@@ -100,7 +103,7 @@ describe('NeighbouringFileNavigator', () => {
 		const files = setupFiles(["test - 3", "Test - 2", "test - 1"]);
 
 		// WHEN
-		const neighbours = NeighbouringFileNavigator.getNeighbouringFiles(files[0] as TFile)
+		const neighbours = getNeighbouringFiles(files[0])
 
 		// THEN
 		expectNeighbours(neighbours).toEqual(["test - 1", "Test - 2", "test - 3"]);
@@ -120,7 +123,7 @@ describe('NeighbouringFileNavigator', () => {
 		]);
 
 		// WHEN
-		const neighbours = NeighbouringFileNavigator.getNeighbouringFiles(files[0] as TFile);
+		const neighbours = getNeighbouringFiles(files[0])
 
 		// THEN
 		expectNeighbours(neighbours).toEqual([
@@ -156,7 +159,7 @@ describe('NeighbouringFileNavigator', () => {
 		]);
 
 		// WHEN
-		const neighbours = NeighbouringFileNavigator.getNeighbouringCreatedFiles(files[0] as TFile)
+		const neighbours = getNeighbouringFiles(files[0], NeighbouringFileNavigator.ctimeSorter)
 
 		// THEN
 		expectNeighbours(neighbours).toEqual([ "1", "2", "3" ]);
@@ -183,7 +186,7 @@ describe('NeighbouringFileNavigator', () => {
 		]);
 
 		// WHEN
-		const neighbours = NeighbouringFileNavigator.getNeighbouringModifiedFiles(files[0] as TFile)
+		const neighbours = getNeighbouringFiles(files[0], NeighbouringFileNavigator.mtimeSorter)
 
 		// THEN
 		expectNeighbours(neighbours).toEqual([ "1", "2", "3" ]);
