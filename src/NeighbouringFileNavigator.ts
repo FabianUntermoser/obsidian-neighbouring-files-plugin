@@ -3,10 +3,12 @@ import { TFile, Workspace } from "obsidian";
 export default class NeighbouringFileNavigator {
 
 	public static navigateToNextFile(workspace: Workspace) {
+		console.debug("navigateToNextFile");
 		this.navigateToNeighbouringFile(workspace, true);
 	}
 
 	public static navigateToPrevFile(workspace: Workspace) {
+		console.debug("navigateToPrevFile");
 		this.navigateToNeighbouringFile(workspace, false);
 	}
 
