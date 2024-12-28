@@ -8,7 +8,7 @@ build:
 	npm run build
 
 install: build
-	-mkdir $(VAULT)/.obsidian/plugins/neighbouring-files/
+	-mkdir -p $(VAULT)/.obsidian/plugins/neighbouring-files/
 	-cp -rf $(FILES) $(VAULT)/.obsidian/plugins/neighbouring-files/
 
 dev:
