@@ -12,6 +12,28 @@ export default class NeighbouringFileNavigator {
 		this.navigateToNeighbouringFile(workspace, false);
 	}
 
+	public static navigateToNextModifiedFile(workspace: Workspace) {
+		console.debug("navigateToNextModifiedFile");
+		// NOT IMPLEMENTED
+		this.navigateToNeighbouringFile(workspace, false);
+	}
+
+	public static navigateToPrevModifiedFile(workspace: Workspace) {
+		console.debug("navigateToPrevModifiedFile");
+		// NOT IMPLEMENTED
+	}
+
+	public static navigateToNextCreatedFile(workspace: Workspace) {
+		console.debug("navigateToNextCreatedFile");
+		// NOT IMPLEMENTED
+	}
+
+	public static navigateToPrevCreatedFile(workspace: Workspace) {
+		console.debug("navigateToPrevCreatedFile");
+		// NOT IMPLEMENTED
+	}
+
+
 	public static navigateToNeighbouringFile(workspace: Workspace, next?: boolean) {
 		const activeFile = workspace.getActiveFile();
 		if (!activeFile) return;
