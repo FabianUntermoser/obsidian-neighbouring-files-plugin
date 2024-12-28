@@ -7,13 +7,13 @@ export default class NeighbouringFileNavigatorPlugin extends Plugin {
 		this.addCommand({
 			id: "next",
 			name: "Navigate to next file",
-			callback: () => NeighbouringFileNavigator.navigateToNeighbouringFile(this.app.workspace, true),
+			callback: () => NeighbouringFileNavigator.navigateToNextFile(this.app.workspace),
 		});
 
 		this.addCommand({
 			id: "prev",
 			name: "Navigate to previous file",
-			callback: () => NeighbouringFileNavigator.navigateToNeighbouringFile(this.app.workspace, false),
+			callback: () => NeighbouringFileNavigator.navigateToPrevFile(this.app.workspace),
 		});
 	}
 

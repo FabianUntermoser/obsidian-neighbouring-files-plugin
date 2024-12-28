@@ -2,6 +2,14 @@ import { TFile, Workspace } from "obsidian";
 
 export default class NeighbouringFileNavigator {
 
+	public static navigateToNextFile(workspace: Workspace) {
+		this.navigateToNeighbouringFile(workspace, true);
+	}
+
+	public static navigateToPrevFile(workspace: Workspace) {
+		this.navigateToNeighbouringFile(workspace, false);
+	}
+
 	public static navigateToNeighbouringFile(workspace: Workspace, next?: boolean) {
 		const activeFile = workspace.getActiveFile();
 		if (!activeFile) return;
