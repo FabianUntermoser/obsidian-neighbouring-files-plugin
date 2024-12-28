@@ -1,12 +1,17 @@
 import NeighbouringFileNavigator from "NeighbouringFileNavigator";
-import { TAbstractFile, TFile, TFolder } from "obsidian";
+import { FileStats, TAbstractFile, TFile, TFolder } from "obsidian";
 
-const createFile = (name: string, extension: string = "md"): TFile => {
+const createFile = (name: string, extension: string, stats?: FileStats): TFile => {
 	const f = new TFile();
 	f.basename = name;
 	f.extension = extension;
 	f.name = `${name}.${extension}`;
+	f.stat = stats ? stats : { ctime: 1, mtime: 1, size: 1, };
 	return f;
+};
+
+const createNote = (name: string, stats?: FileStats): TFile => {
+	return createFile(name, "md", stats)
 };
 
 const createDir = (name: string): TFolder => {
@@ -24,7 +29,7 @@ const setup = (children: Array<TAbstractFile>) => {
 };
 
 const setupFiles = (names: Array<string>) => {
-	const children = names.map(c => createFile(c));
+	const children = names.map(c => createNote(c));
 	return setup(children);
 };
 
@@ -50,8 +55,8 @@ describe('NeighbouringFileNavigator', () => {
 	it('should only filter for markdown files', () => {
 		// GIVEN
 		const files = setup([
-			createFile("1"),
-			createFile("2"),
+			createNote("1"),
+			createNote("2"),
 			createFile("3", "pdf"),
 		]);
 
@@ -67,7 +72,7 @@ describe('NeighbouringFileNavigator', () => {
 	it('should filter out directories', () => {
 		// GIVEN
 		const files = setup([
-			createFile("1"),
+			createNote("1"),
 			createDir("somedir")
 		]);
 
