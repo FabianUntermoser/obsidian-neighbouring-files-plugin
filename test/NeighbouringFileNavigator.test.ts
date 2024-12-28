@@ -135,4 +135,38 @@ describe('NeighbouringFileNavigator', () => {
 		]);
 	});
 
+	it('should sort modified files', () => {
+
+		const fileStats1: FileStats = {
+			ctime: 1672502400000, // 2023-01-01T00:00:00.000Z
+			mtime: 1675180800000, // 2023-02-01T00:00:00.000Z
+			size: 5242880,        // 5 MB
+		};
+
+		const fileStats2: FileStats = {
+			ctime: 1689876543210, // 2023-07-20T01:22:23.210Z
+			mtime: 1692456789100, // 2023-08-19T11:13:09.100Z
+			size: 102400,         // 100 KB
+		};
+
+		const fileStats3: FileStats = {
+			ctime: 1700989701724, // 2023-11-26T04:01:41.724Z
+			mtime: 1704025483489, // 2023-12-31T12:24:43.489Z
+			size: 4380,           // 4.38 KB
+		};
+
+		const f1 :TFile = createNote("1", fileStats1);
+		const f2 :TFile = createNote("2", fileStats2);
+		const f3 :TFile = createNote("3", fileStats3);
+
+		// GIVEN
+		const files = setup([f3,f2,f1]);
+
+		// WHEN
+		const neighbours = NeighbouringFileNavigator.getNeighbouringModifiedFiles(files[0] as TFile)
+
+		// THEN
+		expectNeighbours(neighbours).toEqual([ "1", "2", "3" ]);
+	});
+
 });
