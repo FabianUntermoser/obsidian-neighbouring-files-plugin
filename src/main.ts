@@ -22,40 +22,40 @@ export default class NeighbouringFileNavigatorPlugin extends Plugin {
 		});
 		this.addCommand({
 			id: "prev",
-			name: "Navigate to previous file",
+			name: "Navigate to prev file",
 			callback: () => NeighbouringFileNavigator.navigateToPrevFile(this.app.workspace, this.settings),
 		});
 
 		this.addCommand({
 			id: "next-alphabetical",
-			name: "Navigate to next alphabetical file",
+			name: "Navigate to next file (alphabetical)",
 			callback: () => NeighbouringFileNavigator.navigateToNextAlphabeticalFile(this.app.workspace),
 		});
 		this.addCommand({
 			id: "prev-alphabetical",
-			name: "Navigate to previous alphabetical file",
+			name: "Navigate to prev file (alphabetical)",
 			callback: () => NeighbouringFileNavigator.navigateToPrevAlphabeticalFile(this.app.workspace),
 		});
 
 		this.addCommand({
 			id: "next-created",
-			name: "Navigate to next created file",
+			name: "Navigate to next file (creation timestamp)",
 			callback: () => NeighbouringFileNavigator.navigateToNextCreatedFile(this.app.workspace),
 		});
 		this.addCommand({
 			id: "prev-created",
-			name: "Navigate to previous created file",
+			name: "Navigate to prev file (creation timestamp)",
 			callback: () => NeighbouringFileNavigator.navigateToPrevCreatedFile(this.app.workspace),
 		});
 
 		this.addCommand({
 			id: "next-modified",
-			name: "Navigate to next modified file",
+			name: "Navigate to next file (modification timestamp)",
 			callback: () => NeighbouringFileNavigator.navigateToNextModifiedFile(this.app.workspace),
 		});
 		this.addCommand({
 			id: "prev-modified",
-			name: "Navigate to previous modified file",
+			name: "Navigate to prev file (modification timestamp)",
 			callback: () => NeighbouringFileNavigator.navigateToPrevModifiedFile(this.app.workspace),
 		});
 	}
