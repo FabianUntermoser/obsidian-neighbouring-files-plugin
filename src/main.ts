@@ -1,9 +1,20 @@
 import { NeighbouringFileNavigator } from "NeighbouringFileNavigator";
+import NeighbouringFileNavigatorPluginSettings from "NeighbouringFileNavigatorPluginSettings";
+import NeighbouringFileNavigatorPluginSettingTab from "NeighbouringFileNavigatorPluginSettingTab";
 import { Plugin } from "obsidian";
+
+const DEFAULT_SETTINGS: Partial<NeighbouringFileNavigatorPluginSettings> = {
+	defaultSortOrder: 'alphabetical',
+};
 
 export default class NeighbouringFileNavigatorPlugin extends Plugin {
 
+	settings: NeighbouringFileNavigatorPluginSettings;
+
 	async onload() {
+		await this.loadSettings();
+		this.addSettingTab(new NeighbouringFileNavigatorPluginSettingTab(this.app, this));
+
 		this.addCommand({
 			id: "next",
 			name: "Navigate to next file",
@@ -39,4 +50,12 @@ export default class NeighbouringFileNavigatorPlugin extends Plugin {
 	}
 
 	onunload() { }
+
+	async loadSettings() {
+		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+	}
+
+	async saveSettings() {
+		await this.saveData(this.settings);
+	}
 }
