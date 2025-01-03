@@ -18,12 +18,23 @@ export default class NeighbouringFileNavigatorPlugin extends Plugin {
 		this.addCommand({
 			id: "next",
 			name: "Navigate to next file",
-			callback: () => NeighbouringFileNavigator.navigateToNextFile(this.app.workspace),
+			callback: () => NeighbouringFileNavigator.navigateToNextFile(this.app.workspace, this.settings),
 		});
 		this.addCommand({
 			id: "prev",
 			name: "Navigate to previous file",
-			callback: () => NeighbouringFileNavigator.navigateToPrevFile(this.app.workspace),
+			callback: () => NeighbouringFileNavigator.navigateToPrevFile(this.app.workspace, this.settings),
+		});
+
+		this.addCommand({
+			id: "next-alphabetical",
+			name: "Navigate to next alphabetical file",
+			callback: () => NeighbouringFileNavigator.navigateToNextAlphabeticalFile(this.app.workspace),
+		});
+		this.addCommand({
+			id: "prev-alphabetical",
+			name: "Navigate to previous alphabetical file",
+			callback: () => NeighbouringFileNavigator.navigateToPrevAlphabeticalFile(this.app.workspace),
 		});
 
 		this.addCommand({

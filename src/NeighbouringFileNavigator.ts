@@ -1,3 +1,4 @@
+import NeighbouringFileNavigatorPluginSettings, { SORT_ORDER } from "NeighbouringFileNavigatorPluginSettings";
 import { TFile, Workspace } from "obsidian";
 
 export type SortFn = (a: TFile, b: TFile) => number;
@@ -15,13 +16,31 @@ export class NeighbouringFileNavigator {
 
 	public static ctimeSorter: SortFn = (a: TFile, b: TFile) => { return a.stat.ctime - b.stat.ctime; };
 
-	public static navigateToNextFile(workspace: Workspace) {
-		console.debug("navigateToNextFile");
+	static sorters: Record<SORT_ORDER, SortFn> = {
+		alphabetical: this.localeSorter,
+		byCreatedTime: this.ctimeSorter,
+		byModifiedTime: this.mtimeSorter,
+	};
+
+	public static navigateToNextFile(workspace: Workspace, settings: NeighbouringFileNavigatorPluginSettings) {
+		console.debug("navigateToNextFile with sort mode", settings.defaultSortOrder);
+		const sortFn = this.sorters[settings.defaultSortOrder];
+		this.navigateToNeighbouringFile(workspace, sortFn, true);
+	}
+
+	public static navigateToPrevFile(workspace: Workspace, settings: NeighbouringFileNavigatorPluginSettings) {
+		console.debug("navigateToPrevFile with sort mode", settings.defaultSortOrder);
+		const sortFn = this.sorters[settings.defaultSortOrder];
+		this.navigateToNeighbouringFile(workspace, sortFn, false);
+	}
+
+	public static navigateToNextAlphabeticalFile(workspace: Workspace) {
+		console.debug("navigateToNextAlphabeticalFile");
 		this.navigateToNeighbouringFile(workspace, this.localeSorter, true);
 	}
 
-	public static navigateToPrevFile(workspace: Workspace) {
-		console.debug("navigateToPrevFile");
+	public static navigateToPrevAlphabeticalFile(workspace: Workspace) {
+		console.debug("navigateToPrevAlphabeticalFile");
 		this.navigateToNeighbouringFile(workspace, this.localeSorter, false);
 	}
 
