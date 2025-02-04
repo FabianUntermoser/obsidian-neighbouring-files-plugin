@@ -37,27 +37,33 @@ export default class NeighbouringFileNavigatorPlugin extends Plugin {
 			callback: () => NeighbouringFileNavigator.navigateToPrevAlphabeticalFile(this.app.workspace),
 		});
 
-		this.addCommand({
-			id: "older-created",
+		const olderCreatedCommand = {
 			name: "Navigate to older file (creation timestamp)",
 			callback: () => NeighbouringFileNavigator.navigateToOlderCreatedFile(this.app.workspace),
-		});
-		this.addCommand({
-			id: "newer-created",
+		};
+		this.addCommand({ ...olderCreatedCommand, id: "older-created" });
+		this.addCommand({ ...olderCreatedCommand, id: "prev-created" });
+
+		const newerCreatedCommand = {
 			name: "Navigate to newer file (creation timestamp)",
 			callback: () => NeighbouringFileNavigator.navigateToNewerCreatedFile(this.app.workspace),
-		});
+		};
+		this.addCommand({ ...newerCreatedCommand, id: "next-created" });
+		this.addCommand({ ...newerCreatedCommand, id: "newer-created" });
 
-		this.addCommand({
-			id: "older-modified",
+		const olderModifiedCommand = {
 			name: "Navigate to older file (modification timestamp)",
 			callback: () => NeighbouringFileNavigator.navigateToOlderModifiedFile(this.app.workspace),
-		});
-		this.addCommand({
-			id: "newer-modified",
+		};
+		this.addCommand({ ...olderModifiedCommand, id: "older-modified" });
+		this.addCommand({ ...olderModifiedCommand, id: "prev-modified" });
+
+		const newerModifiedCommand = {
 			name: "Navigate to newer file (modification timestamp)",
 			callback: () => NeighbouringFileNavigator.navigateToNewerModifiedFile(this.app.workspace),
-		});
+		};
+		this.addCommand({ ...newerModifiedCommand, id: "next-modified" });
+		this.addCommand({ ...newerModifiedCommand, id: "newer-modified" });
 	}
 
 	onunload() { }
