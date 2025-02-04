@@ -38,25 +38,25 @@ export default class NeighbouringFileNavigatorPlugin extends Plugin {
 		});
 
 		this.addCommand({
-			id: "next-created",
-			name: "Navigate to next file (creation timestamp)",
-			callback: () => NeighbouringFileNavigator.navigateToNextCreatedFile(this.app.workspace),
+			id: "older-created",
+			name: "Navigate to older file (creation timestamp)",
+			callback: () => NeighbouringFileNavigator.navigateToOlderCreatedFile(this.app.workspace),
 		});
 		this.addCommand({
-			id: "prev-created",
-			name: "Navigate to prev file (creation timestamp)",
-			callback: () => NeighbouringFileNavigator.navigateToPrevCreatedFile(this.app.workspace),
+			id: "newer-created",
+			name: "Navigate to newer file (creation timestamp)",
+			callback: () => NeighbouringFileNavigator.navigateToNewerCreatedFile(this.app.workspace),
 		});
 
 		this.addCommand({
-			id: "next-modified",
-			name: "Navigate to next file (modification timestamp)",
-			callback: () => NeighbouringFileNavigator.navigateToNextModifiedFile(this.app.workspace),
+			id: "older-modified",
+			name: "Navigate to older file (modification timestamp)",
+			callback: () => NeighbouringFileNavigator.navigateToOlderModifiedFile(this.app.workspace),
 		});
 		this.addCommand({
-			id: "prev-modified",
-			name: "Navigate to prev file (modification timestamp)",
-			callback: () => NeighbouringFileNavigator.navigateToPrevModifiedFile(this.app.workspace),
+			id: "newer-modified",
+			name: "Navigate to newer file (modification timestamp)",
+			callback: () => NeighbouringFileNavigator.navigateToNewerModifiedFile(this.app.workspace),
 		});
 	}
 
