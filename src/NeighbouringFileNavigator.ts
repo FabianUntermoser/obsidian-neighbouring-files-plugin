@@ -58,23 +58,23 @@ export class NeighbouringFileNavigator {
 		this.navigateToNeighbouringFile(workspace, this.sorters.alphabeticalReverse);
 	}
 
-	public static navigateToNextCreatedFile(workspace: Workspace) {
-		console.debug("navigateToNextCreatedFile");
+	public static navigateToOlderCreatedFile(workspace: Workspace) {
+		console.debug("navigateToOlderCreatedFile");
 		this.navigateToNeighbouringFile(workspace, this.sorters.byCreatedTime);
 	}
 
-	public static navigateToPrevCreatedFile(workspace: Workspace) {
-		console.debug("navigateToPrevCreatedFile");
+	public static navigateToNewerCreatedFile(workspace: Workspace) {
+		console.debug("navigateToNewerCreatedFile");
 		this.navigateToNeighbouringFile(workspace, this.sorters.byCreatedTimeReverse);
 	}
 
-	public static navigateToNextModifiedFile(workspace: Workspace) {
-		console.debug("navigateToNextModifiedFile");
+	public static navigateToOlderModifiedFile(workspace: Workspace) {
+		console.debug("navigateToOlderModifiedFile");
 		this.navigateToNeighbouringFile(workspace, this.sorters.byModifiedTime);
 	}
 
-	public static navigateToPrevModifiedFile(workspace: Workspace) {
-		console.debug("navigateToPrevModifiedFile");
+	public static navigateToNewerModifiedFile(workspace: Workspace) {
+		console.debug("navigateToNewerModifiedFile");
 		this.navigateToNeighbouringFile(workspace, this.sorters.byModifiedTimeReverse);
 	}
 

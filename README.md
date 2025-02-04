@@ -22,10 +22,10 @@ Default Commands:
 Commands:
 - Navigate to next file (alphabetical)
 - Navigate to prev file (alphabetical)
-- Navigate to next file (creation timestamp)
-- Navigate to prev file (creation timestamp)
-- Navigate to next file (modified timestamp)
-- Navigate to prev file (modified timestamp)
+- Navigate to older file (creation timestamp)
+- Navigate to newer file (creation timestamp)
+- Navigate to older file (modified timestamp)
+- Navigate to newer file (modified timestamp)
 
 Supported Sorting Modes:
 - Alphabetical: Ordered by file names.
@@ -42,15 +42,16 @@ Or use the [obsidian-vimrc-support](https://github.com/esm7/obsidian-vimrc-suppo
 Example `.obsidian.vimrc`.
 
 ```vimrc
-" navigation to neighbouring files
-exmap next_file obcommand neighbouring-files:next
-exmap prev_file obcommand neighbouring-files:prev
+" define navigation commands
+exmap next_file				 obcommand neighbouring-files:next
+exmap prev_file				 obcommand neighbouring-files:prev
 exmap next_file_alphabetical obcommand neighbouring-files:next-alphabetical
 exmap prev_file_alphabetical obcommand neighbouring-files:prev-alphabetical
-exmap next_file_created obcommand neighbouring-files:next-created
-exmap prev_file_created obcommand neighbouring-files:prev-created
-exmap next_file_modified obcommand neighbouring-files:next-modified
-exmap prev_file_modified obcommand neighbouring-files:prev-modified
+exmap older_file_created	 obcommand neighbouring-files:older-created
+exmap newer_file_created	 obcommand neighbouring-files:newer-created
+exmap older_file_modified	 obcommand neighbouring-files:older-modified
+exmap newer_file_modified	 obcommand neighbouring-files:newer-modified
+" add navigation mappings
 nmap gn :next_file<cr>
 nmap gp :prev_file<cr>
 ```
