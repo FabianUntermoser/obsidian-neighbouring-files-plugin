@@ -24,9 +24,7 @@ export default class NeighbouringFileNavigatorPluginSettingTab extends PluginSet
 				dropdown.addOption("byModifiedTime", "Modification Timestamp");
 				dropdown.setValue(this.plugin.settings.defaultSortOrder)
 				dropdown.onChange(async (value: SORT_ORDER) =>	{
-					console.log("sort order", this.plugin.settings.defaultSortOrder);
 					this.plugin.settings.defaultSortOrder = value;
-					console.log("setting sort order", value);
 					await this.plugin.saveSettings();
 				});
 			});
