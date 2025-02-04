@@ -17,16 +17,14 @@ export default class NeighbouringFileNavigatorPluginSettingTab extends PluginSet
 
 		new Setting(containerEl)
 			.setName('Default Sort Order')
-			.setDesc('Sort Order used for the default command')
+			.setDesc('Fallback sort order used for the default command')
 			.addDropdown((dropdown) => {
 				dropdown.addOption("alphabetical", "Alphabetical");
 				dropdown.addOption("byCreatedTime", "Creation Timestamp");
 				dropdown.addOption("byModifiedTime", "Modification Timestamp");
 				dropdown.setValue(this.plugin.settings.defaultSortOrder)
 				dropdown.onChange(async (value: SORT_ORDER) =>	{
-					console.log("sort order", this.plugin.settings.defaultSortOrder);
 					this.plugin.settings.defaultSortOrder = value;
-					console.log("setting sort order", value);
 					await this.plugin.saveSettings();
 				});
 			});
