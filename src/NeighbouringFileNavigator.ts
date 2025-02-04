@@ -29,17 +29,20 @@ export class NeighbouringFileNavigator {
 		byModifiedTimeReverse: this.reverse(this.mtimeSorter),
 	};
 
-	public static navigateToNextFile(workspace: Workspace, settings: NeighbouringFileNavigatorPluginSettings) {
-		const sortOrder = workspace.getLeavesOfType('file-explorer')?.first()?.getViewState()?.state?.sortOrder as SORT_ORDER
+	private static getFileExplorerSortOrder(workspace: Workspace, settings: NeighbouringFileNavigatorPluginSettings): SORT_ORDER {
+		return workspace.getLeavesOfType('file-explorer')?.first()?.getViewState()?.state?.sortOrder as SORT_ORDER
 			?? settings.defaultSortOrder;
+	}
+
+	public static navigateToNextFile(workspace: Workspace, settings: NeighbouringFileNavigatorPluginSettings) {
+		const sortOrder = this.getFileExplorerSortOrder(workspace, settings);
 		console.debug("navigateToNextFile with sort mode", sortOrder);
 		const sortFn = this.sorters[sortOrder];
 		this.navigateToNeighbouringFile(workspace, sortFn);
 	}
 
 	public static navigateToPrevFile(workspace: Workspace, settings: NeighbouringFileNavigatorPluginSettings) {
-		const sortOrder = workspace.getLeavesOfType('file-explorer')?.first()?.getViewState()?.state?.sortOrder as SORT_ORDER
-			?? settings.defaultSortOrder;
+		const sortOrder = this.getFileExplorerSortOrder(workspace, settings);
 		console.debug("navigateToPrevFile with sort mode", sortOrder);
 		const sortFn = this.sorters[sortOrder];
 		this.navigateToNeighbouringFile(workspace, this.reverse(sortFn));
