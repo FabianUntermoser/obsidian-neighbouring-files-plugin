@@ -10,15 +10,16 @@ This [Obsidian](https://obsidian.md/) Plugin adds navigational commands that let
 
 [obsidian-neighbouring-files.webm](https://github.com/user-attachments/assets/cdc04e2b-e3d9-4d77-8b2c-cbfa4ef4436d)
 
-### Features
+### Usage
 
-The sort order for the default command is configurable in the plugin settings.
+The default command uses the sort order from the [File explorer](https://help.obsidian.md/Plugins/File+explorer).
+A fallback sort order is configurable in the plugin settings.
 
 Default Commands:
 - Navigate to next file
 - Navigate to prev file
 
-Specific Commands:
+Commands:
 - Navigate to next file (alphabetical)
 - Navigate to prev file (alphabetical)
 - Navigate to next file (creation timestamp)
@@ -27,8 +28,8 @@ Specific Commands:
 - Navigate to prev file (modified timestamp)
 
 Supported Sorting Modes:
-- Alphabetical: Ordered by file names. (default)
-- By Modification Timestamp: Based on the last modified date.
+- Alphabetical: Ordered by file names.
+- By Modification Timestamp: Based on the file modification date.
 - By Creation Timestamp: Based on the file creation date.
 
 ## Configuration
