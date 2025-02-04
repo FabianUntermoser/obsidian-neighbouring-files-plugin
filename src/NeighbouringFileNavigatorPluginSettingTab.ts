@@ -17,7 +17,7 @@ export default class NeighbouringFileNavigatorPluginSettingTab extends PluginSet
 
 		new Setting(containerEl)
 			.setName('Default Sort Order')
-			.setDesc('Sort Order used for the default command')
+			.setDesc('Fallback sort order used for the default command')
 			.addDropdown((dropdown) => {
 				dropdown.addOption("alphabetical", "Alphabetical");
 				dropdown.addOption("byCreatedTime", "Creation Timestamp");
