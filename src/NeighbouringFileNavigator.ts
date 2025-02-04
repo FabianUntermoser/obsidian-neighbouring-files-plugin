@@ -36,14 +36,14 @@ export class NeighbouringFileNavigator {
 
 	public static navigateToNextFile(workspace: Workspace, settings: NeighbouringFileNavigatorPluginSettings) {
 		const sortOrder = this.getFileExplorerSortOrder(workspace, settings);
-		console.debug("navigateToNextFile with sort mode", sortOrder);
+		console.debug("navigateToNextFile with sortOrder", sortOrder);
 		const sortFn = this.sorters[sortOrder];
 		this.navigateToNeighbouringFile(workspace, sortFn);
 	}
 
 	public static navigateToPrevFile(workspace: Workspace, settings: NeighbouringFileNavigatorPluginSettings) {
 		const sortOrder = this.getFileExplorerSortOrder(workspace, settings);
-		console.debug("navigateToPrevFile with sort mode", sortOrder);
+		console.debug("navigateToPrevFile with sortOrder", sortOrder);
 		const sortFn = this.sorters[sortOrder];
 		this.navigateToNeighbouringFile(workspace, this.reverse(sortFn));
 	}
