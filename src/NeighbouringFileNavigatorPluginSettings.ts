@@ -8,4 +8,5 @@ export type SORT_ORDER =
 
 export default interface NeighbouringFileNavigatorPluginSettings {
 	defaultSortOrder: SORT_ORDER;
+	disableFolderLooping: boolean;
 }

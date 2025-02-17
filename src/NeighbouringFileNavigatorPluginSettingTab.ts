@@ -28,5 +28,16 @@ export default class NeighbouringFileNavigatorPluginSettingTab extends PluginSet
 					await this.plugin.saveSettings();
 				});
 			});
+
+		new Setting(containerEl)
+			.setName('Folder Cycling')
+			.setDesc('Disable navigation to first note cycling through a folder')
+			.addToggle((toggle) => {
+				toggle.setValue(this.plugin.settings.disableFolderLooping);
+				toggle.onChange(async (value) => {
+					this.plugin.settings.disableFolderLooping = value;
+					await this.plugin.saveSettings();
+				});
+			});
 	}
 }
