@@ -1,5 +1,6 @@
 import { NeighbouringFileNavigator, SortFn } from "NeighbouringFileNavigator";
 import { FileStats, TAbstractFile, TFile, TFolder } from "obsidian";
+import NeighbouringFileNavigatorPluginSettings from "NeighbouringFileNavigatorPluginSettings";
 
 const createNote = (name: string, stats?: FileStats): TFile => createFile(name, "md", stats);
 
@@ -36,8 +37,14 @@ const expectNeighbours = (files: Array<TFile> ) => {
 	return expect(names)
 }
 
-const getNeighbouringFiles = (file: TFile | TAbstractFile, sortFn: SortFn = NeighbouringFileNavigator.localeSorter): Array<TFile> => {
-	const neighbours = NeighbouringFileNavigator.getNeighbouringFiles(file as TFile, sortFn)
+const defaultSettings: NeighbouringFileNavigatorPluginSettings = {
+	defaultSortOrder: 'alphabetical',
+	includedFileTypes: 'markdownOnly',
+	additionalExtensions: ['md'],
+}
+
+const getNeighbouringFiles = (file: TFile | TAbstractFile, sortFn: SortFn = NeighbouringFileNavigator.localeSorter, settings: NeighbouringFileNavigatorPluginSettings = defaultSettings): Array<TFile> => {
+	const neighbours = NeighbouringFileNavigator.getNeighbouringFiles(file as TFile, sortFn, settings);
 	return neighbours;
 }
 
@@ -191,5 +198,49 @@ describe('NeighbouringFileNavigator', () => {
 		// THEN
 		expectNeighbours(neighbours).toEqual([ "1", "2", "3" ]);
 	});
+
+	it('should include specified extensions', () => {
+        // GIVEN
+        const settings: NeighbouringFileNavigatorPluginSettings = {
+            ...defaultSettings,
+            includedFileTypes: 'additionalExtensions',
+            additionalExtensions: ['pdf']
+        };
+        const files = setup([
+            createNote("1"),
+            createFile("2", "pdf"),
+            createFile("3", "txt"),
+        ]);
+
+        // WHEN
+        const neighbours = getNeighbouringFiles(files[0], NeighbouringFileNavigator.localeSorter, settings)
+
+        // THEN
+        expect(neighbours).toHaveLength(2)
+        expect(neighbours).toContain(files[0]);
+        expect(neighbours).toContain(files[1]);
+    });
+
+    it('should include all files', () => {
+        // GIVEN
+        const settings: NeighbouringFileNavigatorPluginSettings = {
+            ...defaultSettings,
+            includedFileTypes: 'allFiles'
+        };
+        const files = setup([
+            createNote("1"),
+            createFile("2", "pdf"),
+            createFile("3", "txt"),
+        ]);
+
+        // WHEN
+        const neighbours = getNeighbouringFiles(files[0], NeighbouringFileNavigator.localeSorter, settings)
+
+        // THEN
+        expect(neighbours).toHaveLength(3)
+        expect(neighbours).toContain(files[0]);
+        expect(neighbours).toContain(files[1]);
+        expect(neighbours).toContain(files[2]);
+    });
 
 });

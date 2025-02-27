@@ -38,51 +38,51 @@ export class NeighbouringFileNavigator {
 		const sortOrder = this.getFileExplorerSortOrder(workspace, settings);
 		console.debug("navigateToNextFile with sortOrder", sortOrder);
 		const sortFn = this.sorters[sortOrder];
-		this.navigateToNeighbouringFile(workspace, sortFn);
+		this.navigateToNeighbouringFile(workspace, sortFn, settings);
 	}
 
 	public static navigateToPrevFile(workspace: Workspace, settings: NeighbouringFileNavigatorPluginSettings) {
 		const sortOrder = this.getFileExplorerSortOrder(workspace, settings);
 		console.debug("navigateToPrevFile with sortOrder", sortOrder);
 		const sortFn = this.sorters[sortOrder];
-		this.navigateToNeighbouringFile(workspace, this.reverse(sortFn));
+		this.navigateToNeighbouringFile(workspace, this.reverse(sortFn), settings);
 	}
 
-	public static navigateToNextAlphabeticalFile(workspace: Workspace) {
+	public static navigateToNextAlphabeticalFile(workspace: Workspace, settings: NeighbouringFileNavigatorPluginSettings) {
 		console.debug("navigateToNextAlphabeticalFile");
-		this.navigateToNeighbouringFile(workspace, this.sorters.alphabetical);
+		this.navigateToNeighbouringFile(workspace, this.sorters.alphabetical, settings);
 	}
 
-	public static navigateToPrevAlphabeticalFile(workspace: Workspace) {
+	public static navigateToPrevAlphabeticalFile(workspace: Workspace, settings: NeighbouringFileNavigatorPluginSettings) {
 		console.debug("navigateToPrevAlphabeticalFile");
-		this.navigateToNeighbouringFile(workspace, this.sorters.alphabeticalReverse);
+		this.navigateToNeighbouringFile(workspace, this.sorters.alphabeticalReverse, settings);
 	}
 
-	public static navigateToOlderCreatedFile(workspace: Workspace) {
+	public static navigateToOlderCreatedFile(workspace: Workspace, settings: NeighbouringFileNavigatorPluginSettings) {
 		console.debug("navigateToOlderCreatedFile");
-		this.navigateToNeighbouringFile(workspace, this.sorters.byCreatedTime);
+		this.navigateToNeighbouringFile(workspace, this.sorters.byCreatedTime, settings);
 	}
 
-	public static navigateToNewerCreatedFile(workspace: Workspace) {
+	public static navigateToNewerCreatedFile(workspace: Workspace, settings: NeighbouringFileNavigatorPluginSettings) {
 		console.debug("navigateToNewerCreatedFile");
-		this.navigateToNeighbouringFile(workspace, this.sorters.byCreatedTimeReverse);
+		this.navigateToNeighbouringFile(workspace, this.sorters.byCreatedTimeReverse, settings);
 	}
 
-	public static navigateToOlderModifiedFile(workspace: Workspace) {
+	public static navigateToOlderModifiedFile(workspace: Workspace, settings: NeighbouringFileNavigatorPluginSettings) {
 		console.debug("navigateToOlderModifiedFile");
-		this.navigateToNeighbouringFile(workspace, this.sorters.byModifiedTime);
+		this.navigateToNeighbouringFile(workspace, this.sorters.byModifiedTime, settings);
 	}
 
-	public static navigateToNewerModifiedFile(workspace: Workspace) {
+	public static navigateToNewerModifiedFile(workspace: Workspace, settings: NeighbouringFileNavigatorPluginSettings) {
 		console.debug("navigateToNewerModifiedFile");
-		this.navigateToNeighbouringFile(workspace, this.sorters.byModifiedTimeReverse);
+		this.navigateToNeighbouringFile(workspace, this.sorters.byModifiedTimeReverse, settings);
 	}
 
-	public static navigateToNeighbouringFile(workspace: Workspace, sortFn: SortFn) {
+	public static navigateToNeighbouringFile(workspace: Workspace, sortFn: SortFn, settings: NeighbouringFileNavigatorPluginSettings) {
 		const activeFile = workspace.getActiveFile();
 		if (!activeFile) return;
 
-		const files = this.getNeighbouringFiles(activeFile, sortFn)
+		const files = this.getNeighbouringFiles(activeFile, sortFn, settings);
 		if (!files) return;
 
 		const currentItem = files.findIndex(
@@ -94,9 +94,19 @@ export class NeighbouringFileNavigator {
 		workspace.getLeaf(false).openFile(toFile as TFile);
 	}
 
-	public static getNeighbouringFiles(file: TFile, sortFn: SortFn) {
+	public static getNeighbouringFiles(file: TFile, sortFn: SortFn, settings: NeighbouringFileNavigatorPluginSettings) {
 		const files = file?.parent?.children;
-		const filteredFiles = files?.filter(f => f instanceof TFile && f.extension === 'md') as TFile[];
+		let filteredFiles: TFile[] = [];
+	
+		if (settings.includedFileTypes === 'markdownOnly') {
+			filteredFiles = files?.filter(f => f instanceof TFile && f.extension === 'md') as TFile[];
+		} else if (settings.includedFileTypes === 'allFiles') {
+			filteredFiles = files?.filter(f => f instanceof TFile) as TFile[];
+		} else if (settings.includedFileTypes === 'additionalExtensions') {
+			filteredFiles = files?.filter(f => f instanceof TFile &&
+				(f.extension === 'md' || settings.additionalExtensions.includes(f.extension))) as TFile[];
+		}
+	
 		const sortedFiles = filteredFiles?.sort(sortFn);
 		return sortedFiles;
 	}

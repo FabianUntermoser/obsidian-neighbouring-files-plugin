@@ -1,6 +1,6 @@
 import NeighbouringFileNavigatorPlugin from './main';
 import { App, PluginSettingTab, Setting } from 'obsidian';
-import { SORT_ORDER } from 'NeighbouringFileNavigatorPluginSettings';
+import { SORT_ORDER, INCLUDED_FILE_TYPES } from 'NeighbouringFileNavigatorPluginSettings';
 
 export default class NeighbouringFileNavigatorPluginSettingTab extends PluginSettingTab {
 	plugin: NeighbouringFileNavigatorPlugin;
@@ -28,5 +28,35 @@ export default class NeighbouringFileNavigatorPluginSettingTab extends PluginSet
 					await this.plugin.saveSettings();
 				});
 			});
+			
+		new Setting(containerEl)
+			.setName('Included File Types')
+			.setDesc('Set which file types to include in the navigation')
+			.addDropdown((dropdown) => {
+				dropdown.addOption("markdownOnly", "Markdown only");
+				dropdown.addOption("allFiles", "All files");
+				dropdown.addOption("additionalExtensions", "Additional file extensions below");
+				dropdown.setValue(this.plugin.settings.includedFileTypes);
+				dropdown.onChange(async (value: INCLUDED_FILE_TYPES) =>	{
+					this.plugin.settings.includedFileTypes = value;
+					await this.plugin.saveSettings();
+					this.display();
+				});
+			});
+		
+		if (this.plugin.settings.includedFileTypes === 'additionalExtensions') {
+			new Setting(containerEl)
+				.setName('Extensions')
+				.setDesc('List of additional file extensions to include in the navigation (comma separated)')
+				.addText((text) => {
+					text.setPlaceholder('canvas, pdf');
+					text.setValue(this.plugin.settings.additionalExtensions.join(', '));
+					text.onChange(async (value: string) => {
+						this.plugin.settings.additionalExtensions = value.split(',').map((ext) => ext.trim());
+						await this.plugin.saveSettings();
+					});
+				});
+		}
+		
 	}
 }
