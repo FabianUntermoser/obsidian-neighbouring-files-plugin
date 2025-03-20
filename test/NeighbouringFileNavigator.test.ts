@@ -41,7 +41,14 @@ const getNeighbouringFiles = (file: TFile | TAbstractFile, sortFn: SortFn = Neig
 	return neighbours;
 }
 
-describe('NeighbouringFileNavigator', () => {
+describe("NeighbouringFileNavigator", () => {
+	const leaf = {
+		openFile: jest.fn(),
+	};
+	const workspace = {
+		getActiveFile: jest.fn(),
+		getLeaf: jest.fn(() => leaf),
+	} as any;
 
 	it("should contain all files", () => {
 		// GIVEN
@@ -199,4 +206,15 @@ describe('NeighbouringFileNavigator', () => {
 		expectNeighbours(neighbours).toEqual(["1", "2", "3"]);
 	});
 
+	it("should open folder cycling", () => {
+		// GIVEN
+		const files = setupFiles(["1", "2", "3"]);
+		workspace.getActiveFile.mockReturnValue(files[1]);
+
+		// WHEN
+		NeighbouringFileNavigator.navigateToNextAlphabeticalFile(workspace);
+
+		// THEN
+		expect(leaf.openFile).toHaveBeenCalledWith(files[2]);
+	});
 });
