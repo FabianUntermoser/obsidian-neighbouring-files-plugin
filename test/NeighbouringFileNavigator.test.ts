@@ -8,7 +8,7 @@ const createFile = (name: string, extension: string, stats?: FileStats): TFile =
 	f.basename = name;
 	f.extension = extension;
 	f.name = `${name}.${extension}`;
-	f.stat = stats ? stats : { ctime: 1, mtime: 1, size: 1, };
+	f.stat = stats ?? { ctime: 1, mtime: 1, size: 1, };
 	return f;
 };
 
@@ -43,19 +43,19 @@ const getNeighbouringFiles = (file: TFile | TAbstractFile, sortFn: SortFn = Neig
 
 describe('NeighbouringFileNavigator', () => {
 
-	it('should contain all files', () => {
+	it("should contain all files", () => {
 		// GIVEN
 		const files = setupFiles(["1", "2", "3"]);
 
 		// WHEN
-		const neighbours = getNeighbouringFiles(files[0])
+		const neighbours = getNeighbouringFiles(files[0]);
 
 		// THEN
-		expect(neighbours).toHaveLength(3)
-		files.forEach(child => expect(neighbours).toContain(child));
+		expect(neighbours).toHaveLength(3);
+		files.forEach((child) => expect(neighbours).toContain(child));
 	});
 
-	it('should only filter for markdown files', () => {
+	it("should only filter for markdown files", () => {
 		// GIVEN
 		const files = setup([
 			createNote("1"),
@@ -64,52 +64,53 @@ describe('NeighbouringFileNavigator', () => {
 		]);
 
 		// WHEN
-		const neighbours = getNeighbouringFiles(files[0])
+		const neighbours = getNeighbouringFiles(files[0]);
 
 		// THEN
-		expect(neighbours).toHaveLength(2)
+		expect(neighbours).toHaveLength(2);
 		expect(neighbours).toContain(files[0]);
 		expect(neighbours).toContain(files[1]);
 	});
 
-	it('should filter out directories', () => {
+	it("should filter out directories", () => {
 		// GIVEN
-		const files = setup([
-			createNote("1"),
-			createDir("somedir")
-		]);
+		const files = setup([createNote("1"), createDir("somedir")]);
 
 		// WHEN
-		const neighbours = getNeighbouringFiles(files[0])
+		const neighbours = getNeighbouringFiles(files[0]);
 
 		// THEN
-		expect(neighbours).toHaveLength(1)
+		expect(neighbours).toHaveLength(1);
 		expect(neighbours).toContain(files[0]);
 	});
 
-	it('should sort files', () => {
+	it("should sort files", () => {
 		// GIVEN
 		const files = setupFiles(["2", "1", "3"]);
 
 		// WHEN
-		const neighbours = getNeighbouringFiles(files[0])
+		const neighbours = getNeighbouringFiles(files[0]);
 
 		// THEN
-		expectNeighbours(neighbours).toEqual(["1", "2", "3"])
+		expectNeighbours(neighbours).toEqual(["1", "2", "3"]);
 	});
 
-	it('should sort ignoring case', () => {
+	it("should sort ignoring case", () => {
 		// GIVEN
 		const files = setupFiles(["test - 3", "Test - 2", "test - 1"]);
 
 		// WHEN
-		const neighbours = getNeighbouringFiles(files[0])
+		const neighbours = getNeighbouringFiles(files[0]);
 
 		// THEN
-		expectNeighbours(neighbours).toEqual(["test - 1", "Test - 2", "test - 3"]);
+		expectNeighbours(neighbours).toEqual([
+			"test - 1",
+			"Test - 2",
+			"test - 3",
+		]);
 	});
 
-	it('should sort johny decimal', () => {
+	it("should sort johny decimal", () => {
 		// GIVEN
 		const files = setupFiles([
 			"2.2",
@@ -123,7 +124,7 @@ describe('NeighbouringFileNavigator', () => {
 		]);
 
 		// WHEN
-		const neighbours = getNeighbouringFiles(files[0])
+		const neighbours = getNeighbouringFiles(files[0]);
 
 		// THEN
 		expectNeighbours(neighbours).toEqual([
@@ -134,62 +135,68 @@ describe('NeighbouringFileNavigator', () => {
 			"2.9",
 			"2.10",
 			"2.11",
-			"3"
+			"3",
 		]);
 	});
 
-	it('should sort files based on creation timestamp', () => {
+	it("should sort files based on creation timestamp", () => {
 		// GIVEN
 		const files = setup([
 			createNote("2", {
 				ctime: 1689876543210, // 2023-07-20T01:22:23.210Z
 				mtime: 1704025483489, // 2023-12-31T12:24:43.489Z
-				size: 4380,           // 4.38 KB
+				size: 4380, // 4.38 KB
 			}),
 			createNote("1", {
 				ctime: 1700989701724, // 2023-11-26T04:01:41.724Z
 				mtime: 1692456789100, // 2023-08-19T11:13:09.100Z
-				size: 102400,         // 100 KB
+				size: 102400, // 100 KB
 			}),
 			createNote("3", {
 				ctime: 1672502400000, // 2023-01-01T00:00:00.000Z
 				mtime: 1675180800000, // 2023-02-01T00:00:00.000Z
-				size: 5242880,        // 5 MB
-			})
+				size: 5242880, // 5 MB
+			}),
 		]);
 
 		// WHEN
-		const neighbours = getNeighbouringFiles(files[0], NeighbouringFileNavigator.ctimeSorter)
+		const neighbours = getNeighbouringFiles(
+			files[0],
+			NeighbouringFileNavigator.ctimeSorter
+		);
 
 		// THEN
-		expectNeighbours(neighbours).toEqual([ "1", "2", "3" ]);
+		expectNeighbours(neighbours).toEqual(["1", "2", "3"]);
 	});
 
-	it('should sort files based on modified timestamp', () => {
+	it("should sort files based on modified timestamp", () => {
 		// GIVEN
 		const files = setup([
 			createNote("2", {
 				ctime: 1700989701724, // 2023-11-26T04:01:41.724Z
 				mtime: 1692456789100, // 2023-08-19T11:13:09.100Z
-				size: 5242880,        // 5 MB
+				size: 5242880, // 5 MB
 			}),
 			createNote("3", {
 				ctime: 1689876543210, // 2023-07-20T01:22:23.210Z
 				mtime: 1675180800000, // 2023-02-01T00:00:00.000Z
-				size: 102400,         // 100 KB
+				size: 102400, // 100 KB
 			}),
 			createNote("1", {
 				ctime: 1672502400000, // 2023-01-01T00:00:00.000Z
 				mtime: 1704025483489, // 2023-12-31T12:24:43.489Z
-				size: 4380,           // 4.38 KB
-			})
+				size: 4380, // 4.38 KB
+			}),
 		]);
 
 		// WHEN
-		const neighbours = getNeighbouringFiles(files[0], NeighbouringFileNavigator.mtimeSorter)
+		const neighbours = getNeighbouringFiles(
+			files[0],
+			NeighbouringFileNavigator.mtimeSorter
+		);
 
 		// THEN
-		expectNeighbours(neighbours).toEqual([ "1", "2", "3" ]);
+		expectNeighbours(neighbours).toEqual(["1", "2", "3"]);
 	});
 
 });
