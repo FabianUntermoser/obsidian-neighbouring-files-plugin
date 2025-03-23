@@ -1,5 +1,6 @@
 import { NeighbouringFileNavigator, SortFn } from "NeighbouringFileNavigator";
 import { FileStats, TAbstractFile, TFile, TFolder } from "obsidian";
+import NeighbouringFileNavigatorPluginSettings from "NeighbouringFileNavigatorPluginSettings";
 
 const createNote = (name: string, stats?: FileStats): TFile => createFile(name, "md", stats);
 
@@ -28,7 +29,7 @@ const setup = (children: Array<TAbstractFile>) => {
 
 const setupFiles = (names: Array<string>) => {
 	const children = names.map(c => createNote(c));
-	return setup(children);
+	return setup(children) as TFile[];
 };
 
 const expectNeighbours = (files: Array<TFile> ) => {
@@ -36,26 +37,30 @@ const expectNeighbours = (files: Array<TFile> ) => {
 	return expect(names)
 }
 
-const getNeighbouringFiles = (file: TFile | TAbstractFile, sortFn: SortFn = NeighbouringFileNavigator.localeSorter): Array<TFile> => {
-	const neighbours = NeighbouringFileNavigator.getNeighbouringFiles(file as TFile, sortFn)
-	return neighbours;
-}
-
 describe("NeighbouringFileNavigator", () => {
+	const settings: NeighbouringFileNavigatorPluginSettings = {
+		defaultSortOrder: "alphabetical",
+		disableFolderLooping: false,
+	};
+	const navigator = new NeighbouringFileNavigator(settings);
 	const leaf = {
 		openFile: jest.fn(),
-	};
+	} as any;
 	const workspace = {
 		getActiveFile: jest.fn(),
 		getLeaf: jest.fn(() => leaf),
 	} as any;
+
+	beforeEach(() => {
+		jest.clearAllMocks();
+	})
 
 	it("should contain all files", () => {
 		// GIVEN
 		const files = setupFiles(["1", "2", "3"]);
 
 		// WHEN
-		const neighbours = getNeighbouringFiles(files[0]);
+		const neighbours = navigator.getNeighbouringFiles(files[0], NeighbouringFileNavigator.localeSorter);
 
 		// THEN
 		expect(neighbours).toHaveLength(3);
@@ -68,10 +73,13 @@ describe("NeighbouringFileNavigator", () => {
 			createNote("1"),
 			createNote("2"),
 			createFile("3", "pdf"),
-		]);
+		]) as TFile[];
 
 		// WHEN
-		const neighbours = getNeighbouringFiles(files[0]);
+		const neighbours = navigator.getNeighbouringFiles(
+			files[0],
+			NeighbouringFileNavigator.localeSorter
+		);
 
 		// THEN
 		expect(neighbours).toHaveLength(2);
@@ -81,10 +89,13 @@ describe("NeighbouringFileNavigator", () => {
 
 	it("should filter out directories", () => {
 		// GIVEN
-		const files = setup([createNote("1"), createDir("somedir")]);
+		const files = setup([createNote("1"), createDir("somedir")]) as TFile[];
 
 		// WHEN
-		const neighbours = getNeighbouringFiles(files[0]);
+		const neighbours = navigator.getNeighbouringFiles(
+			files[0],
+			NeighbouringFileNavigator.localeSorter
+		);
 
 		// THEN
 		expect(neighbours).toHaveLength(1);
@@ -96,7 +107,10 @@ describe("NeighbouringFileNavigator", () => {
 		const files = setupFiles(["2", "1", "3"]);
 
 		// WHEN
-		const neighbours = getNeighbouringFiles(files[0]);
+		const neighbours = navigator.getNeighbouringFiles(
+			files[0],
+			NeighbouringFileNavigator.localeSorter
+		);
 
 		// THEN
 		expectNeighbours(neighbours).toEqual(["1", "2", "3"]);
@@ -107,7 +121,10 @@ describe("NeighbouringFileNavigator", () => {
 		const files = setupFiles(["test - 3", "Test - 2", "test - 1"]);
 
 		// WHEN
-		const neighbours = getNeighbouringFiles(files[0]);
+		const neighbours = navigator.getNeighbouringFiles(
+			files[0],
+			NeighbouringFileNavigator.localeSorter
+		);
 
 		// THEN
 		expectNeighbours(neighbours).toEqual([
@@ -131,7 +148,10 @@ describe("NeighbouringFileNavigator", () => {
 		]);
 
 		// WHEN
-		const neighbours = getNeighbouringFiles(files[0]);
+		const neighbours = navigator.getNeighbouringFiles(
+			files[0],
+			NeighbouringFileNavigator.localeSorter
+		);
 
 		// THEN
 		expectNeighbours(neighbours).toEqual([
@@ -164,10 +184,10 @@ describe("NeighbouringFileNavigator", () => {
 				mtime: 1675180800000, // 2023-02-01T00:00:00.000Z
 				size: 5242880, // 5 MB
 			}),
-		]);
+		]) as TFile[];
 
 		// WHEN
-		const neighbours = getNeighbouringFiles(
+		const neighbours = navigator.getNeighbouringFiles(
 			files[0],
 			NeighbouringFileNavigator.ctimeSorter
 		);
@@ -194,10 +214,10 @@ describe("NeighbouringFileNavigator", () => {
 				mtime: 1704025483489, // 2023-12-31T12:24:43.489Z
 				size: 4380, // 4.38 KB
 			}),
-		]);
+		]) as TFile[];
 
 		// WHEN
-		const neighbours = getNeighbouringFiles(
+		const neighbours = navigator.getNeighbouringFiles(
 			files[0],
 			NeighbouringFileNavigator.mtimeSorter
 		);
@@ -206,15 +226,32 @@ describe("NeighbouringFileNavigator", () => {
 		expectNeighbours(neighbours).toEqual(["1", "2", "3"]);
 	});
 
-	it("should open folder cycling", () => {
+	it("should cycle folders", () => {
 		// GIVEN
 		const files = setupFiles(["1", "2", "3"]);
-		workspace.getActiveFile.mockReturnValue(files[1]);
+		workspace.getActiveFile.mockReturnValue(files[2]);
 
 		// WHEN
-		NeighbouringFileNavigator.navigateToNextAlphabeticalFile(workspace);
+		navigator.navigateToNextAlphabeticalFile(workspace);
+
+		// THEN
+		expect(leaf.openFile).toHaveBeenCalledWith(files[0]);
+		expect(leaf.openFile).not.toHaveBeenCalledWith(files[1]);
+		expect(leaf.openFile).not.toHaveBeenCalledWith(files[2]);
+	});
+
+	it("should not cycle folders with setting", () => {
+		// GIVEN
+		const files = setupFiles(["1", "2", "3"]);
+		workspace.getActiveFile.mockReturnValue(files[2]);
+		settings.disableFolderLooping = true;
+
+		// WHEN
+		navigator.navigateToNextAlphabeticalFile(workspace);
 
 		// THEN
 		expect(leaf.openFile).toHaveBeenCalledWith(files[2]);
+		expect(leaf.openFile).not.toHaveBeenCalledWith(files[0]);
+		expect(leaf.openFile).not.toHaveBeenCalledWith(files[1]);
 	});
 });
