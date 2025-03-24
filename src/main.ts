@@ -5,62 +5,64 @@ import { Plugin } from "obsidian";
 
 const DEFAULT_SETTINGS: Partial<NeighbouringFileNavigatorPluginSettings> = {
 	defaultSortOrder: 'alphabetical',
+	enableFolderLoop: false,
 };
 
 export default class NeighbouringFileNavigatorPlugin extends Plugin {
-
 	settings: NeighbouringFileNavigatorPluginSettings;
+	private navigator: NeighbouringFileNavigator;
 
 	async onload() {
 		await this.loadSettings();
 		this.addSettingTab(new NeighbouringFileNavigatorPluginSettingTab(this.app, this));
+		this.navigator = new NeighbouringFileNavigator(this.settings);
 
 		this.addCommand({
 			id: "next",
 			name: "Navigate to next file",
-			callback: () => NeighbouringFileNavigator.navigateToNextFile(this.app.workspace, this.settings),
+			callback: () => this.navigator.navigateToNextFile(this.app.workspace)
 		});
 		this.addCommand({
 			id: "prev",
 			name: "Navigate to prev file",
-			callback: () => NeighbouringFileNavigator.navigateToPrevFile(this.app.workspace, this.settings),
+			callback: () => this.navigator.navigateToPrevFile(this.app.workspace)
 		});
 
 		this.addCommand({
 			id: "next-alphabetical",
 			name: "Navigate to next file (alphabetical)",
-			callback: () => NeighbouringFileNavigator.navigateToNextAlphabeticalFile(this.app.workspace),
+			callback: () => this.navigator.navigateToNextAlphabeticalFile(this.app.workspace)
 		});
 		this.addCommand({
 			id: "prev-alphabetical",
 			name: "Navigate to prev file (alphabetical)",
-			callback: () => NeighbouringFileNavigator.navigateToPrevAlphabeticalFile(this.app.workspace),
+			callback: () => this.navigator.navigateToPrevAlphabeticalFile(this.app.workspace)
 		});
 
 		const olderCreatedCommand = {
 			name: "Navigate to older file (creation timestamp)",
-			callback: () => NeighbouringFileNavigator.navigateToOlderCreatedFile(this.app.workspace),
+			callback: () => this.navigator.navigateToOlderCreatedFile(this.app.workspace)
 		};
 		this.addCommand({ ...olderCreatedCommand, id: "older-created" });
 		this.addCommand({ ...olderCreatedCommand, id: "prev-created" });
 
 		const newerCreatedCommand = {
 			name: "Navigate to newer file (creation timestamp)",
-			callback: () => NeighbouringFileNavigator.navigateToNewerCreatedFile(this.app.workspace),
+			callback: () => this.navigator.navigateToNewerCreatedFile(this.app.workspace)
 		};
 		this.addCommand({ ...newerCreatedCommand, id: "next-created" });
 		this.addCommand({ ...newerCreatedCommand, id: "newer-created" });
 
 		const olderModifiedCommand = {
 			name: "Navigate to older file (modification timestamp)",
-			callback: () => NeighbouringFileNavigator.navigateToOlderModifiedFile(this.app.workspace),
+			callback: () => this.navigator.navigateToOlderModifiedFile(this.app.workspace)
 		};
 		this.addCommand({ ...olderModifiedCommand, id: "older-modified" });
 		this.addCommand({ ...olderModifiedCommand, id: "prev-modified" });
 
 		const newerModifiedCommand = {
 			name: "Navigate to newer file (modification timestamp)",
-			callback: () => NeighbouringFileNavigator.navigateToNewerModifiedFile(this.app.workspace),
+			callback: () => this.navigator.navigateToNewerModifiedFile(this.app.workspace)
 		};
 		this.addCommand({ ...newerModifiedCommand, id: "next-modified" });
 		this.addCommand({ ...newerModifiedCommand, id: "newer-modified" });

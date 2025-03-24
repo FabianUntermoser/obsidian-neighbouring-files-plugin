@@ -28,5 +28,16 @@ export default class NeighbouringFileNavigatorPluginSettingTab extends PluginSet
 					await this.plugin.saveSettings();
 				});
 			});
+
+		new Setting(containerEl)
+			.setName('Loop Notes in Folder')
+			.setDesc('Navigate to the first note when navigating past the last note in the same folder.')
+			.addToggle((toggle) => {
+				toggle.setValue(this.plugin.settings.enableFolderLoop);
+				toggle.onChange(async (value: boolean) => {
+					this.plugin.settings.enableFolderLoop = value;
+					await this.plugin.saveSettings();
+				});
+			});
 	}
 }
