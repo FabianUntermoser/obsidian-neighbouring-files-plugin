@@ -94,12 +94,9 @@ export class NeighbouringFileNavigator {
 			(item) => item.name === activeFile.name
 		);
 
-		let nextIndex: number;
-		if (this.settings.disableFolderLooping) {
-			nextIndex = Math.min(currentItem + 1, files.length - 1);
-		} else {
-			nextIndex = (currentItem + 1) % files.length;
-		}
+		const nextIndex = this.settings.enableFolderLoop
+			? (currentItem + 1) % files.length
+			: Math.min(currentItem + 1, files.length - 1);
 
 		const toFile = files[nextIndex];
 		workspace.getLeaf(false).openFile(toFile);

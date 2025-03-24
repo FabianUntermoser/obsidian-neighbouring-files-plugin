@@ -40,7 +40,7 @@ const expectNeighbours = (files: Array<TFile> ) => {
 describe("NeighbouringFileNavigator", () => {
 	const settings: NeighbouringFileNavigatorPluginSettings = {
 		defaultSortOrder: "alphabetical",
-		disableFolderLooping: false,
+		enableFolderLoop: true,
 	};
 	const navigator = new NeighbouringFileNavigator(settings);
 	const leaf = {
@@ -226,7 +226,7 @@ describe("NeighbouringFileNavigator", () => {
 		expectNeighbours(neighbours).toEqual(["1", "2", "3"]);
 	});
 
-	it("should cycle folders", () => {
+	it("should loop folder", () => {
 		// GIVEN
 		const files = setupFiles(["1", "2", "3"]);
 		workspace.getActiveFile.mockReturnValue(files[2]);
@@ -240,11 +240,11 @@ describe("NeighbouringFileNavigator", () => {
 		expect(leaf.openFile).not.toHaveBeenCalledWith(files[2]);
 	});
 
-	it("should not cycle folders with setting", () => {
+	it("should not loop folders", () => {
 		// GIVEN
 		const files = setupFiles(["1", "2", "3"]);
 		workspace.getActiveFile.mockReturnValue(files[2]);
-		settings.disableFolderLooping = true;
+		settings.enableFolderLoop = false;
 
 		// WHEN
 		navigator.navigateToNextAlphabeticalFile(workspace);

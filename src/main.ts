@@ -5,7 +5,7 @@ import { Plugin } from "obsidian";
 
 const DEFAULT_SETTINGS: Partial<NeighbouringFileNavigatorPluginSettings> = {
 	defaultSortOrder: 'alphabetical',
-	disableFolderLooping: false,
+	enableFolderLoop: false,
 };
 
 export default class NeighbouringFileNavigatorPlugin extends Plugin {
