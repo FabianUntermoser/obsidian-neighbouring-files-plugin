@@ -13,13 +13,13 @@ install: build
 
 release-patch:
 	npm version patch -m "release: %s"
-	git push --tags
+	git push && git push --tags
 release-minor:
 	npm version minor -m "release: %s"
-	git push --tags
+	git push && git push --tags
 release-major:
 	npm version major -m "release: %s"
-	git push --tags
+	git push && git push --tags
 
 dev:
 	npm run dev
