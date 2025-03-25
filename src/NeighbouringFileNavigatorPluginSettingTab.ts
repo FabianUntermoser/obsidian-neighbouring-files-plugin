@@ -28,7 +28,18 @@ export default class NeighbouringFileNavigatorPluginSettingTab extends PluginSet
 					await this.plugin.saveSettings();
 				});
 			});
-			
+
+		new Setting(containerEl)
+			.setName('Loop Notes in Folder')
+			.setDesc('Navigate to the first note when navigating past the last note in the same folder.')
+			.addToggle((toggle) => {
+				toggle.setValue(this.plugin.settings.enableFolderLoop);
+				toggle.onChange(async (value: boolean) => {
+					this.plugin.settings.enableFolderLoop = value;
+					await this.plugin.saveSettings();
+				});
+			});
+
 		new Setting(containerEl)
 			.setName('Included File Types')
 			.setDesc('Set which file types to include in the navigation')
@@ -43,7 +54,7 @@ export default class NeighbouringFileNavigatorPluginSettingTab extends PluginSet
 					this.display();
 				});
 			});
-		
+
 		if (this.plugin.settings.includedFileTypes === 'additionalExtensions') {
 			new Setting(containerEl)
 				.setName('Extensions')
@@ -57,6 +68,5 @@ export default class NeighbouringFileNavigatorPluginSettingTab extends PluginSet
 					});
 				});
 		}
-		
 	}
 }

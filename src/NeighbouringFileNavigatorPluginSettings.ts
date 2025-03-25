@@ -10,6 +10,7 @@ export type INCLUDED_FILE_TYPES = 'markdownOnly' | 'allFiles' | 'additionalExten
 
 export default interface NeighbouringFileNavigatorPluginSettings {
 	defaultSortOrder: SORT_ORDER;
+	enableFolderLoop: boolean;
 	includedFileTypes: INCLUDED_FILE_TYPES;
 	additionalExtensions: string[];
 }
