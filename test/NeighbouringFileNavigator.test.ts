@@ -268,11 +268,30 @@ describe("NeighbouringFileNavigator", () => {
 	});
 
 	describe("Settings: File Types", () => {
+		it("should include markdown only", () => {
+			// GIVEN
+			settings.includedFileTypes = "markdownOnly";
+			const files = setup([
+				createNote("1"),
+				createNote("2"),
+				createFile("3", "txt"),
+				createFile("4", "pdf"),
+			]);
+
+			// WHEN
+			const neighbours = navigator.getNeighbouringFiles(
+				files[0] as TFile,
+				NeighbouringFileNavigator.localeSorter
+			);
+
+			// THEN
+			expectNeighbours(neighbours).toEqual(["1", "2"]);
+		});
+
 		it("should include specified extensions", () => {
 			// GIVEN
 			settings.includedFileTypes = "additionalExtensions";
 			settings.additionalExtensions = ["pdf"];
-
 			const files = setup([
 				createNote("1"),
 				createNote("2"),

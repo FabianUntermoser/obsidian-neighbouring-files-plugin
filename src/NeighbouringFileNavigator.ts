@@ -105,7 +105,7 @@ export class NeighbouringFileNavigator {
 	public getNeighbouringFiles(file: TFile, sortFn: SortFn) {
 		const files = file?.parent?.children;
 		let filteredFiles: TFile[] = [];
-	
+
 		if (this.settings.includedFileTypes === 'markdownOnly') {
 			filteredFiles = files?.filter(f => f instanceof TFile && f.extension === 'md') as TFile[];
 		} else if (this.settings.includedFileTypes === 'allFiles') {
@@ -114,7 +114,7 @@ export class NeighbouringFileNavigator {
 			filteredFiles = files?.filter(f => f instanceof TFile &&
 				(f.extension === 'md' || this.settings.additionalExtensions.includes(f.extension))) as TFile[];
 		}
-	
+
 		const sortedFiles = filteredFiles?.sort(sortFn);
 		return sortedFiles;
 	}
