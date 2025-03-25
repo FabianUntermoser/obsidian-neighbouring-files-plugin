@@ -1,6 +1,9 @@
 export const DEFAULT_SETTINGS: NeighbouringFileNavigatorPluginSettings = {
+	// sorting
 	defaultSortOrder: "alphabetical",
+	// navigation options
 	enableFolderLoop: false,
+	// file mask
 	includedFileTypes: "markdownOnly",
 	additionalExtensions: ["canvas", "pdf"],
 };
