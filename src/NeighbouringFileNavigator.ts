@@ -102,20 +102,20 @@ export class NeighbouringFileNavigator {
 		workspace.getLeaf(false).openFile(toFile);
 	}
 
-	public getNeighbouringFiles(file: TFile, sortFn: SortFn) {
-		const files = file?.parent?.children;
-		let filteredFiles: TFile[] = [];
+	private filterFiletype(files: TFile) {
+		if (this.settings.includedFileTypes === "allFiles") return true;
 
-		if (this.settings.includedFileTypes === 'markdownOnly') {
-			filteredFiles = files?.filter(f => f instanceof TFile && f.extension === 'md') as TFile[];
-		} else if (this.settings.includedFileTypes === 'allFiles') {
-			filteredFiles = files?.filter(f => f instanceof TFile) as TFile[];
-		} else if (this.settings.includedFileTypes === 'additionalExtensions') {
-			filteredFiles = files?.filter(f => f instanceof TFile &&
-				(f.extension === 'md' || this.settings.additionalExtensions.includes(f.extension))) as TFile[];
+		if (this.settings.includedFileTypes === "markdownOnly") {
+			return files.extension === "md";
+		} else if (this.settings.includedFileTypes === "additionalExtensions") {
+			return files.extension === "md" || this.settings.additionalExtensions.includes(files.extension);
 		}
+	}
 
-		const sortedFiles = filteredFiles?.sort(sortFn);
-		return sortedFiles;
+	public getNeighbouringFiles(file: TFile, sortFn: SortFn): TFile[] {
+		return file.parent?.children
+			.filter((f): f is TFile => f instanceof TFile)
+			.filter((f) => this.filterFiletype(f))
+			.sort(sortFn) ?? [];
 	}
 }
