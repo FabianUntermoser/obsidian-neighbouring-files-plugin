@@ -1,14 +1,7 @@
 import { NeighbouringFileNavigator } from "NeighbouringFileNavigator";
-import NeighbouringFileNavigatorPluginSettings from "NeighbouringFileNavigatorPluginSettings";
+import NeighbouringFileNavigatorPluginSettings, { DEFAULT_SETTINGS } from "NeighbouringFileNavigatorPluginSettings";
 import NeighbouringFileNavigatorPluginSettingTab from "NeighbouringFileNavigatorPluginSettingTab";
 import { Plugin } from "obsidian";
-
-const DEFAULT_SETTINGS: NeighbouringFileNavigatorPluginSettings = {
-	defaultSortOrder: 'alphabetical',
-	enableFolderLoop: false,
-	includedFileTypes: 'markdownOnly',
-	additionalExtensions: ['canvas', 'pdf'],
-};
 
 export default class NeighbouringFileNavigatorPlugin extends Plugin {
 	settings: NeighbouringFileNavigatorPluginSettings;

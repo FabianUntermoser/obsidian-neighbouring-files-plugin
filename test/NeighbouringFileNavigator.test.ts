@@ -1,13 +1,6 @@
-import { NeighbouringFileNavigator, SortFn } from "NeighbouringFileNavigator";
+import { NeighbouringFileNavigator } from "NeighbouringFileNavigator";
+import NeighbouringFileNavigatorPluginSettings, { DEFAULT_SETTINGS } from "NeighbouringFileNavigatorPluginSettings";
 import { FileStats, TAbstractFile, TFile, TFolder } from "obsidian";
-import NeighbouringFileNavigatorPluginSettings from "NeighbouringFileNavigatorPluginSettings";
-
-const DEFAULT_SETTINGS: NeighbouringFileNavigatorPluginSettings = {
-	defaultSortOrder: 'alphabetical',
-	enableFolderLoop: false,
-	includedFileTypes: 'markdownOnly',
-	additionalExtensions: ['canvas', 'pdf'],
-};
 
 const createNote = (name: string, stats?: FileStats): TFile => createFile(name, "md", stats);
 
@@ -45,10 +38,7 @@ const expectNeighbours = (files: Array<TFile> ) => {
 }
 
 describe("NeighbouringFileNavigator", () => {
-	const settings: NeighbouringFileNavigatorPluginSettings = {
-		...DEFAULT_SETTINGS,
-		enableFolderLoop: true,
-	};
+	const settings: NeighbouringFileNavigatorPluginSettings = DEFAULT_SETTINGS;
 	const navigator = new NeighbouringFileNavigator(settings);
 	const leaf = {
 		openFile: jest.fn(),
@@ -237,6 +227,7 @@ describe("NeighbouringFileNavigator", () => {
 		// GIVEN
 		const files = setupFiles(["1", "2", "3"]);
 		workspace.getActiveFile.mockReturnValue(files[2]);
+		settings.enableFolderLoop = true;
 
 		// WHEN
 		navigator.navigateToNextAlphabeticalFile(workspace);
