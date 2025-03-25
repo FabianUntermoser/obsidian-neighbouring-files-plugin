@@ -102,10 +102,20 @@ export class NeighbouringFileNavigator {
 		workspace.getLeaf(false).openFile(toFile);
 	}
 
-	public getNeighbouringFiles(file: TFile, sortFn: SortFn) {
-		const files = file?.parent?.children;
-		const filteredFiles = files?.filter(f => f instanceof TFile && f.extension === 'md') as TFile[];
-		const sortedFiles = filteredFiles?.sort(sortFn);
-		return sortedFiles;
+	private filterFiletype(files: TFile) {
+		if (this.settings.includedFileTypes === "allFiles") return true;
+
+		if (this.settings.includedFileTypes === "markdownOnly") {
+			return files.extension === "md";
+		} else if (this.settings.includedFileTypes === "additionalExtensions") {
+			return files.extension === "md" || this.settings.additionalExtensions.includes(files.extension);
+		}
+	}
+
+	public getNeighbouringFiles(file: TFile, sortFn: SortFn): TFile[] {
+		return file.parent?.children
+			.filter((f): f is TFile => f instanceof TFile)
+			.filter((f) => this.filterFiletype(f))
+			.sort(sortFn) ?? [];
 	}
 }
