@@ -9,20 +9,18 @@
   <img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/FabianUntermoser/obsidian-neighbouring-files-plugin?color=blue&style=flat-square">
 </p>
 
-This [Obsidian](https://obsidian.md/) Plugin adds navigational commands that lets you quickly navigate to neighbouring files.
+This [Obsidian](https://obsidian.md/) Plugin adds navigational commands that let you quickly navigate to neighbouring files in your vault.
 
 ### Use Case
 
-- Navigate to the next weekly from `2023-W17` to `2023-W18`
-- Navigate to the next daily from `2023-04-31` to `2023-05-01`
-- Navigate to the next file from `A4` to `A5`
+- Navigate from one weekly note to another (e.g., `2023-W17` → `2023-W18`)
+- Move between daily notes (e.g., `2023-04-31` → `2023-05-01`)
+- Browse sequentially numbered notes (e.g., `A4` → `A5`)
+- Navigate through project files in a folder
 
 [obsidian-neighbouring-files.webm](https://github.com/user-attachments/assets/cdc04e2b-e3d9-4d77-8b2c-cbfa4ef4436d)
 
-### Usage
-
-The default command uses the sort order from the [File explorer](https://help.obsidian.md/Plugins/File+explorer).
-A fallback sort order is configurable in the plugin settings.
+### Commands
 
 Default Commands:
 - Navigate to next file
@@ -43,9 +41,25 @@ Supported Sorting Modes:
 
 ## Configuration
 
-Configure a hotkey to trigger the commands.
+### Default Sort Order
+The default command uses the same sort order as the [File explorer](https://help.obsidian.md/Plugins/File+explorer).
+You can configure a fallback sort order in the plugin settings.
 
-Or use the [obsidian-vimrc-support](https://github.com/esm7/obsidian-vimrc-support) Plugin to map more useful hotkeys such as `gn` or `gp`
+### Included File Types
+By default, navigation is restricted to markdown files.
+In the settings you can enable support for other file types:
+
+- Limit to Markdown files only
+- Include all file types
+- Specify additional file extensions to include
+
+### Loop Notes in Folder
+- When disabled: Navigation stops at the beginning/end of a folder
+- When enabled: Navigation loops back to the start/end when reaching the end/beginning
+
+### Configure VIMRC keybindings
+Instead of configuring obsidian hotkeys to trigger the navigation commands,
+you can also use the [obsidian-vimrc-support](https://github.com/esm7/obsidian-vimrc-support) plugin to map more useful hotkeys such as `gn` or `gp`
 (Caveat: This only works when the editor mode is on).
 
 Example `.obsidian.vimrc`.
@@ -64,3 +78,7 @@ exmap newer_file_modified	 obcommand neighbouring-files:newer-modified
 nmap gn :next_file<cr>
 nmap gp :prev_file<cr>
 ```
+
+## License
+
+This project is licensed under [MIT License](LICENSE.md).
