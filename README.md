@@ -66,14 +66,14 @@ Example `.obsidian.vimrc`.
 
 ```vimrc
 " define navigation commands
-exmap next_file				 obcommand neighbouring-files:next
-exmap prev_file				 obcommand neighbouring-files:prev
+exmap next_file              obcommand neighbouring-files:next
+exmap prev_file              obcommand neighbouring-files:prev
 exmap next_file_alphabetical obcommand neighbouring-files:next-alphabetical
 exmap prev_file_alphabetical obcommand neighbouring-files:prev-alphabetical
-exmap older_file_created	 obcommand neighbouring-files:older-created
-exmap newer_file_created	 obcommand neighbouring-files:newer-created
-exmap older_file_modified	 obcommand neighbouring-files:older-modified
-exmap newer_file_modified	 obcommand neighbouring-files:newer-modified
+exmap older_file_created     obcommand neighbouring-files:older-created
+exmap newer_file_created     obcommand neighbouring-files:newer-created
+exmap older_file_modified    obcommand neighbouring-files:older-modified
+exmap newer_file_modified    obcommand neighbouring-files:newer-modified
 " add navigation mappings
 nmap gn :next_file<cr>
 nmap gp :prev_file<cr>
