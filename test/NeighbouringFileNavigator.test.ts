@@ -1,13 +1,16 @@
 import { NeighbouringFileNavigator } from "NeighbouringFileNavigator";
-import NeighbouringFileNavigatorPluginSettings, { DEFAULT_SETTINGS } from "NeighbouringFileNavigatorPluginSettings";
+import NeighbouringFileNavigatorPluginSettings, {
+	DEFAULT_SETTINGS,
+} from "NeighbouringFileNavigatorPluginSettings";
 import { FileStats, TAbstractFile, TFile, TFolder } from "obsidian";
 
-const createNote = (name: string, stats?: FileStats): TFile => createFile(name, "md", stats);
+const createNote = (name: string, stats?: FileStats): TFile =>
+	createFile(name, "md", stats);
 
 const createFile = (
 	name: string,
 	extension: string,
-	stats?: FileStats
+	stats?: FileStats,
 ): TFile => {
 	const f = new TFile();
 	f.basename = name;
@@ -64,7 +67,7 @@ describe("NeighbouringFileNavigator", () => {
 			// WHEN
 			const neighbours = navigator.getNeighbouringFiles(
 				files[0],
-				NeighbouringFileNavigator.localeSorter
+				NeighbouringFileNavigator.localeSorter,
 			);
 
 			// THEN
@@ -83,7 +86,7 @@ describe("NeighbouringFileNavigator", () => {
 			// WHEN
 			const neighbours = navigator.getNeighbouringFiles(
 				files[0],
-				NeighbouringFileNavigator.localeSorter
+				NeighbouringFileNavigator.localeSorter,
 			);
 
 			// THEN
@@ -102,7 +105,7 @@ describe("NeighbouringFileNavigator", () => {
 			// WHEN
 			const neighbours = navigator.getNeighbouringFiles(
 				files[0],
-				NeighbouringFileNavigator.localeSorter
+				NeighbouringFileNavigator.localeSorter,
 			);
 
 			// THEN
@@ -117,7 +120,7 @@ describe("NeighbouringFileNavigator", () => {
 			// WHEN
 			const neighbours = navigator.getNeighbouringFiles(
 				files[0],
-				NeighbouringFileNavigator.localeSorter
+				NeighbouringFileNavigator.localeSorter,
 			);
 
 			// THEN
@@ -131,7 +134,7 @@ describe("NeighbouringFileNavigator", () => {
 			// WHEN
 			const neighbours = navigator.getNeighbouringFiles(
 				files[0],
-				NeighbouringFileNavigator.localeSorter
+				NeighbouringFileNavigator.localeSorter,
 			);
 
 			// THEN
@@ -158,7 +161,7 @@ describe("NeighbouringFileNavigator", () => {
 			// WHEN
 			const neighbours = navigator.getNeighbouringFiles(
 				files[0],
-				NeighbouringFileNavigator.localeSorter
+				NeighbouringFileNavigator.localeSorter,
 			);
 
 			// THEN
@@ -197,7 +200,7 @@ describe("NeighbouringFileNavigator", () => {
 			// WHEN
 			const neighbours = navigator.getNeighbouringFiles(
 				files[0],
-				NeighbouringFileNavigator.ctimeSorter
+				NeighbouringFileNavigator.ctimeSorter,
 			);
 
 			// THEN
@@ -227,7 +230,7 @@ describe("NeighbouringFileNavigator", () => {
 			// WHEN
 			const neighbours = navigator.getNeighbouringFiles(
 				files[0],
-				NeighbouringFileNavigator.mtimeSorter
+				NeighbouringFileNavigator.mtimeSorter,
 			);
 
 			// THEN
