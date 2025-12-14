@@ -34,9 +34,28 @@ const setup = (children: Array<TAbstractFile>) => {
 	return children;
 };
 
+const attachChildren = (parent: TFolder, children: Array<TAbstractFile>) => {
+	parent.children = children;
+	children.forEach((child) => (child.parent = parent));
+	return children;
+};
+
 const setupFiles = (names: Array<string>) => {
 	const children = names.map((c) => createNote(c));
 	return setup(children) as TFile[];
+};
+
+const setupFolder = (names: Array<string>, parent?: TFolder) => {
+	const folder = createDir(names.join("-"));
+	const files = names.map((name) => createNote(name));
+	folder.children = files;
+	files.forEach((file) => (file.parent = folder));
+	if (parent) {
+		folder.parent = parent;
+		parent.children = parent.children ?? [];
+		parent.children.push(folder);
+	}
+	return folder;
 };
 
 const expectNeighbours = (files: Array<TFile>) => {
@@ -238,6 +257,69 @@ describe("NeighbouringFileNavigator", () => {
 		});
 	});
 
+	describe("Settings: File Types", () => {
+		it("should include markdown only", () => {
+			// GIVEN
+			settings.includedFileTypes = "markdownOnly";
+			const files = setup([
+				createNote("1"),
+				createNote("2"),
+				createFile("3", "txt"),
+				createFile("4", "pdf"),
+			]);
+
+			// WHEN
+			const neighbours = navigator.getNeighbouringFiles(
+				files[0] as TFile,
+				NeighbouringFileNavigator.localeSorter,
+			);
+
+			// THEN
+			expectNeighbours(neighbours).toEqual(["1", "2"]);
+		});
+
+		it("should include specified extensions", () => {
+			// GIVEN
+			settings.includedFileTypes = "additionalExtensions";
+			settings.additionalExtensions = ["pdf"];
+			const files = setup([
+				createNote("1"),
+				createNote("2"),
+				createFile("3", "txt"),
+				createFile("4", "pdf"),
+			]);
+
+			// WHEN
+			const neighbours = navigator.getNeighbouringFiles(
+				files[0] as TFile,
+				NeighbouringFileNavigator.localeSorter,
+			);
+
+			// THEN
+			expectNeighbours(neighbours).toEqual(["1", "2", "4"]);
+		});
+
+		it("should include all files", () => {
+			// GIVEN
+			settings.includedFileTypes = "allFiles";
+			const files = setup([
+				createNote("1"),
+				createNote("2"),
+				createFile("3", "txt"),
+				createFile("4", "pdf"),
+			]);
+
+			// WHEN
+			const neighbours = navigator.getNeighbouringFiles(
+				files[0] as TFile,
+				NeighbouringFileNavigator.localeSorter,
+			);
+
+			// THEN
+			expectNeighbours(neighbours).toEqual(["1", "2", "3", "4"]);
+		});
+	});
+
 	describe("Settings: Folder Loop", () => {
 		it("should loop folder", () => {
 			// GIVEN
@@ -270,66 +352,55 @@ describe("NeighbouringFileNavigator", () => {
 		});
 	});
 
-	describe("Settings: File Types", () => {
-		it("should include markdown only", () => {
+	describe("Settings: Folder Boundaries", () => {
+		it("should navigate across folders", () => {
 			// GIVEN
-			settings.includedFileTypes = "markdownOnly";
-			const files = setup([
-				createNote("1"),
-				createNote("2"),
-				createFile("3", "txt"),
-				createFile("4", "pdf"),
-			]);
+			const rootFolder = createDir("root");
+			const folderA = setupFolder(["1", "2", "3"], rootFolder);
+			const folderB = setupFolder(["4", "5", "6"], rootFolder);
+			workspace.getActiveFile.mockReturnValue(
+				folderA.children[folderA.children.length - 1],
+			);
+			settings.enableFolderBoundary = true;
 
 			// WHEN
-			const neighbours = navigator.getNeighbouringFiles(
-				files[0] as TFile,
-				NeighbouringFileNavigator.localeSorter
-			);
+			navigator.navigateToNextAlphabeticalFile(workspace);
 
 			// THEN
-			expectNeighbours(neighbours).toEqual(["1", "2"]);
+			expect(leaf.openFile).toHaveBeenCalledWith(folderB.children[0]);
 		});
 
-		it("should include specified extensions", () => {
+		it("should move to an ancestor file when no siblings remain", () => {
 			// GIVEN
-			settings.includedFileTypes = "additionalExtensions";
-			settings.additionalExtensions = ["pdf"];
-			const files = setup([
-				createNote("1"),
-				createNote("2"),
-				createFile("3", "txt"),
-				createFile("4", "pdf"),
-			]);
+			const root = createDir("root");
+			const folderD = createDir("FolderD");
+			const folderE = createDir("FolderE");
+			const folderC = createDir("FolderC");
+			const folderA = createDir("FolderA");
+			const folderB = createDir("FolderB");
+
+			const fileInE = createNote("Ancestor File");
+			const fileA1 = createNote("File A1");
+			const fileA2 = createNote("File A2");
+			const fileB1 = createNote("File B1");
+			const fileB2 = createNote("File B2");
+
+			attachChildren(folderA, [fileA1, fileA2]);
+			attachChildren(folderB, [fileB1, fileB2]);
+			attachChildren(folderC, [folderA, folderB]);
+			attachChildren(folderE, [fileInE, folderC]);
+			attachChildren(folderD, [folderE]);
+			attachChildren(root, [folderD]);
+
+			workspace.getActiveFile.mockReturnValue(fileA1);
+			settings.enableFolderBoundary = true;
 
 			// WHEN
-			const neighbours = navigator.getNeighbouringFiles(
-				files[0] as TFile,
-				NeighbouringFileNavigator.localeSorter
-			);
+			navigator.navigateToPrevAlphabeticalFile(workspace);
 
 			// THEN
-			expectNeighbours(neighbours).toEqual(["1", "2", "4"]);
-		});
-
-		it("should include all files", () => {
-			// GIVEN
-			settings.includedFileTypes = "allFiles";
-			const files = setup([
-				createNote("1"),
-				createNote("2"),
-				createFile("3", "txt"),
-				createFile("4", "pdf"),
-			]);
-
-			// WHEN
-			const neighbours = navigator.getNeighbouringFiles(
-				files[0] as TFile,
-				NeighbouringFileNavigator.localeSorter
-			);
-
-			// THEN
-			expectNeighbours(neighbours).toEqual(["1", "2", "3", "4"]);
+			expect(leaf.openFile).toHaveBeenCalledWith(fileInE);
+			settings.enableFolderBoundary = false;
 		});
 	});
 });
