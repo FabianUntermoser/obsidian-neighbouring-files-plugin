@@ -1,0 +1,58 @@
+{
+	"file-explorer:reveal-active-file": [
+		{
+			"modifiers": ["Alt", "Shift"],
+			"key": "1"
+		}
+	],
+	"workspace:previous-tab": [
+		{
+			"modifiers": ["Alt"],
+			"key": "J"
+		}
+	],
+	"workspace:next-tab": [
+		{
+			"modifiers": ["Alt"],
+			"key": "K"
+		}
+	],
+	"editor:focus-left": [
+		{
+			"modifiers": ["Mod"],
+			"key": "J"
+		}
+	],
+	"workspace:close": [
+		{
+			"modifiers": ["Mod"],
+			"key": "Q"
+		},
+		{
+			"modifiers": ["Alt"],
+			"key": "Q"
+		}
+	],
+	"app:toggle-left-sidebar": [
+		{
+			"modifiers": ["Alt"],
+			"key": "1"
+		}
+	],
+	"app:toggle-right-sidebar": [
+		{
+			"modifiers": ["Alt"],
+			"key": "2"
+		}
+	],
+	"command-palette:open": [
+		{
+			"modifiers": ["Mod"],
+			"key": "P"
+		},
+		{
+			"modifiers": ["Alt"],
+			"key": "P"
+		}
+	]
+}
