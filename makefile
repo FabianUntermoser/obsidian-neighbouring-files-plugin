@@ -16,7 +16,11 @@ changeset:
 
 release:
 	npx changeset version
-	git add -A .changeset CHANGELOG.md
+release:
+	npx changeset version
+	git add .changeset CHANGELOG.md package.json
+	VERSION=$$(node -p "require('./package.json').version"); npm version --allow-same-version --force "$$VERSION" -m "release: %s"
+	git push && git push --tags
 	VERSION=$$(node -p "require('./package.json').version"); npm version --allow-same-version --force "$$VERSION" -m "release: %s"
 	git push && git push --tags
 
