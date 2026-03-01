@@ -11,6 +11,9 @@ install: build
 	-mkdir -p $(VAULT)/.obsidian/plugins/neighbouring-files/
 	-cp -rf $(FILES) $(VAULT)/.obsidian/plugins/neighbouring-files/
 
+changeset:
+	npx changeset
+
 release:
 	npx changeset version
 	git add -A .changeset CHANGELOG.md

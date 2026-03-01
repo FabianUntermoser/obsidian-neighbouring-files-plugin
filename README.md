@@ -79,6 +79,19 @@ nmap gn :next_file<cr>
 nmap gp :prev_file<cr>
 ```
 
+## Releasing
+
+1. Add a changeset for user-facing changes:
+   ```bash
+   make changeset
+   ```
+2. Publish with the Makefile release target:
+   ```bash
+   make release
+   ```
+
+`make release` runs Changesets versioning, creates the release commit/tag, and pushes tags to trigger the GitHub release workflow.
+
 ## License
 
 This project is licensed under [MIT License](LICENSE.md).
