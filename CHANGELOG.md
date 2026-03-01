@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.1.2
+
+### Patch Changes
+
+- 34ab5ef: add obsidian vault for manual plugin testing
+- be9e843: setup @changesets/cli for changelog
+
 ## 1.1.1
 
 - Add setting to control navigation behaviour on folder end by @FabianUntermoser in https://github.com/FabianUntermoser/obsidian-neighbouring-files-plugin/pull/23
