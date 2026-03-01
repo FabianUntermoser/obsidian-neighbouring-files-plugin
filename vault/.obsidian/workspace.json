@@ -4,17 +4,21 @@
     "type": "split",
     "children": [
       {
-        "id": "c3e77b0ed0c3f131",
+        "id": "3f61a73b3574d002",
         "type": "tabs",
         "children": [
           {
-            "id": "6a6a1d0656e1644c",
+            "id": "51f7e68f90929d83",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {},
+              "type": "markdown",
+              "state": {
+                "file": "README.md",
+                "mode": "source",
+                "source": false
+              },
               "icon": "lucide-file",
-              "title": "New tab"
+              "title": "README"
             }
           }
         ]
@@ -178,28 +182,30 @@
       "bases:Create new base": false
     }
   },
-  "active": "6a6a1d0656e1644c",
+  "active": "51f7e68f90929d83",
   "lastOpenFiles": [
-    "A/1.md",
-    "B/2.md",
-    "1.md",
-    "2.md",
-    "3.md",
-    "A/a/1.md",
-    "A/a/2.md",
-    "A/a/3.md",
-    "A/b/1.md",
-    "A/b/2.md",
-    "A/2.md",
-    "A/3.md",
-    "A/b/3.md",
+    "README.md",
     "B/3.md",
+    "B/2.md",
     "B/1.md",
+    "B",
+    "A/b/3.md",
+    "A/b/2.md",
+    "A/b/1.md",
+    "A/a/3.md",
+    "A/a/2.md",
+    "A/a/1.md",
     "A/b",
     "A/a",
-    "B",
+    "A/3.md",
+    "A/2.md",
+    "A/1.md",
+    "A",
+    "3.md",
+    "2.md",
+    "1.md",
+    "README.md~",
     "3 1.md",
-    "1 1.md",
-    "A"
+    "1 1.md"
   ]
 }
