@@ -1,0 +1,11 @@
+{
+	"id": "neighbouring-files",
+	"name": "Neighbouring Files",
+	"version": "1.1.1",
+	"minAppVersion": "0.15.0",
+	"description": "Navigate to the next and previous file in the current directory",
+	"author": "Fabian Untermoser",
+	"authorUrl": "https://www.ederbit.xyz",
+	"fundingUrl": "https://www.ederbit.xyz/coffee",
+	"isDesktopOnly": false
+}
