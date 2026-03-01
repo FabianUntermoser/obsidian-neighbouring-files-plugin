@@ -16,8 +16,6 @@ changeset:
 
 release:
 	npx changeset version
-release:
-	npx changeset version
 	git add .changeset CHANGELOG.md package.json
 	VERSION=$$(node -p "require('./package.json').version"); npm version --allow-same-version --force "$$VERSION" -m "release: %s"
 	git push && git push --tags
