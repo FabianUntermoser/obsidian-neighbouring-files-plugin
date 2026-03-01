@@ -29,7 +29,7 @@ Fix: Support Johny Decimal Sorting [#6](https://github.com/FabianUntermoser/obsi
 
 ## 1.0.5
 
-- Fix case insensitive navigation #7 ([PR](https://github.com/FabianUntermoser/obsidian-neighbouring-files-plugin/pull/8))
+- Fix case-insensitive navigation `#7` ([PR](https://github.com/FabianUntermoser/obsidian-neighbouring-files-plugin/pull/8))
 
 ## 1.0.4
 
