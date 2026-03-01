@@ -7,12 +7,14 @@
 
 ## 1.1.0
 
-## Breaking Changes
+## 1.1.0
+
+### Breaking Changes
 
 - The default command for navigation now follows the sort order defined by the file explorer. If you used the default command for navigation, you might need to change your shortcut to use a specific navigation command.
 - The sorting of files based on the modification timestamp has been swapped to match Obsidians behaviour.
 
-## What's Changed
+### What's Changed
 
 - feat: support reverse sorting and use file explorer sort order by @brendon-felix in https://github.com/FabianUntermoser/obsidian-neighbouring-files-plugin/pull/17
 - Swap Next/Prev for time-based ordering to match Obsidian by @FabianUntermoser in https://github.com/FabianUntermoser/obsidian-neighbouring-files-plugin/pull/21
