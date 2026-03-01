@@ -3,7 +3,7 @@ export const DEFAULT_SETTINGS: NeighbouringFileNavigatorPluginSettings = {
 	defaultSortOrder: "alphabetical",
 	// navigation options
 	enableFolderLoop: false,
-	enableFolderBoundary: true,
+	enableFolderBoundary: false,
 	// file mask
 	includedFileTypes: "markdownOnly",
 	additionalExtensions: ["canvas", "pdf"],
