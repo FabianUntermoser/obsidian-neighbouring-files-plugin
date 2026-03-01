@@ -54,8 +54,12 @@ In the settings you can enable support for other file types:
 - Specify additional file extensions to include
 
 ### Loop Notes in Folder
-- When disabled: Navigation stops at the beginning/end of a folder
-- When enabled: Navigation loops back to the start/end when reaching the end/beginning
+- When disabled: Navigation stops at the beginning/end of the current folder.
+- When enabled: Navigation loops back to the first/last note in the same folder.
+
+### Continue Across Folders
+- When disabled: Navigation stays within the current folder.
+- When enabled: Reaching a folder boundary continues navigation into adjacent folders.
 
 ### Configure VIMRC keybindings
 Instead of configuring obsidian hotkeys to trigger the navigation commands,
