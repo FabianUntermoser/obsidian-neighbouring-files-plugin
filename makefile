@@ -11,14 +11,10 @@ install: build
 	-mkdir -p $(VAULT)/.obsidian/plugins/neighbouring-files/
 	-cp -rf $(FILES) $(VAULT)/.obsidian/plugins/neighbouring-files/
 
-release-patch:
-	npm version patch -m "release: %s"
-	git push && git push --tags
-release-minor:
-	npm version minor -m "release: %s"
-	git push && git push --tags
-release-major:
-	npm version major -m "release: %s"
+release:
+	npx changeset version
+	git add -A .changeset CHANGELOG.md
+	VERSION=$$(node -p "require('./package.json').version"); npm version --allow-same-version --force "$$VERSION" -m "release: %s"
 	git push && git push --tags
 
 dev:
