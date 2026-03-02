@@ -1,7 +1,7 @@
 import NeighbouringFileNavigatorPluginSettings, {
 	SORT_ORDER,
 } from "NeighbouringFileNavigatorPluginSettings";
-import { TFile, Workspace } from "obsidian";
+import { TAbstractFile, TFile, TFolder, Workspace } from "obsidian";
 
 export type SortFn = (a: TFile, b: TFile) => number;
 
@@ -51,7 +51,7 @@ export class NeighbouringFileNavigator {
 		const sortOrder = this.getFileExplorerSortOrder(workspace);
 		console.debug("navigateToNextFile with sortOrder", sortOrder);
 		const sortFn = NeighbouringFileNavigator.sorters[sortOrder];
-		this.navigateToNeighbouringFile(workspace, sortFn);
+		this.navigateToNeighbouringFile(workspace, sortFn, true);
 	}
 
 	public navigateToPrevFile(workspace: Workspace) {
@@ -61,6 +61,7 @@ export class NeighbouringFileNavigator {
 		this.navigateToNeighbouringFile(
 			workspace,
 			NeighbouringFileNavigator.reverse(sortFn),
+			false,
 		);
 	}
 
@@ -69,6 +70,7 @@ export class NeighbouringFileNavigator {
 		this.navigateToNeighbouringFile(
 			workspace,
 			NeighbouringFileNavigator.sorters.alphabetical,
+			true,
 		);
 	}
 
@@ -77,6 +79,7 @@ export class NeighbouringFileNavigator {
 		this.navigateToNeighbouringFile(
 			workspace,
 			NeighbouringFileNavigator.sorters.alphabeticalReverse,
+			false,
 		);
 	}
 
@@ -85,6 +88,7 @@ export class NeighbouringFileNavigator {
 		this.navigateToNeighbouringFile(
 			workspace,
 			NeighbouringFileNavigator.sorters.byCreatedTime,
+			true,
 		);
 	}
 
@@ -93,6 +97,7 @@ export class NeighbouringFileNavigator {
 		this.navigateToNeighbouringFile(
 			workspace,
 			NeighbouringFileNavigator.sorters.byCreatedTimeReverse,
+			true,
 		);
 	}
 
@@ -101,6 +106,7 @@ export class NeighbouringFileNavigator {
 		this.navigateToNeighbouringFile(
 			workspace,
 			NeighbouringFileNavigator.sorters.byModifiedTime,
+			true,
 		);
 	}
 
@@ -109,48 +115,130 @@ export class NeighbouringFileNavigator {
 		this.navigateToNeighbouringFile(
 			workspace,
 			NeighbouringFileNavigator.sorters.byModifiedTimeReverse,
+			true,
 		);
 	}
 
-	public navigateToNeighbouringFile(workspace: Workspace, sortFn: SortFn) {
+	public navigateToNeighbouringFile(
+		workspace: Workspace,
+		sortFn: SortFn,
+		forward = true,
+	) {
 		const activeFile = workspace.getActiveFile();
 		if (!activeFile) return;
 
 		const files = this.getNeighbouringFiles(activeFile, sortFn);
-		if (!files) return;
+		if (!files.length) return;
 
 		const currentItem = files.findIndex(
 			(item) => item.name === activeFile.name,
 		);
+
+		if (currentItem === -1) return;
 
 		// loop inside folders
 		const nextIndex = this.settings.enableFolderLoop
 			? (currentItem + 1) % files.length
 			: Math.min(currentItem + 1, files.length - 1);
 
-		const toFile = files[nextIndex];
+		let toFile = files[nextIndex];
+
+		const atFolderBoundary =
+			!this.settings.enableFolderLoop &&
+			nextIndex === currentItem &&
+			currentItem === files.length - 1;
+
+		if (atFolderBoundary && this.settings.enableFolderBoundary) {
+			const boundaryFile = this.findBoundaryFile(
+				activeFile,
+				sortFn,
+				forward,
+			);
+			if (boundaryFile) {
+				toFile = boundaryFile;
+			}
+		}
+
+		if (!toFile) return;
 		workspace.getLeaf(false).openFile(toFile);
 	}
 
-	private filterFiletype(files: TFile) {
+	private filterFiletype(file: TFile) {
 		if (this.settings.includedFileTypes === "allFiles") return true;
 
 		if (this.settings.includedFileTypes === "markdownOnly") {
-			return files.extension === "md";
+			return file.extension === "md";
 		} else if (this.settings.includedFileTypes === "additionalExtensions") {
 			return (
-				files.extension === "md" ||
-				this.settings.additionalExtensions.includes(files.extension)
+				file.extension === "md" ||
+				this.settings.additionalExtensions.includes(file.extension)
 			);
 		}
 	}
 
 	public getNeighbouringFiles(file: TFile, sortFn: SortFn): TFile[] {
+		return file.parent
+			? this.getSortedFilesInFolder(file.parent, sortFn)
+			: [];
+	}
+
+	private getSortedFilesInFolder(folder: TFolder, sortFn: SortFn): TFile[] {
 		return (
-			file.parent?.children
-				.filter((f): f is TFile => f instanceof TFile)
-				.filter((f) => this.filterFiletype(f))
+			folder.children
+				?.filter((child): child is TFile => child instanceof TFile)
+				.filter((file) => this.filterFiletype(file))
 				.sort(sortFn) ?? []
 		);
+	}
+
+	private findBoundaryFile(
+		activeFile: TFile,
+		sortFn: SortFn,
+		forward: boolean,
+	): TFile | undefined {
+		let currentFolder = activeFile.parent;
+		if (!currentFolder) return undefined;
+
+		while (currentFolder && currentFolder.parent) {
+			const parentFolder: TFolder = currentFolder.parent;
+			const siblingFolders =
+				parentFolder.children?.filter(
+					(child: TAbstractFile): child is TFolder =>
+						child instanceof TFolder,
+				) ?? [];
+			const folderIndex = siblingFolders.findIndex(
+				(folder: TFolder) => folder === currentFolder,
+			);
+
+			if (folderIndex !== -1) {
+				const step = forward ? 1 : -1;
+				for (
+					let index = folderIndex + step;
+					index >= 0 && index < siblingFolders.length;
+					index += step
+				) {
+					const folder = siblingFolders[index];
+					const sortedFiles = this.getSortedFilesInFolder(
+						folder,
+						sortFn,
+					);
+					if (sortedFiles.length) {
+						return sortedFiles[0];
+					}
+				}
+			}
+
+			const parentFiles = this.getSortedFilesInFolder(
+				parentFolder,
+				sortFn,
+			);
+			if (parentFiles.length) {
+				return parentFiles[0];
+			}
+
+			currentFolder = parentFolder;
+		}
+
+		return undefined;
 	}
 }

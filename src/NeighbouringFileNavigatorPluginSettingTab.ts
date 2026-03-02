@@ -41,6 +41,17 @@ export default class NeighbouringFileNavigatorPluginSettingTab extends PluginSet
 			});
 
 		new Setting(containerEl)
+			.setName('Continue Across Folders')
+			.setDesc('Move to adjacent folders when navigating beyond the current folder boundary.')
+			.addToggle((toggle) => {
+				toggle.setValue(this.plugin.settings.enableFolderBoundary);
+				toggle.onChange(async (value: boolean) => {
+					this.plugin.settings.enableFolderBoundary = value;
+					await this.plugin.saveSettings();
+				});
+			});
+
+		new Setting(containerEl)
 			.setName('Included File Types')
 			.setDesc('Set which file types to include in the navigation')
 			.addDropdown((dropdown) => {
