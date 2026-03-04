@@ -15,7 +15,7 @@ This [Obsidian](https://obsidian.md/) Plugin adds navigational commands that let
 ### Use Case
 
 -   Navigate from one weekly note to another (e.g., `2023-W17` → `2023-W18`)
--   Move between daily notes (e.g., `2023-04-31` → `2023-05-01`)
+-   Move between daily notes (e.g., `2023-05-31` → `2023-06-01`)
 -   Browse sequentially numbered notes (e.g., `A4` → `A5`)
 -   Navigate through project files in a folder
 
