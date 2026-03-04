@@ -27,8 +27,19 @@ const createDir = (name: string): TFolder => {
 	return dir;
 };
 
-const setup = (children: Array<TAbstractFile>) => {
-	const parent = new TFolder();
+const createFolder = (
+	name: string,
+	children: Array<TAbstractFile> = []
+): TFolder => {
+	const folder = createDir(name);
+	setup(children, folder);
+	return folder;
+};
+
+const setup = (
+	children: Array<TAbstractFile>,
+	parent: TFolder = new TFolder()
+) => {
 	parent.children = children;
 	children.forEach((c) => {
 		c.parent = parent;
@@ -36,32 +47,9 @@ const setup = (children: Array<TAbstractFile>) => {
 	return children;
 };
 
-const attachChildren = (parent: TFolder, children: Array<TAbstractFile>) => {
-	parent.children = children;
-	children.forEach((child) => {
-		child.parent = parent;
-	});
-	return children;
-};
-
 const setupFiles = (names: Array<string>) => {
 	const children = names.map((c) => createNote(c));
 	return setup(children) as TFile[];
-};
-
-const setupFolder = (names: Array<string>, parent?: TFolder) => {
-	const folder = createDir(names.join("-"));
-	const files = names.map((name) => createNote(name));
-	folder.children = files;
-	files.forEach((file) => {
-		file.parent = folder;
-	});
-	if (parent) {
-		folder.parent = parent;
-		parent.children = parent.children ?? [];
-		parent.children.push(folder);
-	}
-	return folder;
 };
 
 const expectNeighbours = (files: Array<TFile>) => {
@@ -85,7 +73,7 @@ describe("NeighbouringFileNavigator", () => {
 	});
 
 	describe("Sorting", () => {
-		it("should contain all files", () => {
+		it("contains all files", () => {
 			// GIVEN
 			const files = setupFiles(["1", "2", "3"]);
 
@@ -100,7 +88,7 @@ describe("NeighbouringFileNavigator", () => {
 			files.forEach((child) => expect(neighbours).toContain(child));
 		});
 
-		it("should only filter for markdown files", () => {
+		it("filters markdown files only", () => {
 			// GIVEN
 			const files = setup([
 				createNote("1"),
@@ -120,7 +108,7 @@ describe("NeighbouringFileNavigator", () => {
 			expect(neighbours).toContain(files[1]);
 		});
 
-		it("should filter out directories", () => {
+		it("filters out directories", () => {
 			// GIVEN
 			const files = setup([
 				createNote("1"),
@@ -138,7 +126,7 @@ describe("NeighbouringFileNavigator", () => {
 			expect(neighbours).toContain(files[0]);
 		});
 
-		it("should sort files", () => {
+		it("sorts files", () => {
 			// GIVEN
 			const files = setupFiles(["2", "1", "3"]);
 
@@ -152,7 +140,7 @@ describe("NeighbouringFileNavigator", () => {
 			expectNeighbours(neighbours).toEqual(["1", "2", "3"]);
 		});
 
-		it("should sort ignoring case", () => {
+		it("sorts case-insensitively", () => {
 			// GIVEN
 			const files = setupFiles(["test - 3", "Test - 2", "test - 1"]);
 
@@ -170,7 +158,7 @@ describe("NeighbouringFileNavigator", () => {
 			]);
 		});
 
-		it("should sort johny decimal", () => {
+		it("sorts johny decimal", () => {
 			// GIVEN
 			const files = setupFiles([
 				"2.2",
@@ -202,7 +190,7 @@ describe("NeighbouringFileNavigator", () => {
 			]);
 		});
 
-		it("should sort files based on creation timestamp", () => {
+		it("sorts by creation time", () => {
 			// GIVEN
 			const files = setup([
 				createNote("2", {
@@ -232,7 +220,7 @@ describe("NeighbouringFileNavigator", () => {
 			expectNeighbours(neighbours).toEqual(["1", "2", "3"]);
 		});
 
-		it("should sort files based on modified timestamp", () => {
+		it("sorts by modified time", () => {
 			// GIVEN
 			const files = setup([
 				createNote("2", {
@@ -264,9 +252,13 @@ describe("NeighbouringFileNavigator", () => {
 	});
 
 	describe("Settings: File Types", () => {
-		it("should include markdown only", () => {
-			// GIVEN
+		beforeEach(() => {
 			settings.includedFileTypes = "markdownOnly";
+			settings.additionalExtensions = ["canvas", "pdf"];
+		});
+
+		it("includes markdown only", () => {
+			// GIVEN
 			const files = setup([
 				createNote("1"),
 				createNote("2"),
@@ -284,7 +276,7 @@ describe("NeighbouringFileNavigator", () => {
 			expectNeighbours(neighbours).toEqual(["1", "2"]);
 		});
 
-		it("should include specified extensions", () => {
+		it("includes specified extensions", () => {
 			// GIVEN
 			settings.includedFileTypes = "additionalExtensions";
 			settings.additionalExtensions = ["pdf"];
@@ -305,7 +297,7 @@ describe("NeighbouringFileNavigator", () => {
 			expectNeighbours(neighbours).toEqual(["1", "2", "4"]);
 		});
 
-		it("should include all files", () => {
+		it("includes all files", () => {
 			// GIVEN
 			settings.includedFileTypes = "allFiles";
 			const files = setup([
@@ -327,7 +319,11 @@ describe("NeighbouringFileNavigator", () => {
 	});
 
 	describe("Settings: Folder Loop", () => {
-		it("should loop folder", () => {
+		beforeEach(() => {
+			settings.enableFolderLoop = false;
+		});
+
+		it("loops folder", () => {
 			// GIVEN
 			const files = setupFiles(["1", "2", "3"]);
 			workspace.getActiveFile.mockReturnValue(files[2]);
@@ -342,11 +338,10 @@ describe("NeighbouringFileNavigator", () => {
 			expect(leaf.openFile).not.toHaveBeenCalledWith(files[2]);
 		});
 
-		it("should not loop folders", () => {
+		it("does not loop folder", () => {
 			// GIVEN
 			const files = setupFiles(["1", "2", "3"]);
 			workspace.getActiveFile.mockReturnValue(files[2]);
-			settings.enableFolderLoop = false;
 
 			// WHEN
 			navigator.navigateToNextAlphabeticalFile(workspace);
@@ -359,54 +354,151 @@ describe("NeighbouringFileNavigator", () => {
 	});
 
 	describe("Settings: Folder Boundaries", () => {
-		it("should navigate across folders", () => {
-			// GIVEN
-			const rootFolder = createDir("root");
-			const folderA = setupFolder(["1", "2", "3"], rootFolder);
-			const folderB = setupFolder(["4", "5", "6"], rootFolder);
-			workspace.getActiveFile.mockReturnValue(
-				folderA.children[folderA.children.length - 1]
-			);
+		beforeEach(() => {
+			settings.enableFolderLoop = false;
 			settings.enableFolderBoundary = true;
+		});
 
+		it("crosses to next folder", () => {
+			// GIVEN
+			const fromFile = createNote("3");
+			const expectedFile = createNote("4");
+			setup([
+				createFolder("FolderA", [fromFile]),
+				createFolder("FolderB", [expectedFile]),
+			]);
+			workspace.getActiveFile.mockReturnValue(fromFile);
 			// WHEN
 			navigator.navigateToNextAlphabeticalFile(workspace);
 
 			// THEN
-			expect(leaf.openFile).toHaveBeenCalledWith(folderB.children[0]);
+			expect(leaf.openFile).toHaveBeenCalledWith(expectedFile);
 		});
 
-		it("should move to an ancestor file when no siblings remain", () => {
+		it("crosses forward into nested sibling", () => {
 			// GIVEN
-			const root = createDir("root");
-			const folderD = createDir("FolderD");
-			const folderE = createDir("FolderE");
-			const folderC = createDir("FolderC");
-			const folderA = createDir("FolderA");
-			const folderB = createDir("FolderB");
+			const fileA = createNote("A");
+			const fileB = createNote("B");
+			setup([
+				createFolder("FolderA", [fileA]),
+				createFolder("FolderB", [createFolder("FolderBSub", [fileB])]),
+			]);
+			workspace.getActiveFile.mockReturnValue(fileA);
+			// WHEN
+			navigator.navigateToNextAlphabeticalFile(workspace);
 
+			// THEN
+			expect(leaf.openFile).toHaveBeenCalledWith(fileB);
+		});
+
+		it("crosses backward into deepest sibling", () => {
+			// GIVEN
+			const fileA1 = createNote("A1");
+			const expectedFile = createNote("A2");
+			const fileB = createNote("B");
+			setup([
+				createFolder("FolderA", [
+					fileA1,
+					createFolder("FolderASub", [expectedFile]),
+				]),
+				createFolder("FolderB", [fileB]),
+			]);
+			workspace.getActiveFile.mockReturnValue(fileB);
+			// WHEN
+			navigator.navigateToPrevAlphabeticalFile(workspace);
+
+			// THEN
+			expect(leaf.openFile).toHaveBeenCalledWith(expectedFile);
+		});
+
+		it("falls back to ancestor file", () => {
+			// GIVEN
 			const fileInE = createNote("Ancestor File");
 			const fileA1 = createNote("File A1");
-			const fileA2 = createNote("File A2");
-			const fileB1 = createNote("File B1");
-			const fileB2 = createNote("File B2");
-
-			attachChildren(folderA, [fileA1, fileA2]);
-			attachChildren(folderB, [fileB1, fileB2]);
-			attachChildren(folderC, [folderA, folderB]);
-			attachChildren(folderE, [fileInE, folderC]);
-			attachChildren(folderD, [folderE]);
-			attachChildren(root, [folderD]);
+			setup([
+				createFolder("FolderD", [
+					createFolder("FolderE", [
+						fileInE,
+						createFolder("FolderC", [
+							createFolder("FolderA", [fileA1]),
+						]),
+					]),
+				]),
+			]);
 
 			workspace.getActiveFile.mockReturnValue(fileA1);
-			settings.enableFolderBoundary = true;
-
 			// WHEN
 			navigator.navigateToPrevAlphabeticalFile(workspace);
 
 			// THEN
 			expect(leaf.openFile).toHaveBeenCalledWith(fileInE);
-			settings.enableFolderBoundary = false;
+		});
+	});
+
+	describe("Folder Navigation Commands", () => {
+		it("goes to parent folder", () => {
+			// GIVEN
+			const rootFile1 = createNote("1");
+			const fileA1 = createNote("A1");
+			setup([rootFile1, createFolder("FolderA", [fileA1])]);
+			workspace.getActiveFile.mockReturnValue(fileA1);
+
+			// WHEN
+			navigator.navigateToParentFolder(workspace);
+
+			// THEN
+			expect(leaf.openFile).toHaveBeenCalledWith(rootFile1);
+		});
+
+		it("goes to first child folder", () => {
+			// GIVEN
+			const rootFile = createNote("Root");
+			const fileB1 = createNote("B1");
+			setup([rootFile, createFolder("FolderB", [fileB1])]);
+			workspace.getActiveFile.mockReturnValue(rootFile);
+
+			// WHEN
+			navigator.navigateToFirstChildFolder(workspace);
+
+			// THEN
+			expect(leaf.openFile).toHaveBeenCalledWith(fileB1);
+		});
+
+		it("goes to next sibling folder", () => {
+			// GIVEN
+			const fileA1 = createNote("A1");
+			const fileC1 = createNote("C1");
+			setup([
+				createFolder("FolderA", [fileA1]),
+				createFolder("FolderB", []),
+				createFolder("FolderC", [fileC1]),
+			]);
+			workspace.getActiveFile.mockReturnValue(fileA1);
+
+			// WHEN
+			navigator.navigateToNextSiblingFolder(workspace);
+
+			// THEN
+			expect(leaf.openFile).toHaveBeenCalledWith(fileC1);
+		});
+
+		it("goes to previous sibling folder", () => {
+			// GIVEN
+			const fileA1 = createNote("A1");
+			const fileA2 = createNote("A2");
+			const fileC1 = createNote("C1");
+			setup([
+				createFolder("FolderA", [fileA1, fileA2]),
+				createFolder("FolderB", []),
+				createFolder("FolderC", [fileC1]),
+			]);
+			workspace.getActiveFile.mockReturnValue(fileC1);
+
+			// WHEN
+			navigator.navigateToPrevSiblingFolder(workspace);
+
+			// THEN
+			expect(leaf.openFile).toHaveBeenCalledWith(fileA2);
 		});
 	});
 });
