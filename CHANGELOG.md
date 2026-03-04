@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.1.3
+
+### Patch Changes
+
+- 94d0d80: upgrade dependencies
+- 381ea24: add folder based navigation commands (up, down, next, prev)
+- 611e505: Add option to navigate across folder boundaries
+
 ## 1.1.2
 
 ### Patch Changes
