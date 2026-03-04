@@ -58,11 +58,7 @@ export class NeighbouringFileNavigator {
 		const sortOrder = this.getFileExplorerSortOrder(workspace);
 		console.debug("navigateToPrevFile with sortOrder", sortOrder);
 		const sortFn = NeighbouringFileNavigator.sorters[sortOrder];
-		this.navigateToNeighbouringFile(
-			workspace,
-			NeighbouringFileNavigator.reverse(sortFn),
-			false,
-		);
+		this.navigateToNeighbouringFile(workspace, sortFn, false);
 	}
 
 	public navigateToNextAlphabeticalFile(workspace: Workspace) {
@@ -70,7 +66,7 @@ export class NeighbouringFileNavigator {
 		this.navigateToNeighbouringFile(
 			workspace,
 			NeighbouringFileNavigator.sorters.alphabetical,
-			true,
+			true
 		);
 	}
 
@@ -78,8 +74,8 @@ export class NeighbouringFileNavigator {
 		console.debug("navigateToPrevAlphabeticalFile");
 		this.navigateToNeighbouringFile(
 			workspace,
-			NeighbouringFileNavigator.sorters.alphabeticalReverse,
-			false,
+			NeighbouringFileNavigator.sorters.alphabetical,
+			false
 		);
 	}
 
@@ -88,7 +84,7 @@ export class NeighbouringFileNavigator {
 		this.navigateToNeighbouringFile(
 			workspace,
 			NeighbouringFileNavigator.sorters.byCreatedTime,
-			true,
+			true
 		);
 	}
 
@@ -97,7 +93,7 @@ export class NeighbouringFileNavigator {
 		this.navigateToNeighbouringFile(
 			workspace,
 			NeighbouringFileNavigator.sorters.byCreatedTimeReverse,
-			true,
+			true
 		);
 	}
 
@@ -106,7 +102,7 @@ export class NeighbouringFileNavigator {
 		this.navigateToNeighbouringFile(
 			workspace,
 			NeighbouringFileNavigator.sorters.byModifiedTime,
-			true,
+			true
 		);
 	}
 
@@ -115,14 +111,14 @@ export class NeighbouringFileNavigator {
 		this.navigateToNeighbouringFile(
 			workspace,
 			NeighbouringFileNavigator.sorters.byModifiedTimeReverse,
-			true,
+			true
 		);
 	}
 
 	public navigateToNeighbouringFile(
 		workspace: Workspace,
 		sortFn: SortFn,
-		forward = true,
+		forward = true
 	) {
 		const activeFile = workspace.getActiveFile();
 		if (!activeFile) return;
@@ -131,28 +127,37 @@ export class NeighbouringFileNavigator {
 		if (!files.length) return;
 
 		const currentItem = files.findIndex(
-			(item) => item.name === activeFile.name,
+			(item) => item.name === activeFile.name
 		);
 
 		if (currentItem === -1) return;
 
+		const delta = forward ? 1 : -1;
+		const tentativeIndex = currentItem + delta;
+		const isAtBoundary =
+			tentativeIndex < 0 || tentativeIndex >= files.length;
 		// loop inside folders
 		const nextIndex = this.settings.enableFolderLoop
-			? (currentItem + 1) % files.length
-			: Math.min(currentItem + 1, files.length - 1);
+			? isAtBoundary
+				? forward
+					? 0
+					: files.length - 1
+				: tentativeIndex
+			: Math.max(0, Math.min(tentativeIndex, files.length - 1));
 
 		let toFile = files[nextIndex];
 
 		const atFolderBoundary =
 			!this.settings.enableFolderLoop &&
 			nextIndex === currentItem &&
-			currentItem === files.length - 1;
+			isAtBoundary &&
+			(forward ? currentItem === files.length - 1 : currentItem === 0);
 
 		if (atFolderBoundary && this.settings.enableFolderBoundary) {
 			const boundaryFile = this.findBoundaryFile(
 				activeFile,
 				sortFn,
-				forward,
+				forward
 			);
 			if (boundaryFile) {
 				toFile = boundaryFile;
@@ -194,7 +199,7 @@ export class NeighbouringFileNavigator {
 	private findBoundaryFile(
 		activeFile: TFile,
 		sortFn: SortFn,
-		forward: boolean,
+		forward: boolean
 	): TFile | undefined {
 		let currentFolder = activeFile.parent;
 		if (!currentFolder) return undefined;
@@ -204,10 +209,10 @@ export class NeighbouringFileNavigator {
 			const siblingFolders =
 				parentFolder.children?.filter(
 					(child: TAbstractFile): child is TFolder =>
-						child instanceof TFolder,
+						child instanceof TFolder
 				) ?? [];
 			const folderIndex = siblingFolders.findIndex(
-				(folder: TFolder) => folder === currentFolder,
+				(folder: TFolder) => folder === currentFolder
 			);
 
 			if (folderIndex !== -1) {
@@ -220,20 +225,24 @@ export class NeighbouringFileNavigator {
 					const folder = siblingFolders[index];
 					const sortedFiles = this.getSortedFilesInFolder(
 						folder,
-						sortFn,
+						sortFn
 					);
 					if (sortedFiles.length) {
-						return sortedFiles[0];
+						return forward
+							? sortedFiles[0]
+							: sortedFiles[sortedFiles.length - 1];
 					}
 				}
 			}
 
 			const parentFiles = this.getSortedFilesInFolder(
 				parentFolder,
-				sortFn,
+				sortFn
 			);
 			if (parentFiles.length) {
-				return parentFiles[0];
+				return forward
+					? parentFiles[0]
+					: parentFiles[parentFiles.length - 1];
 			}
 
 			currentFolder = parentFolder;
