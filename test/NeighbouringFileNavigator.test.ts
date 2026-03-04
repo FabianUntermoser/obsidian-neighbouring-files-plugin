@@ -10,7 +10,7 @@ const createNote = (name: string, stats?: FileStats): TFile =>
 const createFile = (
 	name: string,
 	extension: string,
-	stats?: FileStats,
+	stats?: FileStats
 ): TFile => {
 	const f = new TFile();
 	f.basename = name;
@@ -30,13 +30,17 @@ const createDir = (name: string): TFolder => {
 const setup = (children: Array<TAbstractFile>) => {
 	const parent = new TFolder();
 	parent.children = children;
-	children.forEach((c) => (c.parent = parent));
+	children.forEach((c) => {
+		c.parent = parent;
+	});
 	return children;
 };
 
 const attachChildren = (parent: TFolder, children: Array<TAbstractFile>) => {
 	parent.children = children;
-	children.forEach((child) => (child.parent = parent));
+	children.forEach((child) => {
+		child.parent = parent;
+	});
 	return children;
 };
 
@@ -49,7 +53,9 @@ const setupFolder = (names: Array<string>, parent?: TFolder) => {
 	const folder = createDir(names.join("-"));
 	const files = names.map((name) => createNote(name));
 	folder.children = files;
-	files.forEach((file) => (file.parent = folder));
+	files.forEach((file) => {
+		file.parent = folder;
+	});
 	if (parent) {
 		folder.parent = parent;
 		parent.children = parent.children ?? [];
@@ -86,7 +92,7 @@ describe("NeighbouringFileNavigator", () => {
 			// WHEN
 			const neighbours = navigator.getNeighbouringFiles(
 				files[0],
-				NeighbouringFileNavigator.localeSorter,
+				NeighbouringFileNavigator.localeSorter
 			);
 
 			// THEN
@@ -105,7 +111,7 @@ describe("NeighbouringFileNavigator", () => {
 			// WHEN
 			const neighbours = navigator.getNeighbouringFiles(
 				files[0],
-				NeighbouringFileNavigator.localeSorter,
+				NeighbouringFileNavigator.localeSorter
 			);
 
 			// THEN
@@ -124,7 +130,7 @@ describe("NeighbouringFileNavigator", () => {
 			// WHEN
 			const neighbours = navigator.getNeighbouringFiles(
 				files[0],
-				NeighbouringFileNavigator.localeSorter,
+				NeighbouringFileNavigator.localeSorter
 			);
 
 			// THEN
@@ -139,7 +145,7 @@ describe("NeighbouringFileNavigator", () => {
 			// WHEN
 			const neighbours = navigator.getNeighbouringFiles(
 				files[0],
-				NeighbouringFileNavigator.localeSorter,
+				NeighbouringFileNavigator.localeSorter
 			);
 
 			// THEN
@@ -153,7 +159,7 @@ describe("NeighbouringFileNavigator", () => {
 			// WHEN
 			const neighbours = navigator.getNeighbouringFiles(
 				files[0],
-				NeighbouringFileNavigator.localeSorter,
+				NeighbouringFileNavigator.localeSorter
 			);
 
 			// THEN
@@ -180,7 +186,7 @@ describe("NeighbouringFileNavigator", () => {
 			// WHEN
 			const neighbours = navigator.getNeighbouringFiles(
 				files[0],
-				NeighbouringFileNavigator.localeSorter,
+				NeighbouringFileNavigator.localeSorter
 			);
 
 			// THEN
@@ -219,7 +225,7 @@ describe("NeighbouringFileNavigator", () => {
 			// WHEN
 			const neighbours = navigator.getNeighbouringFiles(
 				files[0],
-				NeighbouringFileNavigator.ctimeSorter,
+				NeighbouringFileNavigator.ctimeSorter
 			);
 
 			// THEN
@@ -249,7 +255,7 @@ describe("NeighbouringFileNavigator", () => {
 			// WHEN
 			const neighbours = navigator.getNeighbouringFiles(
 				files[0],
-				NeighbouringFileNavigator.mtimeSorter,
+				NeighbouringFileNavigator.mtimeSorter
 			);
 
 			// THEN
@@ -271,7 +277,7 @@ describe("NeighbouringFileNavigator", () => {
 			// WHEN
 			const neighbours = navigator.getNeighbouringFiles(
 				files[0] as TFile,
-				NeighbouringFileNavigator.localeSorter,
+				NeighbouringFileNavigator.localeSorter
 			);
 
 			// THEN
@@ -292,7 +298,7 @@ describe("NeighbouringFileNavigator", () => {
 			// WHEN
 			const neighbours = navigator.getNeighbouringFiles(
 				files[0] as TFile,
-				NeighbouringFileNavigator.localeSorter,
+				NeighbouringFileNavigator.localeSorter
 			);
 
 			// THEN
@@ -312,7 +318,7 @@ describe("NeighbouringFileNavigator", () => {
 			// WHEN
 			const neighbours = navigator.getNeighbouringFiles(
 				files[0] as TFile,
-				NeighbouringFileNavigator.localeSorter,
+				NeighbouringFileNavigator.localeSorter
 			);
 
 			// THEN
@@ -359,7 +365,7 @@ describe("NeighbouringFileNavigator", () => {
 			const folderA = setupFolder(["1", "2", "3"], rootFolder);
 			const folderB = setupFolder(["4", "5", "6"], rootFolder);
 			workspace.getActiveFile.mockReturnValue(
-				folderA.children[folderA.children.length - 1],
+				folderA.children[folderA.children.length - 1]
 			);
 			settings.enableFolderBoundary = true;
 
