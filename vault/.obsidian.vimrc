@@ -111,6 +111,17 @@ exmap older_file_created obcommand neighbouring-files:newer-created
 exmap next_file_modified obcommand neighbouring-files:next-modified
 exmap prev_file_modified obcommand neighbouring-files:prev-modified
 
+exmap folder_up obcommand neighbouring-files:folder-up
+exmap folder_down obcommand neighbouring-files:folder-down
+exmap folder_next obcommand neighbouring-files:folder-next
+exmap folder_prev obcommand neighbouring-files:folder-prev
+
 " obsidian-neighbouring-files-plugin: mappings
-nmap gn :next_file_alphabetical<cr>
-nmap gp :prev_file_alphabetical<cr>
+nmap n :next_file_alphabetical<cr>
+nmap p :prev_file_alphabetical<cr>
+nmap fu :folder_up<cr>
+nmap fd :folder_down<cr>
+nmap fn :folder_next<cr>
+nmap fp :folder_prev<cr>
+nmap gf :folder_next<cr>
+nmap gb :folder_prev<cr>
