@@ -1,4 +1,5 @@
 # Navigate to Neighbouring Files
+
 <p align="left">
   <img alt="GitHub" src="https://img.shields.io/github/license/FabianUntermoser/obsidian-neighbouring-files-plugin?color=blue&style=flat-square">
   <img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/FabianUntermoser/obsidian-neighbouring-files-plugin?style=flat-square">
@@ -13,55 +14,84 @@ This [Obsidian](https://obsidian.md/) Plugin adds navigational commands that let
 
 ### Use Case
 
-- Navigate from one weekly note to another (e.g., `2023-W17` → `2023-W18`)
-- Move between daily notes (e.g., `2023-04-31` → `2023-05-01`)
-- Browse sequentially numbered notes (e.g., `A4` → `A5`)
-- Navigate through project files in a folder
+-   Navigate from one weekly note to another (e.g., `2023-W17` → `2023-W18`)
+-   Move between daily notes (e.g., `2023-04-31` → `2023-05-01`)
+-   Browse sequentially numbered notes (e.g., `A4` → `A5`)
+-   Navigate through project files in a folder
 
 [obsidian-neighbouring-files.webm](https://github.com/user-attachments/assets/cdc04e2b-e3d9-4d77-8b2c-cbfa4ef4436d)
 
 ### Commands
 
 Default Commands:
-- Navigate to next file
-- Navigate to prev file
+
+-   Navigate to next file
+-   Navigate to prev file
 
 Commands:
-- Navigate to next file (alphabetical)
-- Navigate to prev file (alphabetical)
-- Navigate to older file (creation timestamp)
-- Navigate to newer file (creation timestamp)
-- Navigate to older file (modified timestamp)
-- Navigate to newer file (modified timestamp)
+
+-   Navigate to next file (alphabetical)
+-   Navigate to prev file (alphabetical)
+-   Navigate to older file (creation timestamp)
+-   Navigate to newer file (creation timestamp)
+-   Navigate to older file (modified timestamp)
+-   Navigate to newer file (modified timestamp)
+-   Folder up
+-   Folder down
+-   Next folder
+-   Prev folder
 
 Supported Sorting Modes:
-- Alphabetical: Ordered by file names.
-- By Modification Timestamp: Based on the file modification date.
-- By Creation Timestamp: Based on the file creation date.
+
+-   Alphabetical: Ordered by file names.
+-   By Modification Timestamp: Based on the file modification date.
+-   By Creation Timestamp: Based on the file creation date.
 
 ## Configuration
 
 ### Default Sort Order
+
 The default command uses the same sort order as the [File explorer](https://help.obsidian.md/Plugins/File+explorer).
 You can configure a fallback sort order in the plugin settings.
 
 ### Included File Types
+
 By default, navigation is restricted to markdown files.
 In the settings you can enable support for other file types:
 
-- Limit to Markdown files only
-- Include all file types
-- Specify additional file extensions to include
+-   Limit to Markdown files only
+-   Include all file types
+-   Specify additional file extensions to include
 
 ### Loop Notes in Folder
-- When disabled: Navigation stops at the beginning/end of the current folder.
-- When enabled: Navigation loops back to the first/last note in the same folder.
+
+-   When disabled: Navigation stops at the beginning/end of the current folder.
+-   When enabled: Navigation loops back to the first/last note in the same folder.
 
 ### Continue Across Folders
-- When disabled: Navigation stays within the current folder.
-- When enabled: Reaching a folder boundary continues navigation into adjacent folders.
+
+-   When disabled: Navigation stays within the current folder.
+-   When enabled: Reaching a folder boundary continues navigation into adjacent folders.
+
+```
+vault
+├── 1.md
+├── 2.md <- Cursor (prev goes up, next goes to A/1.md)
+├── A
+│   ├── 1.md <- Cursor (prev goes to vault/2, next goes to A/2.md)
+│   ├── 2.md
+│   └── B
+│       ├── 1.md
+│       └── 3.md <- Cursor (prev goes B/1, next goes to C/1)
+├── C
+│   ├── 1.md
+│   ├── 2.md
+│   └── 3.md
+└── README.md
+```
 
 ### Configure VIMRC keybindings
+
 Instead of configuring obsidian hotkeys to trigger the navigation commands,
 you can also use the [obsidian-vimrc-support](https://github.com/esm7/obsidian-vimrc-support) plugin to map more useful hotkeys such as `gn` or `gp`
 (Caveat: This only works when the editor mode is on).
@@ -78,21 +108,29 @@ exmap older_file_created     obcommand neighbouring-files:older-created
 exmap newer_file_created     obcommand neighbouring-files:newer-created
 exmap older_file_modified    obcommand neighbouring-files:older-modified
 exmap newer_file_modified    obcommand neighbouring-files:newer-modified
+exmap folder_up              obcommand neighbouring-files:folder-up
+exmap folder_down            obcommand neighbouring-files:folder-down
+exmap folder_next            obcommand neighbouring-files:folder-next
+exmap folder_prev            obcommand neighbouring-files:folder-prev
 " add navigation mappings
 nmap gn :next_file<cr>
 nmap gp :prev_file<cr>
+nmap fu :folder_up<cr>
+nmap fd :folder_down<cr>
+nmap fn :folder_next<cr>
+nmap fp :folder_prev<cr>
 ```
 
 ## Releasing
 
 1. Add a changeset for user-facing changes:
-   ```bash
-   make changeset
-   ```
+    ```bash
+    make changeset
+    ```
 2. Publish with the Makefile release target:
-   ```bash
-   make release
-   ```
+    ```bash
+    make release
+    ```
 
 `make release` runs Changesets versioning, creates the release commit/tag, and pushes tags to trigger the GitHub release workflow.
 

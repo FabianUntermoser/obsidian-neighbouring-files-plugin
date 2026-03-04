@@ -41,10 +41,15 @@ export class NeighbouringFileNavigator {
 
 	private getFileExplorerSortOrder(workspace: Workspace): SORT_ORDER {
 		return (
-			(workspace.getLeavesOfType("file-explorer")?.first()?.getViewState()
+			(workspace.getLeavesOfType?.("file-explorer")?.first()?.getViewState()
 				?.state?.sortOrder as SORT_ORDER) ??
 			this.settings.defaultSortOrder
 		);
+	}
+
+	private getCurrentSortFn(workspace: Workspace): SortFn {
+		const sortOrder = this.getFileExplorerSortOrder(workspace);
+		return NeighbouringFileNavigator.sorters[sortOrder];
 	}
 
 	public navigateToNextFile(workspace: Workspace) {
@@ -112,6 +117,45 @@ export class NeighbouringFileNavigator {
 			workspace,
 			NeighbouringFileNavigator.sorters.byModifiedTimeReverse,
 			true
+		);
+	}
+
+	private navigateToResolvedFile(
+		workspace: Workspace,
+		resolveTarget: (activeFile: TFile, sortFn: SortFn) => TFile | undefined
+	) {
+		const activeFile = workspace.getActiveFile();
+		if (!activeFile) return;
+
+		const toFile = resolveTarget(activeFile, this.getCurrentSortFn(workspace));
+		if (!toFile || toFile === activeFile) return;
+		workspace.getLeaf(false).openFile(toFile);
+	}
+
+	public navigateToParentFolder(workspace: Workspace) {
+		this.navigateToResolvedFile(workspace, (activeFile, sortFn) => {
+			const parentFolder = activeFile.parent?.parent;
+			return parentFolder
+				? this.findBoundaryFileInFolderTree(parentFolder, sortFn, true)
+				: undefined;
+		});
+	}
+
+	public navigateToFirstChildFolder(workspace: Workspace) {
+		this.navigateToResolvedFile(workspace, (activeFile, sortFn) =>
+			this.findFileInChildFolders(activeFile.parent, sortFn)
+		);
+	}
+
+	public navigateToNextSiblingFolder(workspace: Workspace) {
+		this.navigateToResolvedFile(workspace, (activeFile, sortFn) =>
+			this.findFileInSiblingFolders(activeFile.parent, sortFn, true)
+		);
+	}
+
+	public navigateToPrevSiblingFolder(workspace: Workspace) {
+		this.navigateToResolvedFile(workspace, (activeFile, sortFn) =>
+			this.findFileInSiblingFolders(activeFile.parent, sortFn, false)
 		);
 	}
 
@@ -190,10 +234,104 @@ export class NeighbouringFileNavigator {
 	private getSortedFilesInFolder(folder: TFolder, sortFn: SortFn): TFile[] {
 		return (
 			folder.children
-				?.filter((child): child is TFile => child instanceof TFile)
-				.filter((file) => this.filterFiletype(file))
-				.sort(sortFn) ?? []
+					?.filter((child): child is TFile => child instanceof TFile)
+					.filter((file) => this.filterFiletype(file))
+					.sort(sortFn) ?? []
 		);
+	}
+
+	private getChildFolders(folder: TFolder): TFolder[] {
+		return (
+			folder.children?.filter(
+				(child: TAbstractFile): child is TFolder => child instanceof TFolder
+			) ?? []
+		);
+	}
+
+	private findFileInChildFolders(
+		folder: TFolder | null | undefined,
+		sortFn: SortFn
+	): TFile | undefined {
+		if (!folder) return undefined;
+
+		for (const childFolder of this.getChildFolders(folder)) {
+			const toFile = this.findBoundaryFileInFolderTree(
+				childFolder,
+				sortFn,
+				true
+			);
+			if (toFile) return toFile;
+		}
+
+		return undefined;
+	}
+
+	private findFileInSiblingFolders(
+		currentFolder: TFolder | null | undefined,
+		sortFn: SortFn,
+		forward: boolean
+	): TFile | undefined {
+		if (!currentFolder?.parent) return undefined;
+
+		const siblingFolders = this.getChildFolders(currentFolder.parent);
+		const currentFolderIndex = siblingFolders.findIndex(
+			(folder) => folder === currentFolder
+		);
+		if (currentFolderIndex === -1) return undefined;
+
+		const step = forward ? 1 : -1;
+		for (
+			let folderIndex = currentFolderIndex + step;
+			folderIndex >= 0 && folderIndex < siblingFolders.length;
+			folderIndex += step
+		) {
+			const toFile = this.findBoundaryFileInFolderTree(
+				siblingFolders[folderIndex],
+				sortFn,
+				forward
+			);
+			if (toFile) return toFile;
+		}
+
+		return undefined;
+	}
+
+	private findBoundaryFileInFolderTree(
+		folder: TFolder,
+		sortFn: SortFn,
+		forward: boolean,
+	): TFile | undefined {
+		const sortedFiles = this.getSortedFilesInFolder(folder, sortFn);
+		const childFolders = this.getChildFolders(folder);
+		const orderedChildFolders = forward
+			? childFolders
+			: childFolders.slice().reverse();
+
+		if (forward) {
+			if (sortedFiles.length) return sortedFiles[0];
+			for (const childFolder of orderedChildFolders) {
+				const file = this.findBoundaryFileInFolderTree(
+					childFolder,
+					sortFn,
+					forward,
+				);
+				if (file) return file;
+			}
+			return undefined;
+		}
+
+		for (const childFolder of orderedChildFolders) {
+			const file = this.findBoundaryFileInFolderTree(
+				childFolder,
+				sortFn,
+				forward,
+			);
+			if (file) return file;
+		}
+
+		return sortedFiles.length
+			? sortedFiles[sortedFiles.length - 1]
+			: undefined;
 	}
 
 	private findBoundaryFile(
@@ -206,34 +344,12 @@ export class NeighbouringFileNavigator {
 
 		while (currentFolder && currentFolder.parent) {
 			const parentFolder: TFolder = currentFolder.parent;
-			const siblingFolders =
-				parentFolder.children?.filter(
-					(child: TAbstractFile): child is TFolder =>
-						child instanceof TFolder
-				) ?? [];
-			const folderIndex = siblingFolders.findIndex(
-				(folder: TFolder) => folder === currentFolder
+			const boundaryFile = this.findFileInSiblingFolders(
+				currentFolder,
+				sortFn,
+				forward
 			);
-
-			if (folderIndex !== -1) {
-				const step = forward ? 1 : -1;
-				for (
-					let index = folderIndex + step;
-					index >= 0 && index < siblingFolders.length;
-					index += step
-				) {
-					const folder = siblingFolders[index];
-					const sortedFiles = this.getSortedFilesInFolder(
-						folder,
-						sortFn
-					);
-					if (sortedFiles.length) {
-						return forward
-							? sortedFiles[0]
-							: sortedFiles[sortedFiles.length - 1];
-					}
-				}
-			}
+			if (boundaryFile) return boundaryFile;
 
 			const parentFiles = this.getSortedFilesInFolder(
 				parentFolder,

@@ -16,6 +16,8 @@ export default class NeighbouringFileNavigatorPlugin extends Plugin {
 		);
 		this.navigator = new NeighbouringFileNavigator(this.settings);
 
+		// File based navigation
+
 		this.addCommand({
 			id: "next",
 			name: "Navigate to next file",
@@ -77,6 +79,36 @@ export default class NeighbouringFileNavigatorPlugin extends Plugin {
 		};
 		this.addCommand({ ...newerModified, id: "next-modified" });
 		this.addCommand({ ...newerModified, id: "newer-modified" });
+
+		// Folder based navigation
+
+		this.addCommand({
+			id: "folder-up",
+			name: "Folder up",
+			callback: () =>
+				this.navigator.navigateToParentFolder(this.app.workspace),
+		});
+
+		this.addCommand({
+			id: "folder-down",
+			name: "Folder down",
+			callback: () =>
+				this.navigator.navigateToFirstChildFolder(this.app.workspace),
+		});
+
+		this.addCommand({
+			id: "folder-next",
+			name: "Next folder",
+			callback: () =>
+				this.navigator.navigateToNextSiblingFolder(this.app.workspace),
+		});
+
+		this.addCommand({
+			id: "folder-prev",
+			name: "Prev folder",
+			callback: () =>
+				this.navigator.navigateToPrevSiblingFolder(this.app.workspace),
+		});
 	}
 
 	onunload() {}
