@@ -73,22 +73,22 @@ In the settings you can enable support for other file types:
 -   When disabled: Navigation stays within the current folder.
 -   When enabled: Reaching a folder boundary continues navigation into adjacent folders.
 
-```
-vault
-├── 1.md
-├── 2.md <- Cursor (prev goes up, next goes to A/1.md)
-├── A
-│   ├── 1.md <- Cursor (prev goes to vault/2, next goes to A/2.md)
-│   ├── 2.md
-│   └── B
-│       ├── 1.md
-│       └── 3.md <- Cursor (prev goes B/1, next goes to C/1)
-├── C
-│   ├── 1.md
-│   ├── 2.md
-│   └── 3.md
-└── README.md
-```
+### Configure Obsidian Hotkeys
+
+In Obsidian, open `Settings` -> `Hotkeys`, search for `neighbouring-files`, and assign keys to the command IDs you want:
+
+-   `neighbouring-files:next`
+-   `neighbouring-files:prev`
+-   `neighbouring-files:next-alphabetical`
+-   `neighbouring-files:prev-alphabetical`
+-   `neighbouring-files:older-created`
+-   `neighbouring-files:newer-created`
+-   `neighbouring-files:older-modified`
+-   `neighbouring-files:newer-modified`
+-   `neighbouring-files:folder-up`
+-   `neighbouring-files:folder-down`
+-   `neighbouring-files:folder-next`
+-   `neighbouring-files:folder-prev`
 
 ### Configure VIMRC keybindings
 

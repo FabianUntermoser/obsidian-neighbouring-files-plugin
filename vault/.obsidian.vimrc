@@ -123,5 +123,5 @@ nmap fu :folder_up<cr>
 nmap fd :folder_down<cr>
 nmap fn :folder_next<cr>
 nmap fp :folder_prev<cr>
-nmap gf :next_folder<cr>
-nmap gb :prev_folder<cr>
+nmap gf :folder_next<cr>
+nmap gb :folder_prev<cr>
