@@ -1,6 +1,9 @@
 name: Build Obsidian plugin
 
 on:
+  push:
+    branches:
+      - '*'
   pull_request:
     branches:
       - '*'
@@ -20,5 +23,7 @@ jobs:
       - name: Verify
         run: |
           npm install
+          npm run lint
+          npm run format:check
           npm run build
           npm run test
