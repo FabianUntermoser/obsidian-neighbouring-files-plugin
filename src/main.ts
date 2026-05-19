@@ -11,9 +11,7 @@ export default class NeighbouringFileNavigatorPlugin extends Plugin {
 
 	async onload() {
 		await this.loadSettings();
-		this.addSettingTab(
-			new NeighbouringFileNavigatorPluginSettingTab(this.app, this)
-		);
+		this.addSettingTab(new NeighbouringFileNavigatorPluginSettingTab(this.app, this));
 		this.navigator = new NeighbouringFileNavigator(this.settings);
 
 		// File based navigation
@@ -21,61 +19,49 @@ export default class NeighbouringFileNavigatorPlugin extends Plugin {
 		this.addCommand({
 			id: "next",
 			name: "Navigate to next file",
-			callback: () =>
-				this.navigator.navigateToNextFile(this.app.workspace),
+			callback: () => this.navigator.navigateToNextFile(this.app.workspace),
 		});
 		this.addCommand({
 			id: "prev",
 			name: "Navigate to prev file",
-			callback: () =>
-				this.navigator.navigateToPrevFile(this.app.workspace),
+			callback: () => this.navigator.navigateToPrevFile(this.app.workspace),
 		});
 
 		this.addCommand({
 			id: "next-alphabetical",
 			name: "Navigate to next file (alphabetical)",
-			callback: () =>
-				this.navigator.navigateToNextAlphabeticalFile(
-					this.app.workspace
-				),
+			callback: () => this.navigator.navigateToNextAlphabeticalFile(this.app.workspace),
 		});
 		this.addCommand({
 			id: "prev-alphabetical",
 			name: "Navigate to prev file (alphabetical)",
-			callback: () =>
-				this.navigator.navigateToPrevAlphabeticalFile(
-					this.app.workspace
-				),
+			callback: () => this.navigator.navigateToPrevAlphabeticalFile(this.app.workspace),
 		});
 
 		const olderCreated = {
 			name: "Navigate to older file (creation timestamp)",
-			callback: () =>
-				this.navigator.navigateToOlderCreatedFile(this.app.workspace),
+			callback: () => this.navigator.navigateToOlderCreatedFile(this.app.workspace),
 		};
 		this.addCommand({ ...olderCreated, id: "older-created" });
 		this.addCommand({ ...olderCreated, id: "prev-created" });
 
 		const newerCreated = {
 			name: "Navigate to newer file (creation timestamp)",
-			callback: () =>
-				this.navigator.navigateToNewerCreatedFile(this.app.workspace),
+			callback: () => this.navigator.navigateToNewerCreatedFile(this.app.workspace),
 		};
 		this.addCommand({ ...newerCreated, id: "next-created" });
 		this.addCommand({ ...newerCreated, id: "newer-created" });
 
 		const olderModified = {
 			name: "Navigate to older file (modification timestamp)",
-			callback: () =>
-				this.navigator.navigateToOlderModifiedFile(this.app.workspace),
+			callback: () => this.navigator.navigateToOlderModifiedFile(this.app.workspace),
 		};
 		this.addCommand({ ...olderModified, id: "older-modified" });
 		this.addCommand({ ...olderModified, id: "prev-modified" });
 
 		const newerModified = {
 			name: "Navigate to newer file (modification timestamp)",
-			callback: () =>
-				this.navigator.navigateToNewerModifiedFile(this.app.workspace),
+			callback: () => this.navigator.navigateToNewerModifiedFile(this.app.workspace),
 		};
 		this.addCommand({ ...newerModified, id: "next-modified" });
 		this.addCommand({ ...newerModified, id: "newer-modified" });
@@ -85,40 +71,48 @@ export default class NeighbouringFileNavigatorPlugin extends Plugin {
 		this.addCommand({
 			id: "folder-up",
 			name: "Folder up",
-			callback: () =>
-				this.navigator.navigateToParentFolder(this.app.workspace),
+			callback: () => this.navigator.navigateToParentFolder(this.app.workspace),
 		});
 
 		this.addCommand({
 			id: "folder-down",
 			name: "Folder down",
-			callback: () =>
-				this.navigator.navigateToFirstChildFolder(this.app.workspace),
+			callback: () => this.navigator.navigateToFirstChildFolder(this.app.workspace),
 		});
 
 		this.addCommand({
 			id: "folder-next",
 			name: "Next folder",
-			callback: () =>
-				this.navigator.navigateToNextSiblingFolder(this.app.workspace),
+			callback: () => this.navigator.navigateToNextSiblingFolder(this.app.workspace),
 		});
 
 		this.addCommand({
 			id: "folder-prev",
 			name: "Prev folder",
-			callback: () =>
-				this.navigator.navigateToPrevSiblingFolder(this.app.workspace),
+			callback: () => this.navigator.navigateToPrevSiblingFolder(this.app.workspace),
+		});
+
+		// DFS vault-wide navigation
+
+		this.addCommand({
+			id: "next-dfs",
+			name: "Navigate to next file (dfs across folders)",
+			callback: () => this.navigator.navigateToNextDfsFile(this.app.workspace),
+		});
+
+		this.addCommand({
+			id: "prev-dfs",
+			name: "Navigate to prev file (dfs across folders)",
+			callback: () => this.navigator.navigateToPrevDfsFile(this.app.workspace),
 		});
 	}
 
 	onunload() {}
 
 	async loadSettings() {
-		this.settings = Object.assign(
-			{},
-			DEFAULT_SETTINGS,
-			await this.loadData()
-		);
+		const loaded =
+			(await this.loadData()) as Partial<NeighbouringFileNavigatorPluginSettings> | null;
+		this.settings = Object.assign({}, DEFAULT_SETTINGS, loaded);
 	}
 
 	async saveSettings() {

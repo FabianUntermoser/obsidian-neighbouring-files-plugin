@@ -4,14 +4,9 @@ import NeighbouringFileNavigatorPluginSettings, {
 } from "NeighbouringFileNavigatorPluginSettings";
 import { FileStats, TAbstractFile, TFile, TFolder } from "obsidian";
 
-const createNote = (name: string, stats?: FileStats): TFile =>
-	createFile(name, "md", stats);
+const createNote = (name: string, stats?: FileStats): TFile => createFile(name, "md", stats);
 
-const createFile = (
-	name: string,
-	extension: string,
-	stats?: FileStats
-): TFile => {
+const createFile = (name: string, extension: string, stats?: FileStats): TFile => {
 	const f = new TFile();
 	f.basename = name;
 	f.extension = extension;
@@ -27,19 +22,13 @@ const createDir = (name: string): TFolder => {
 	return dir;
 };
 
-const createFolder = (
-	name: string,
-	children: Array<TAbstractFile> = []
-): TFolder => {
+const createFolder = (name: string, children: Array<TAbstractFile> = []): TFolder => {
 	const folder = createDir(name);
 	setup(children, folder);
 	return folder;
 };
 
-const setup = (
-	children: Array<TAbstractFile>,
-	parent: TFolder = new TFolder()
-) => {
+const setup = (children: Array<TAbstractFile>, parent: TFolder = new TFolder()) => {
 	parent.children = children;
 	children.forEach((c) => {
 		c.parent = parent;
@@ -110,10 +99,7 @@ describe("NeighbouringFileNavigator", () => {
 
 		it("filters out directories", () => {
 			// GIVEN
-			const files = setup([
-				createNote("1"),
-				createDir("somedir"),
-			]) as TFile[];
+			const files = setup([createNote("1"), createDir("somedir")]) as TFile[];
 
 			// WHEN
 			const neighbours = navigator.getNeighbouringFiles(
@@ -151,25 +137,12 @@ describe("NeighbouringFileNavigator", () => {
 			);
 
 			// THEN
-			expectNeighbours(neighbours).toEqual([
-				"test - 1",
-				"Test - 2",
-				"test - 3",
-			]);
+			expectNeighbours(neighbours).toEqual(["test - 1", "Test - 2", "test - 3"]);
 		});
 
 		it("sorts johny decimal", () => {
 			// GIVEN
-			const files = setupFiles([
-				"2.2",
-				"1",
-				"2.9",
-				"2.1",
-				"2",
-				"3",
-				"2.11",
-				"2.10",
-			]);
+			const files = setupFiles(["2.2", "1", "2.9", "2.1", "2", "3", "2.11", "2.10"]);
 
 			// WHEN
 			const neighbours = navigator.getNeighbouringFiles(
@@ -363,10 +336,7 @@ describe("NeighbouringFileNavigator", () => {
 			// GIVEN
 			const fromFile = createNote("3");
 			const expectedFile = createNote("4");
-			setup([
-				createFolder("FolderA", [fromFile]),
-				createFolder("FolderB", [expectedFile]),
-			]);
+			setup([createFolder("FolderA", [fromFile]), createFolder("FolderB", [expectedFile])]);
 			workspace.getActiveFile.mockReturnValue(fromFile);
 			// WHEN
 			navigator.navigateToNextAlphabeticalFile(workspace);
@@ -397,10 +367,7 @@ describe("NeighbouringFileNavigator", () => {
 			const expectedFile = createNote("A2");
 			const fileB = createNote("B");
 			setup([
-				createFolder("FolderA", [
-					fileA1,
-					createFolder("FolderASub", [expectedFile]),
-				]),
+				createFolder("FolderA", [fileA1, createFolder("FolderASub", [expectedFile])]),
 				createFolder("FolderB", [fileB]),
 			]);
 			workspace.getActiveFile.mockReturnValue(fileB);
@@ -419,9 +386,7 @@ describe("NeighbouringFileNavigator", () => {
 				createFolder("FolderD", [
 					createFolder("FolderE", [
 						fileInE,
-						createFolder("FolderC", [
-							createFolder("FolderA", [fileA1]),
-						]),
+						createFolder("FolderC", [createFolder("FolderA", [fileA1])]),
 					]),
 				]),
 			]);
