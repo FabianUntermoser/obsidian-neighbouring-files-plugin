@@ -21,6 +21,7 @@ jobs:
               with:
                   node-version: "22.x"
                   cache: false
+                  package-manager-cache: false
 
             - name: Build plugin
               run: |
