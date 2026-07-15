@@ -13,17 +13,18 @@ build:
 install: install-user-vault
 
 install-user-vault: build # install plugin to user vault
-	-mkdir -p $(VAULT)/.obsidian/plugins/neighbouring-files/
-	-cp -rf $(FILES) $(VAULT)/.obsidian/plugins/neighbouring-files/
+	mkdir -p $(VAULT)/.obsidian/plugins/neighbouring-files/
+	cp -rf $(FILES) $(VAULT)/.obsidian/plugins/neighbouring-files/
 
 install-test-vault: build # install plugin to test vault
-	-mkdir -p ./vault/.obsidian/plugins/neighbouring-files/
-	-cp -rf $(FILES) ./vault/.obsidian/plugins/neighbouring-files/
+	mkdir -p ./vault/.obsidian/plugins/neighbouring-files/
+	cp -rf $(FILES) ./vault/.obsidian/plugins/neighbouring-files/
 
 changeset:
 	npx changeset
 
 release:
+	test -z "$$(git status --porcelain)" || (echo "error: working tree not clean" >&2; exit 1)
 	npx changeset version
 	git add .changeset CHANGELOG.md package.json
 	VERSION=$$(node -p "require('./package.json').version"); npm version --allow-same-version --force "$$VERSION" -m "release: %s"
