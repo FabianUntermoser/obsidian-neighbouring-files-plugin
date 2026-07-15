@@ -1,8 +1,8 @@
-import { NeighbouringFileNavigator } from "NeighbouringFileNavigator";
+import { NeighbouringFileNavigator } from "./NeighbouringFileNavigator";
 import NeighbouringFileNavigatorPluginSettings, {
 	DEFAULT_SETTINGS,
-} from "NeighbouringFileNavigatorPluginSettings";
-import NeighbouringFileNavigatorPluginSettingTab from "NeighbouringFileNavigatorPluginSettingTab";
+} from "./NeighbouringFileNavigatorPluginSettings";
+import NeighbouringFileNavigatorPluginSettingTab from "./NeighbouringFileNavigatorPluginSettingTab";
 import { Plugin } from "obsidian";
 
 export default class NeighbouringFileNavigatorPlugin extends Plugin {

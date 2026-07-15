@@ -1,7 +1,7 @@
-import { NeighbouringFileNavigator } from "NeighbouringFileNavigator";
+import { NeighbouringFileNavigator } from "../src/NeighbouringFileNavigator";
 import NeighbouringFileNavigatorPluginSettings, {
 	DEFAULT_SETTINGS,
-} from "NeighbouringFileNavigatorPluginSettings";
+} from "../src/NeighbouringFileNavigatorPluginSettings";
 import { FileStats, TAbstractFile, TFile, TFolder } from "obsidian";
 
 const createNote = (name: string, stats?: FileStats): TFile => createFile(name, "md", stats);

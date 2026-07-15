@@ -1,6 +1,6 @@
 import NeighbouringFileNavigatorPluginSettings, {
 	SORT_ORDER,
-} from "NeighbouringFileNavigatorPluginSettings";
+} from "./NeighbouringFileNavigatorPluginSettings";
 import { TAbstractFile, TFile, TFolder, Workspace } from "obsidian";
 
 export type SortFn = (a: TFile, b: TFile) => number;

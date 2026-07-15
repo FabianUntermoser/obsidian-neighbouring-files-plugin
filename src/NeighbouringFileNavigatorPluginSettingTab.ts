@@ -1,6 +1,6 @@
 import NeighbouringFileNavigatorPlugin from "./main";
 import { App, PluginSettingTab, Setting } from "obsidian";
-import { SORT_ORDER, INCLUDED_FILE_TYPES } from "NeighbouringFileNavigatorPluginSettings";
+import { SORT_ORDER, INCLUDED_FILE_TYPES } from "./NeighbouringFileNavigatorPluginSettings";
 
 export default class NeighbouringFileNavigatorPluginSettingTab extends PluginSettingTab {
 	plugin: NeighbouringFileNavigatorPlugin;
@@ -23,8 +23,8 @@ export default class NeighbouringFileNavigatorPluginSettingTab extends PluginSet
 				dropdown.addOption("byCreatedTime", "Creation timestamp");
 				dropdown.addOption("byModifiedTime", "Modification timestamp");
 				dropdown.setValue(this.plugin.settings.defaultSortOrder);
-				dropdown.onChange(async (value: SORT_ORDER) => {
-					this.plugin.settings.defaultSortOrder = value;
+				dropdown.onChange(async (value: string) => {
+					this.plugin.settings.defaultSortOrder = value as SORT_ORDER;
 					await this.plugin.saveSettings();
 				});
 			});
@@ -61,8 +61,8 @@ export default class NeighbouringFileNavigatorPluginSettingTab extends PluginSet
 				dropdown.addOption("allFiles", "All files");
 				dropdown.addOption("additionalExtensions", "Additional file extensions below");
 				dropdown.setValue(this.plugin.settings.includedFileTypes);
-				dropdown.onChange(async (value: INCLUDED_FILE_TYPES) => {
-					this.plugin.settings.includedFileTypes = value;
+				dropdown.onChange(async (value: string) => {
+					this.plugin.settings.includedFileTypes = value as INCLUDED_FILE_TYPES;
 					await this.plugin.saveSettings();
 					this.display();
 				});
