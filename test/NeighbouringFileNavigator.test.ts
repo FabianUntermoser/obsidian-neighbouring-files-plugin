@@ -398,6 +398,26 @@ describe("NeighbouringFileNavigator", () => {
 			// THEN
 			expect(leaf.openFile).toHaveBeenCalledWith(fileInE);
 		});
+
+		it("crosses to next folder even when children in mtime order (Android rename)", () => {
+			// GIVEN — children in non-alphabetical order, simulating Android mtime reorder
+			const fileA = createNote("A");
+			const fileB2 = createNote("B2");
+			const fileC = createNote("C");
+			setup([
+				createFolder("FolderA", [fileA]),
+				createFolder("FolderC", [fileC]), // C before B2 — mtime order
+				createFolder("FolderB2", [fileB2]), // renamed folder at end
+			]);
+			workspace.getActiveFile.mockReturnValue(fileA);
+
+			// WHEN
+			navigator.navigateToNextAlphabeticalFile(workspace);
+
+			// THEN — should land on B2 (alphabetically sorted), not skip to C
+			expect(leaf.openFile).toHaveBeenCalledWith(fileB2);
+			expect(leaf.openFile).not.toHaveBeenCalledWith(fileC);
+		});
 	});
 
 	describe("Folder Navigation Commands", () => {
