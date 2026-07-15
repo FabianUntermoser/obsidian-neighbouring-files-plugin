@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.4
+
+### Patch Changes
+
+- Fix: sort child folders alphabetically to prevent Android folder skip on rename.
+
 ## 1.1.3
 
 ### Patch Changes
@@ -51,8 +57,8 @@ Fix: Support Johny Decimal Sorting [#6](https://github.com/FabianUntermoser/obsi
 **Fixes**
 
 - fix: restrict navigation to only open markdown files @clemens-holleis in https://github.com/FabianUntermoser/obsidian-neighbouring-files-plugin/pull/3
-  - prevent empty folder creation
-  - avoid opening files other than markdown files in external programs (.ods, .xlsx, ...)
+    - prevent empty folder creation
+    - avoid opening files other than markdown files in external programs (.ods, .xlsx, ...)
 
 **Maintenance**
 
