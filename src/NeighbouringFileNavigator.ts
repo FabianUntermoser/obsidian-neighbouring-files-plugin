@@ -285,9 +285,11 @@ export class NeighbouringFileNavigator {
 
 	private getChildFolders(folder: TFolder): TFolder[] {
 		return (
-			folder.children?.filter(
-				(child: TAbstractFile): child is TFolder => child instanceof TFolder
-			) ?? []
+			folder.children
+				?.filter((child: TAbstractFile): child is TFolder => child instanceof TFolder)
+				.sort((a, b) =>
+					a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: "base" })
+				) ?? []
 		);
 	}
 
