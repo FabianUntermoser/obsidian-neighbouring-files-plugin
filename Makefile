@@ -26,7 +26,7 @@ changeset:
 release:
 	test -z "$$(git status --porcelain)" || (echo "error: working tree not clean" >&2; exit 1)
 	npx changeset version
-	node version-bump.mjs
+	VERSION=$$(node -p "require('./package.json').version"); node version-bump.mjs "$$VERSION"
 	git add .changeset CHANGELOG.md manifest.json versions.json package.json
-	VERSION=$$(node -p "require('./package.json').version"); npm version --allow-same-version --force "$$VERSION" -m "release: %s"
+	npm version --allow-same-version --force "$$VERSION" -m "release: %s"
 	git push && git push --tags
