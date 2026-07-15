@@ -5,7 +5,7 @@
 	"minAppVersion": "0.15.0",
 	"description": "Navigate to the next and previous file in the current directory",
 	"author": "Fabian Untermoser",
-	"authorUrl": "https://www.ederbit.xyz",
-	"fundingUrl": "https://www.ederbit.xyz/coffee",
+	"authorUrl": "https://fabianuntermoser.com",
+	"fundingUrl": "https://fabianuntermoser.com/coffee",
 	"isDesktopOnly": false
 }
