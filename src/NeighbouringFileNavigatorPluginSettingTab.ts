@@ -1,5 +1,6 @@
 import NeighbouringFileNavigatorPlugin from "./main";
 import { App, PluginSettingTab, Setting } from "obsidian";
+import type { SettingDefinitionItem } from "obsidian";
 import { SORT_ORDER, INCLUDED_FILE_TYPES } from "./NeighbouringFileNavigatorPluginSettings";
 
 export default class NeighbouringFileNavigatorPluginSettingTab extends PluginSettingTab {
@@ -8,6 +9,73 @@ export default class NeighbouringFileNavigatorPluginSettingTab extends PluginSet
 	constructor(app: App, plugin: NeighbouringFileNavigatorPlugin) {
 		super(app, plugin);
 		this.plugin = plugin;
+	}
+
+	getSettingDefinitions(): SettingDefinitionItem[] {
+		return [
+			{
+				name: "Default sort order",
+				desc: "Fallback sort order used for the default command",
+				control: {
+					type: "dropdown",
+					key: "defaultSortOrder",
+					options: {
+						alphabetical: "Alphabetical",
+						byCreatedTime: "Creation timestamp",
+						byModifiedTime: "Modification timestamp",
+						alphabeticalReverse: "Alphabetical (reverse)",
+						byCreatedTimeReverse: "Creation timestamp (reverse)",
+						byModifiedTimeReverse: "Modification timestamp (reverse)",
+					},
+				},
+			},
+			{
+				name: "Loop notes in folder",
+				desc: "Navigate to the first note when navigating past the last note in the same folder.",
+				control: {
+					type: "toggle",
+					key: "enableFolderLoop",
+				},
+			},
+			{
+				name: "Continue across folders",
+				desc: "Move to adjacent folders when navigating beyond the current folder boundary.",
+				control: {
+					type: "toggle",
+					key: "enableFolderBoundary",
+				},
+			},
+			{
+				name: "Included file types",
+				desc: "Set which file types to include in the navigation",
+				control: {
+					type: "dropdown",
+					key: "includedFileTypes",
+					options: {
+						markdownOnly: "Markdown only",
+						allFiles: "All files",
+						additionalExtensions: "Additional file extensions below",
+					},
+				},
+			},
+			{
+				name: "Extensions",
+				desc: "List of additional file extensions to include in the navigation (comma separated)",
+				visible: () => this.plugin.settings.includedFileTypes === "additionalExtensions",
+				render: (setting) => {
+					setting.addText((text) => {
+						text.setPlaceholder("Canvas, PDF");
+						text.setValue(this.plugin.settings.additionalExtensions.join(", "));
+						text.onChange(async (value: string) => {
+							this.plugin.settings.additionalExtensions = value
+								.split(",")
+								.map((ext) => ext.trim());
+							await this.plugin.saveSettings();
+						});
+					});
+				},
+			},
+		];
 	}
 
 	display(): void {
@@ -64,6 +132,7 @@ export default class NeighbouringFileNavigatorPluginSettingTab extends PluginSet
 				dropdown.onChange(async (value: string) => {
 					this.plugin.settings.includedFileTypes = value as INCLUDED_FILE_TYPES;
 					await this.plugin.saveSettings();
+					// eslint-disable-next-line @typescript-eslint/no-deprecated
 					this.display();
 				});
 			});
