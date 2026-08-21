@@ -6,10 +6,6 @@ const TAP_THRESHOLD = 10;
 const TAP_TIMEOUT = 400;
 const MOVE_TOLERANCE = 8;
 
-// Elements whose rendered content counts as "under the button"
-const CONTENT_SELECTOR =
-	".markdown-source-view, .markdown-reading-view, .canvas-wrapper, .pdf-container";
-
 type Direction = "left" | "right" | "up" | "down";
 
 const SWIPE_COMMAND_KEYS: Record<
@@ -29,16 +25,13 @@ const SWIPE_COMMAND_KEYS: Record<
  * Mobile floating action button.
  *
  * Tap opens the config screen, swipes run the configured commands.
- * Only visible when no editor content sits underneath it.
- * Styling lives in styles.css.
+ * Visible whenever a file is open. Styling lives in styles.css.
  */
 export default class MobileFab {
 	private plugin: NeighbouringFileNavigatorPlugin;
 	private fabEl: HTMLElement;
 	private workspace: Workspace;
 	private leafChangeRef: ReturnType<Workspace["on"]>;
-	private layoutChangeRef: ReturnType<Workspace["on"]>;
-	private visibilityTimeout: number | null = null;
 
 	// gesture state
 	private tracking = false;
@@ -78,55 +71,16 @@ export default class MobileFab {
 
 	private register() {
 		this.leafChangeRef = this.workspace.on("active-leaf-change", this.onLeafChange);
-		this.layoutChangeRef = this.workspace.on("layout-change", this.updateVisibility);
-		window.addEventListener("resize", this.updateVisibility);
-		window.addEventListener("scroll", this.onScroll, true);
 		this.updateVisibility();
 	}
 
 	private onLeafChange = () => {
 		this.updateVisibility();
-		// content renders async after a leaf change
-		if (this.visibilityTimeout !== null) window.clearTimeout(this.visibilityTimeout);
-		this.visibilityTimeout = window.setTimeout(this.updateVisibility, 200);
-	};
-
-	private onScroll = (ev: Event) => {
-		const target = ev.target as HTMLElement | null;
-		if (target && target.closest(CONTENT_SELECTOR)) {
-			this.updateVisibility();
-		}
 	};
 
 	private updateVisibility = () => {
-		const hasActiveFile = Boolean(this.workspace.getActiveFile());
-		const hasSpace = !this.isContentUnderFab();
-		this.fabEl.classList.toggle("is-visible", hasActiveFile && hasSpace);
+		this.fabEl.classList.toggle("is-visible", Boolean(this.workspace.getActiveFile()));
 	};
-
-	/**
-	 * True when editor content occupies the screen area around the button.
-	 * Samples points just outside the button's bounds, so the button never
-	 * covers text it would hide.
-	 */
-	private isContentUnderFab(): boolean {
-		const rect = this.fabEl.getBoundingClientRect();
-		if (rect.width === 0) return false;
-		const cx = rect.left + rect.width / 2;
-		const cy = rect.top + rect.height / 2;
-		const doc = this.fabEl.ownerDocument;
-		const samples: Array<[number, number]> = [
-			[cx - rect.width, cy],
-			[cx + rect.width, cy],
-			[cx, rect.top - 6],
-			[cx, rect.bottom + 6],
-		];
-		for (const [x, y] of samples) {
-			const el = doc.elementFromPoint(x, y);
-			if (el && el.closest(CONTENT_SELECTOR)) return true;
-		}
-		return false;
-	}
 
 	private onPointerDown = (ev: PointerEvent) => {
 		this.tracking = true;
@@ -188,10 +142,6 @@ export default class MobileFab {
 
 	onunload() {
 		this.workspace.offref(this.leafChangeRef);
-		this.workspace.offref(this.layoutChangeRef);
-		window.removeEventListener("resize", this.updateVisibility);
-		window.removeEventListener("scroll", this.onScroll, true);
-		if (this.visibilityTimeout !== null) window.clearTimeout(this.visibilityTimeout);
 		this.fabEl.remove();
 	}
 }
