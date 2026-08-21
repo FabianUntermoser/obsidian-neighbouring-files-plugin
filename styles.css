@@ -4,7 +4,8 @@
 	position: fixed;
 	left: 50%;
 	bottom: calc(var(--safe-area-inset-bottom, 0px) + 64px);
-	transform: translateX(calc(-50% + var(--fab-drag-x, 0px)));
+	transform: translateX(calc(-50% + var(--fab-drag-x, 0px)))
+		translateY(var(--fab-drag-y, 0px));
 	width: 60px;
 	height: 60px;
 	border-radius: 50%;

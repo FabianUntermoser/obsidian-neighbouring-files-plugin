@@ -4,11 +4,32 @@ import type NeighbouringFileNavigatorPlugin from "./main";
 const SWIPE_THRESHOLD = 40;
 const TAP_THRESHOLD = 10;
 const TAP_TIMEOUT = 400;
+const MOVE_TOLERANCE = 8;
+
+// Elements whose rendered content counts as "under the button"
+const CONTENT_SELECTOR =
+	".markdown-source-view, .markdown-reading-view, .canvas-wrapper, .pdf-container";
+
+type Direction = "left" | "right" | "up" | "down";
+
+const SWIPE_COMMAND_KEYS: Record<
+	Direction,
+	| "fabSwipeLeftCommand"
+	| "fabSwipeRightCommand"
+	| "fabSwipeUpCommand"
+	| "fabSwipeDownCommand"
+> = {
+	left: "fabSwipeLeftCommand",
+	right: "fabSwipeRightCommand",
+	up: "fabSwipeUpCommand",
+	down: "fabSwipeDownCommand",
+};
 
 /**
  * Mobile floating action button.
  *
- * Tap opens the config screen, swipe left/right run the configured commands.
+ * Tap opens the config screen, swipes run the configured commands.
+ * Only visible when no editor content sits underneath it.
  * Styling lives in styles.css.
  */
 export default class MobileFab {
@@ -16,6 +37,8 @@ export default class MobileFab {
 	private fabEl: HTMLElement;
 	private workspace: Workspace;
 	private leafChangeRef: ReturnType<Workspace["on"]>;
+	private layoutChangeRef: ReturnType<Workspace["on"]>;
+	private visibilityTimeout: number | null = null;
 
 	// gesture state
 	private tracking = false;
@@ -54,14 +77,56 @@ export default class MobileFab {
 	}
 
 	private register() {
-		this.leafChangeRef = this.workspace.on("active-leaf-change", this.updateVisibility);
+		this.leafChangeRef = this.workspace.on("active-leaf-change", this.onLeafChange);
+		this.layoutChangeRef = this.workspace.on("layout-change", this.updateVisibility);
+		window.addEventListener("resize", this.updateVisibility);
+		window.addEventListener("scroll", this.onScroll, true);
 		this.updateVisibility();
 	}
 
+	private onLeafChange = () => {
+		this.updateVisibility();
+		// content renders async after a leaf change
+		if (this.visibilityTimeout !== null) window.clearTimeout(this.visibilityTimeout);
+		this.visibilityTimeout = window.setTimeout(this.updateVisibility, 200);
+	};
+
+	private onScroll = (ev: Event) => {
+		const target = ev.target as HTMLElement | null;
+		if (target && target.closest(CONTENT_SELECTOR)) {
+			this.updateVisibility();
+		}
+	};
+
 	private updateVisibility = () => {
 		const hasActiveFile = Boolean(this.workspace.getActiveFile());
-		this.fabEl.classList.toggle("is-visible", hasActiveFile);
+		const hasSpace = !this.isContentUnderFab();
+		this.fabEl.classList.toggle("is-visible", hasActiveFile && hasSpace);
 	};
+
+	/**
+	 * True when editor content occupies the screen area around the button.
+	 * Samples points just outside the button's bounds, so the button never
+	 * covers text it would hide.
+	 */
+	private isContentUnderFab(): boolean {
+		const rect = this.fabEl.getBoundingClientRect();
+		if (rect.width === 0) return false;
+		const cx = rect.left + rect.width / 2;
+		const cy = rect.top + rect.height / 2;
+		const doc = this.fabEl.ownerDocument;
+		const samples: Array<[number, number]> = [
+			[cx - rect.width, cy],
+			[cx + rect.width, cy],
+			[cx, rect.top - 6],
+			[cx, rect.bottom + 6],
+		];
+		for (const [x, y] of samples) {
+			const el = doc.elementFromPoint(x, y);
+			if (el && el.closest(CONTENT_SELECTOR)) return true;
+		}
+		return false;
+	}
 
 	private onPointerDown = (ev: PointerEvent) => {
 		this.tracking = true;
@@ -78,23 +143,35 @@ export default class MobileFab {
 		if (!this.tracking) return;
 		const dx = ev.clientX - this.startX;
 		const dy = ev.clientY - this.startY;
+		const horizontal = Math.abs(dx) > Math.abs(dy);
+		const axisDelta = horizontal ? dx : dy;
 		if (
 			!this.swiped &&
-			Math.abs(dx) > SWIPE_THRESHOLD &&
-			Math.abs(dx) > Math.abs(dy) * 1.5
+			Math.abs(axisDelta) > SWIPE_THRESHOLD &&
+			Math.abs(axisDelta) > MOVE_TOLERANCE
 		) {
 			this.swiped = true;
-			this.onSwipe(dx < 0 ? "left" : "right");
+			const direction: Direction = horizontal
+				? dx < 0
+					? "left"
+					: "right"
+				: dy < 0
+					? "up"
+					: "down";
+			this.onSwipe(direction);
 		}
-		const clampedDx = Math.max(-SWIPE_THRESHOLD, Math.min(SWIPE_THRESHOLD, dx));
-		this.fabEl.setCssProps({ "--fab-drag-x": `${clampedDx}px` });
+		const clampedDelta = Math.max(-SWIPE_THRESHOLD, Math.min(SWIPE_THRESHOLD, axisDelta));
+		this.fabEl.setCssProps({
+			"--fab-drag-x": horizontal ? `${clampedDelta}px` : "0px",
+			"--fab-drag-y": horizontal ? "0px" : `${clampedDelta}px`,
+		});
 	};
 
 	private onPointerUp = (ev: PointerEvent) => {
 		if (!this.tracking) return;
 		this.tracking = false;
 		this.fabEl.removeClass("is-dragging");
-		this.fabEl.setCssProps({ "--fab-drag-x": "0px" });
+		this.fabEl.setCssProps({ "--fab-drag-x": "0px", "--fab-drag-y": "0px" });
 		if (ev.type === "pointercancel") return;
 		const dx = ev.clientX - this.startX;
 		const dy = ev.clientY - this.startY;
@@ -104,16 +181,17 @@ export default class MobileFab {
 		}
 	};
 
-	private onSwipe(direction: "left" | "right") {
-		const commandId =
-			direction === "left"
-				? this.plugin.settings.fabSwipeLeftCommand
-				: this.plugin.settings.fabSwipeRightCommand;
+	private onSwipe(direction: Direction) {
+		const commandId = this.plugin.settings[SWIPE_COMMAND_KEYS[direction]];
 		this.plugin.runFabCommand(commandId);
 	}
 
 	onunload() {
 		this.workspace.offref(this.leafChangeRef);
+		this.workspace.offref(this.layoutChangeRef);
+		window.removeEventListener("resize", this.updateVisibility);
+		window.removeEventListener("scroll", this.onScroll, true);
+		if (this.visibilityTimeout !== null) window.clearTimeout(this.visibilityTimeout);
 		this.fabEl.remove();
 	}
 }
