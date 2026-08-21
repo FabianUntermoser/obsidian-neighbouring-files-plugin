@@ -1,5 +1,5 @@
 VAULT=${HOME}/notes
-FILES=main.js manifest.json
+FILES=main.js manifest.json styles.css
 
 clean:
 	-rm -rf *.js *.css

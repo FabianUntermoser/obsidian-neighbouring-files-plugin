@@ -1,5 +1,5 @@
 import NeighbouringFileNavigatorPlugin from "./main";
-import { App, PluginSettingTab, Setting } from "obsidian";
+import { App, PluginSettingTab, Setting, requireApiVersion } from "obsidian";
 import type { SettingDefinitionItem } from "obsidian";
 import { SORT_ORDER, INCLUDED_FILE_TYPES } from "./NeighbouringFileNavigatorPluginSettings";
 
@@ -9,6 +9,15 @@ export default class NeighbouringFileNavigatorPluginSettingTab extends PluginSet
 	constructor(app: App, plugin: NeighbouringFileNavigatorPlugin) {
 		super(app, plugin);
 		this.plugin = plugin;
+	}
+
+	setControlValue(key: string, value: unknown): void | Promise<void> {
+		if (requireApiVersion("1.13.0")) {
+			const result = super.setControlValue(key, value);
+			if (key === "showMobileFab") this.plugin.refreshFab();
+			return result;
+		}
+		return undefined;
 	}
 
 	getSettingDefinitions(): SettingDefinitionItem[] {
@@ -56,6 +65,14 @@ export default class NeighbouringFileNavigatorPluginSettingTab extends PluginSet
 						allFiles: "All files",
 						additionalExtensions: "Additional file extensions below",
 					},
+				},
+			},
+			{
+				name: "Mobile navigation button",
+				desc: "Show a floating button on mobile. Tap or swipe left for next file, swipe right for previous file.",
+				control: {
+					type: "toggle",
+					key: "showMobileFab",
 				},
 			},
 			{
@@ -134,6 +151,20 @@ export default class NeighbouringFileNavigatorPluginSettingTab extends PluginSet
 					await this.plugin.saveSettings();
 					// eslint-disable-next-line @typescript-eslint/no-deprecated
 					this.display();
+				});
+			});
+
+		new Setting(containerEl)
+			.setName("Mobile navigation button")
+			.setDesc(
+				"Show a floating button on mobile. Tap or swipe left for next file, swipe right for previous file."
+			)
+			.addToggle((toggle) => {
+				toggle.setValue(this.plugin.settings.showMobileFab);
+				toggle.onChange(async (value: boolean) => {
+					this.plugin.settings.showMobileFab = value;
+					await this.plugin.saveSettings();
+					this.plugin.refreshFab();
 				});
 			});
 
