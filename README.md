@@ -73,6 +73,18 @@ In the settings you can enable support for other file types:
 -   When disabled: Navigation stays within the current folder.
 -   When enabled: Reaching a folder boundary continues navigation into adjacent folders.
 
+### Mobile Navigation Button (FAB)
+
+On mobile, a floating button appears whenever a note is open. Gestures:
+
+-   **Swipe left / right / up / down**: run a command (defaults: left = next, right = prev, up = folder up, down = folder down)
+-   **Tap**: run a command (default: none)
+-   **Double-tap**: run a command (default: none)
+-   **Long-press**: open the FAB settings
+-   **Long-press + drag**: reposition the button (position is saved)
+
+Configure the gesture commands in the plugin settings under **Mobile**, or long-press the button. A haptics toggle is available for the long-press feedback.
+
 ### Configure Obsidian Hotkeys
 
 In Obsidian, open `Settings` -> `Hotkeys`, search for `neighbouring-files`, and assign keys to the command IDs you want:

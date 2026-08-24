@@ -18,5 +18,11 @@ main.js
 # obsidian
 data.json
 
+# Test vault runtime state + deployed plugin output
+# workspace.json churns on every vault open; the plugin dir is build output
+# copied in by `make install-test-vault` (main.js/styles.css/manifest.json).
+vault/.obsidian/workspace.json
+vault/.obsidian/plugins/neighbouring-files/
+
 # Exclude macOS Finder (System Explorer) View States
 .DS_Store

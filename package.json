@@ -26,6 +26,8 @@
 		"eslint": "^10.6.0",
 		"eslint-plugin-obsidianmd": "^0.3.0",
 		"jest": "^30.4.2",
+		"jest-environment-jsdom": "^30.4.1",
+		"jsdom": "^30.0.1",
 		"obsidian": "1.13.1",
 		"prettier": "^3.8.3",
 		"ts-jest": "^29.4.11",

@@ -1,0 +1,46 @@
+/* Mobile floating navigation button (see src/MobileFab.ts) */
+
+.neighbouring-files-fab {
+	position: fixed;
+	left: 50%;
+	bottom: calc(var(--safe-area-inset-bottom, 0px) + 64px);
+	transform: translateX(calc(-50% + var(--fab-drag-x, 0px)))
+		translateY(var(--fab-drag-y, 0px));
+	width: 60px;
+	height: 60px;
+	border-radius: 50%;
+	border: none;
+	background: var(--interactive-accent);
+	color: var(--text-on-accent);
+	box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: var(--layer-modal);
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity 0.15s ease, transform 0.15s ease;
+	touch-action: none;
+	cursor: pointer;
+	-webkit-tap-highlight-color: transparent;
+}
+
+.neighbouring-files-fab.is-visible {
+	opacity: 1;
+	pointer-events: auto;
+}
+
+/* finger-follow stays 1:1 while dragging */
+.neighbouring-files-fab.is-dragging {
+	transition: opacity 0.15s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.neighbouring-files-fab {
+		transition: opacity 0.15s ease;
+	}
+}
+.neighbouring-files-fab svg {
+	width: 24px;
+	height: 24px;
+}

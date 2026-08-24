@@ -1,5 +1,5 @@
 import NeighbouringFileNavigatorPlugin from "./main";
-import { App, PluginSettingTab, Setting } from "obsidian";
+import { App, PluginSettingTab, Setting, requireApiVersion } from "obsidian";
 import type { SettingDefinitionItem } from "obsidian";
 import { SORT_ORDER, INCLUDED_FILE_TYPES } from "./NeighbouringFileNavigatorPluginSettings";
 
@@ -9,6 +9,15 @@ export default class NeighbouringFileNavigatorPluginSettingTab extends PluginSet
 	constructor(app: App, plugin: NeighbouringFileNavigatorPlugin) {
 		super(app, plugin);
 		this.plugin = plugin;
+	}
+
+	setControlValue(key: string, value: unknown): void | Promise<void> {
+		if (requireApiVersion("1.13.0")) {
+			const result = super.setControlValue(key, value);
+			if (key === "showMobileFab") this.plugin.refreshFab();
+			return result;
+		}
+		return undefined;
 	}
 
 	getSettingDefinitions(): SettingDefinitionItem[] {
@@ -57,6 +66,31 @@ export default class NeighbouringFileNavigatorPluginSettingTab extends PluginSet
 						additionalExtensions: "Additional file extensions below",
 					},
 				},
+			},
+			{
+				type: "group",
+				heading: "Mobile",
+				items: [
+					{
+						name: "Mobile navigation button",
+						desc: "Show a floating button on mobile with configurable swipe gestures and tap actions.",
+						control: {
+							type: "toggle",
+							key: "showMobileFab",
+						},
+					},
+					{
+						name: "Fab gestures",
+						desc: "Configure swipe gestures, tap actions and haptics for the mobile button.",
+						render: (setting) => {
+							setting.addButton((button) => {
+								button.setButtonText("Open fab settings").onClick(() => {
+									this.plugin.openFabConfig();
+								});
+							});
+						},
+					},
+				],
 			},
 			{
 				name: "Extensions",
@@ -134,6 +168,29 @@ export default class NeighbouringFileNavigatorPluginSettingTab extends PluginSet
 					await this.plugin.saveSettings();
 					// eslint-disable-next-line @typescript-eslint/no-deprecated
 					this.display();
+				});
+			});
+
+		new Setting(containerEl)
+			.setName("Mobile navigation button")
+			.setDesc(
+				"Show a floating button on mobile with configurable swipe gestures and tap actions."
+			)
+			.addToggle((toggle) => {
+				toggle.setValue(this.plugin.settings.showMobileFab);
+				toggle.onChange(async (value: boolean) => {
+					this.plugin.settings.showMobileFab = value;
+					await this.plugin.saveSettings();
+					this.plugin.refreshFab();
+				});
+			});
+
+		new Setting(containerEl)
+			.setName("Fab gestures")
+			.setDesc("Configure swipe gestures, tap actions and haptics for the mobile button.")
+			.addButton((button) => {
+				button.setButtonText("Open fab settings").onClick(() => {
+					this.plugin.openFabConfig();
 				});
 			});
 
