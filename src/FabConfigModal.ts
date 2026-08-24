@@ -3,7 +3,11 @@ import type NeighbouringFileNavigatorPlugin from "./main";
 import { appCommands } from "./MobileFab";
 
 const GESTURES: Array<{
-	key: "fabSwipeLeftCommand" | "fabSwipeRightCommand" | "fabSwipeUpCommand" | "fabSwipeDownCommand";
+	key:
+		| "fabSwipeLeftCommand"
+		| "fabSwipeRightCommand"
+		| "fabSwipeUpCommand"
+		| "fabSwipeDownCommand";
 	label: string;
 }> = [
 	{ key: "fabSwipeLeftCommand", label: "Swipe left" },

@@ -28,8 +28,16 @@ export default class NeighbouringFileNavigatorPlugin extends Plugin {
 		const workspace = this.app.workspace;
 		const nav = this.navigator;
 		this.fabCommands = [
-			{ id: "next", name: "Navigate to next file", run: () => nav.navigateToNextFile(workspace) },
-			{ id: "prev", name: "Navigate to prev file", run: () => nav.navigateToPrevFile(workspace) },
+			{
+				id: "next",
+				name: "Navigate to next file",
+				run: () => nav.navigateToNextFile(workspace),
+			},
+			{
+				id: "prev",
+				name: "Navigate to prev file",
+				run: () => nav.navigateToPrevFile(workspace),
+			},
 			{
 				id: "next-alphabetical",
 				name: "Navigate to next file (alphabetical)",
@@ -60,10 +68,26 @@ export default class NeighbouringFileNavigatorPlugin extends Plugin {
 				name: "Navigate to newer file (modification timestamp)",
 				run: () => nav.navigateToNewerModifiedFile(workspace),
 			},
-			{ id: "folder-up", name: "Folder up", run: () => nav.navigateToParentFolder(workspace) },
-			{ id: "folder-down", name: "Folder down", run: () => nav.navigateToFirstChildFolder(workspace) },
-			{ id: "folder-next", name: "Next folder", run: () => nav.navigateToNextSiblingFolder(workspace) },
-			{ id: "folder-prev", name: "Prev folder", run: () => nav.navigateToPrevSiblingFolder(workspace) },
+			{
+				id: "folder-up",
+				name: "Folder up",
+				run: () => nav.navigateToParentFolder(workspace),
+			},
+			{
+				id: "folder-down",
+				name: "Folder down",
+				run: () => nav.navigateToFirstChildFolder(workspace),
+			},
+			{
+				id: "folder-next",
+				name: "Next folder",
+				run: () => nav.navigateToNextSiblingFolder(workspace),
+			},
+			{
+				id: "folder-prev",
+				name: "Prev folder",
+				run: () => nav.navigateToPrevSiblingFolder(workspace),
+			},
 			{
 				id: "next-dfs",
 				name: "Navigate to next file (dfs across folders)",
@@ -82,10 +106,26 @@ export default class NeighbouringFileNavigatorPlugin extends Plugin {
 
 		// legacy aliases, kept for hotkey compatibility
 		const byId = (id: string) => this.fabCommands.find((command) => command.id === id)!;
-		this.addCommand({ id: "prev-created", name: byId("older-created").name, callback: byId("older-created").run });
-		this.addCommand({ id: "newer-created", name: byId("next-created").name, callback: byId("next-created").run });
-		this.addCommand({ id: "prev-modified", name: byId("older-modified").name, callback: byId("older-modified").run });
-		this.addCommand({ id: "newer-modified", name: byId("next-modified").name, callback: byId("next-modified").run });
+		this.addCommand({
+			id: "prev-created",
+			name: byId("older-created").name,
+			callback: byId("older-created").run,
+		});
+		this.addCommand({
+			id: "newer-created",
+			name: byId("next-created").name,
+			callback: byId("next-created").run,
+		});
+		this.addCommand({
+			id: "prev-modified",
+			name: byId("older-modified").name,
+			callback: byId("older-modified").run,
+		});
+		this.addCommand({
+			id: "newer-modified",
+			name: byId("next-modified").name,
+			callback: byId("next-modified").run,
+		});
 
 		this.refreshFab();
 	}

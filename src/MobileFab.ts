@@ -12,10 +12,7 @@ type Direction = "left" | "right" | "up" | "down";
 
 const SWIPE_COMMAND_KEYS: Record<
 	Direction,
-	| "fabSwipeLeftCommand"
-	| "fabSwipeRightCommand"
-	| "fabSwipeUpCommand"
-	| "fabSwipeDownCommand"
+	"fabSwipeLeftCommand" | "fabSwipeRightCommand" | "fabSwipeUpCommand" | "fabSwipeDownCommand"
 > = {
 	left: "fabSwipeLeftCommand",
 	right: "fabSwipeRightCommand",
@@ -168,8 +165,12 @@ export default class MobileFab {
 		}
 		const clampedDelta = Math.max(-NUDGE_DISTANCE, Math.min(NUDGE_DISTANCE, axisDelta));
 		this.fabEl.setCssProps({
-			"--fab-drag-x": horizontal ? `${this.offsetX() + clampedDelta}px` : `${this.offsetX()}px`,
-			"--fab-drag-y": horizontal ? `${this.offsetY()}px` : `${this.offsetY() + clampedDelta}px`,
+			"--fab-drag-x": horizontal
+				? `${this.offsetX() + clampedDelta}px`
+				: `${this.offsetX()}px`,
+			"--fab-drag-y": horizontal
+				? `${this.offsetY()}px`
+				: `${this.offsetY() + clampedDelta}px`,
 		});
 	};
 
