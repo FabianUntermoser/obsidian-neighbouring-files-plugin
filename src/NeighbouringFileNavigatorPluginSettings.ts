@@ -13,6 +13,11 @@ export const DEFAULT_SETTINGS: NeighbouringFileNavigatorPluginSettings = {
 	fabSwipeRightCommand: "prev",
 	fabSwipeUpCommand: "",
 	fabSwipeDownCommand: "",
+	fabDoubleTapCommand: "periodic-notes:open-daily-note",
+	fabSingleTapCommand: "",
+	fabHaptics: true,
+	fabOffsetX: 0,
+	fabOffsetY: 0,
 };
 
 export type SORT_ORDER =
@@ -36,4 +41,9 @@ export default interface NeighbouringFileNavigatorPluginSettings {
 	fabSwipeRightCommand: string;
 	fabSwipeUpCommand: string;
 	fabSwipeDownCommand: string;
+	fabDoubleTapCommand: string;
+	fabSingleTapCommand: string;
+	fabHaptics: boolean;
+	fabOffsetX: number;
+	fabOffsetY: number;
 }

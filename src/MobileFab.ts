@@ -1,10 +1,12 @@
-import { Workspace, setIcon } from "obsidian";
+import { App, Notice, Workspace, setIcon } from "obsidian";
 import type NeighbouringFileNavigatorPlugin from "./main";
 
 const SWIPE_THRESHOLD = 40;
 const TAP_THRESHOLD = 10;
-const TAP_TIMEOUT = 400;
 const MOVE_TOLERANCE = 8;
+const LONG_PRESS_MS = 500;
+const NUDGE_DISTANCE = 6;
+const DOUBLE_TAP_TIMEOUT = 450;
 
 type Direction = "left" | "right" | "up" | "down";
 
@@ -21,10 +23,25 @@ const SWIPE_COMMAND_KEYS: Record<
 	down: "fabSwipeDownCommand",
 };
 
+function clampOffset(value: number, min: number, max: number) {
+	return Math.max(min, Math.min(max, value));
+}
+
+/** app.commands is not in the 1.13.1 d.ts; minimal typed view. */
+export interface AppCommands {
+	executeCommandById(id: string): Promise<boolean> | boolean;
+	listCommands(): Array<{ id: string; name: string }>;
+}
+
+export function appCommands(app: App): AppCommands {
+	return (app as unknown as { commands: AppCommands }).commands;
+}
+
 /**
  * Mobile floating action button.
  *
- * Tap opens the config screen, swipes run the configured commands.
+ * Swipes run the configured commands, double tap runs a command, long press
+ * opens the config screen, long press + drag repositions the button.
  * Visible whenever a file is open. Styling lives in styles.css.
  */
 export default class MobileFab {
@@ -36,6 +53,15 @@ export default class MobileFab {
 	// gesture state
 	private tracking = false;
 	private swiped = false;
+	private dragging = false;
+	private visible = false;
+	private dragBaseX = 0;
+	private dragBaseY = 0;
+	private dragViewportW = 0;
+	private dragViewportH = 0;
+	private longPressTimer: number | null = null;
+	private doubleTapTimer: number | null = null;
+	private singleTapTimer: number | null = null;
 	private startX = 0;
 	private startY = 0;
 	private startTime = 0;
@@ -44,34 +70,8 @@ export default class MobileFab {
 		this.plugin = plugin;
 		this.workspace = plugin.app.workspace;
 		this.fabEl = this.buildFab();
+		this.applyPosition();
 		this.register();
-	}
-
-	private buildFab(): HTMLElement {
-		const doc = window.activeDocument;
-		const fab = doc.createElement("button");
-		fab.className = "neighbouring-files-fab";
-		fab.setAttribute("aria-label", "Navigate to neighbouring files");
-		fab.type = "button";
-
-		const prevIcon = doc.createElement("span");
-		setIcon(prevIcon, "chevron-left");
-		const nextIcon = doc.createElement("span");
-		setIcon(nextIcon, "chevron-right");
-		fab.append(prevIcon, nextIcon);
-
-		fab.addEventListener("pointerdown", this.onPointerDown);
-		fab.addEventListener("pointermove", this.onPointerMove);
-		fab.addEventListener("pointerup", this.onPointerUp);
-		fab.addEventListener("pointercancel", this.onPointerUp);
-
-		doc.body.appendChild(fab);
-		return fab;
-	}
-
-	private register() {
-		this.leafChangeRef = this.workspace.on("active-leaf-change", this.onLeafChange);
-		this.updateVisibility();
 	}
 
 	private onLeafChange = () => {
@@ -79,18 +79,60 @@ export default class MobileFab {
 	};
 
 	private updateVisibility = () => {
-		this.fabEl.classList.toggle("is-visible", Boolean(this.workspace.getActiveFile()));
+		const show = Boolean(this.workspace.getActiveFile());
+		if (show === this.visible) return;
+		this.visible = show;
+		this.fabEl.classList.toggle("is-visible", show);
+	};
+
+	private onResize = () => {
+		// keyboard opening shrinks the viewport and re-anchors the fixed
+		// bottom position; keep the fab under the finger mid-drag
+		if (!this.tracking || !this.dragging) return;
+		const vh = window.innerHeight;
+		const dy = this.dragViewportH - vh;
+		if (dy !== 0) {
+			this.plugin.settings.fabOffsetY = clampOffset(
+				this.plugin.settings.fabOffsetY + dy,
+				-(vh - 140),
+				100
+			);
+			this.applyPosition();
+		}
+		this.dragViewportW = window.innerWidth;
+		this.dragViewportH = vh;
 	};
 
 	private onPointerDown = (ev: PointerEvent) => {
 		this.tracking = true;
 		this.swiped = false;
+		this.dragging = false;
+		if (this.singleTapTimer !== null) {
+			window.clearTimeout(this.singleTapTimer);
+			this.singleTapTimer = null;
+		}
 		this.startX = ev.clientX;
 		this.startY = ev.clientY;
 		this.startTime = Date.now();
 		this.fabEl.setPointerCapture(ev.pointerId);
-		// disable the transform transition so the FAB follows the finger
-		this.fabEl.addClass("is-dragging");
+		if (this.longPressTimer !== null) window.clearTimeout(this.longPressTimer);
+		this.longPressTimer = window.setTimeout(() => {
+			this.longPressTimer = null;
+			if (!this.tracking || this.swiped) return;
+			this.dragging = true;
+			this.dragBaseX = this.offsetX();
+			this.dragBaseY = this.offsetY();
+			this.dragViewportW = window.innerWidth;
+			this.dragViewportH = window.innerHeight;
+			this.fabEl.addClass("is-dragging");
+			if (
+				this.plugin.settings.fabHaptics &&
+				typeof navigator !== "undefined" &&
+				typeof navigator.vibrate === "function"
+			) {
+				navigator.vibrate(15);
+			}
+		}, LONG_PRESS_MS);
 	};
 
 	private onPointerMove = (ev: PointerEvent) => {
@@ -99,6 +141,16 @@ export default class MobileFab {
 		const dy = ev.clientY - this.startY;
 		const horizontal = Math.abs(dx) > Math.abs(dy);
 		const axisDelta = horizontal ? dx : dy;
+		if (!this.swiped && Math.abs(axisDelta) > MOVE_TOLERANCE) {
+			if (this.longPressTimer !== null) {
+				window.clearTimeout(this.longPressTimer);
+				this.longPressTimer = null;
+			}
+		}
+		if (this.dragging) {
+			this.moveDrag(this.dragBaseX + dx, this.dragBaseY + dy);
+			return;
+		}
 		if (
 			!this.swiped &&
 			Math.abs(axisDelta) > SWIPE_THRESHOLD &&
@@ -114,26 +166,126 @@ export default class MobileFab {
 					: "down";
 			this.onSwipe(direction);
 		}
-		const clampedDelta = Math.max(-SWIPE_THRESHOLD, Math.min(SWIPE_THRESHOLD, axisDelta));
+		const clampedDelta = Math.max(-NUDGE_DISTANCE, Math.min(NUDGE_DISTANCE, axisDelta));
 		this.fabEl.setCssProps({
-			"--fab-drag-x": horizontal ? `${clampedDelta}px` : "0px",
-			"--fab-drag-y": horizontal ? "0px" : `${clampedDelta}px`,
+			"--fab-drag-x": horizontal ? `${this.offsetX() + clampedDelta}px` : `${this.offsetX()}px`,
+			"--fab-drag-y": horizontal ? `${this.offsetY()}px` : `${this.offsetY() + clampedDelta}px`,
 		});
 	};
 
 	private onPointerUp = (ev: PointerEvent) => {
 		if (!this.tracking) return;
 		this.tracking = false;
+		if (this.longPressTimer !== null) {
+			window.clearTimeout(this.longPressTimer);
+			this.longPressTimer = null;
+		}
 		this.fabEl.removeClass("is-dragging");
-		this.fabEl.setCssProps({ "--fab-drag-x": "0px", "--fab-drag-y": "0px" });
-		if (ev.type === "pointercancel") return;
+		if (ev.type === "pointercancel") {
+			this.resetPosition();
+			this.dragging = false;
+			return;
+		}
 		const dx = ev.clientX - this.startX;
 		const dy = ev.clientY - this.startY;
-		const duration = Date.now() - this.startTime;
-		if (!this.swiped && Math.hypot(dx, dy) < TAP_THRESHOLD && duration < TAP_TIMEOUT) {
-			this.plugin.openFabConfig();
+		if (this.dragging) {
+			this.dragging = false;
+			this.applyPosition();
+			void this.plugin.saveSettings();
+			// long-press held still: open the fab settings instead of repositioning
+			if (Math.hypot(dx, dy) < TAP_THRESHOLD) {
+				this.plugin.openFabConfig();
+			}
+			return;
+		}
+		if (!this.swiped) {
+			this.resetPosition();
+			if (Math.hypot(dx, dy) < TAP_THRESHOLD) {
+				// tap: first tap arms, second tap runs the double-tap command
+				if (this.doubleTapTimer !== null) {
+					window.clearTimeout(this.doubleTapTimer);
+					this.doubleTapTimer = null;
+					const commandId = this.plugin.settings.fabDoubleTapCommand;
+					if (commandId) {
+						const result = appCommands(this.plugin.app).executeCommandById(commandId);
+						if (typeof result === "object" && result !== null) {
+							void result.then((executed) => {
+								if (!executed) {
+									new Notice(`Command not found: ${commandId}`);
+								}
+							});
+						} else if (result === false) {
+							new Notice(`Command not found: ${commandId}`);
+						}
+					}
+				} else {
+					this.doubleTapTimer = window.setTimeout(() => {
+						this.doubleTapTimer = null;
+					}, DOUBLE_TAP_TIMEOUT);
+					const singleTapCommand = this.plugin.settings.fabSingleTapCommand;
+					if (singleTapCommand) {
+						this.singleTapTimer = window.setTimeout(() => {
+							this.singleTapTimer = null;
+							void appCommands(this.plugin.app).executeCommandById(singleTapCommand);
+						}, DOUBLE_TAP_TIMEOUT);
+					}
+				}
+			}
 		}
 	};
+
+	private offsetX() {
+		return Number(this.plugin.settings.fabOffsetX) || 0;
+	}
+
+	private offsetY() {
+		return Number(this.plugin.settings.fabOffsetY) || 0;
+	}
+
+	private applyPosition() {
+		this.fabEl.setCssProps({
+			"--fab-drag-x": `${this.offsetX()}px`,
+			"--fab-drag-y": `${this.offsetY()}px`,
+		});
+	}
+
+	private resetPosition() {
+		this.applyPosition();
+	}
+
+	private moveDrag(x: number, y: number) {
+		const vw = this.dragViewportW || window.innerWidth;
+		const vh = this.dragViewportH || window.innerHeight;
+		this.plugin.settings.fabOffsetX = clampOffset(x, -(vw / 2 - 40), vw / 2 - 40);
+		this.plugin.settings.fabOffsetY = clampOffset(y, -(vh - 140), 100);
+		this.applyPosition();
+	}
+
+	private buildFab(): HTMLElement {
+		const doc = window.activeDocument;
+		const fab = doc.createElement("button");
+		fab.className = "neighbouring-files-fab";
+		fab.setAttribute("aria-label", "Navigate to neighbouring files");
+		fab.type = "button";
+
+		const icon = doc.createElement("span");
+		setIcon(icon, "circle-dot");
+		fab.append(icon);
+
+		fab.addEventListener("pointerdown", this.onPointerDown);
+		fab.addEventListener("pointermove", this.onPointerMove);
+		fab.addEventListener("pointerup", this.onPointerUp);
+		fab.addEventListener("pointercancel", this.onPointerUp);
+
+		doc.body.appendChild(fab);
+		return fab;
+	}
+
+	private register() {
+		this.leafChangeRef = this.workspace.on("active-leaf-change", this.onLeafChange);
+		window.addEventListener("resize", this.onResize);
+		this.updateVisibility();
+	}
 
 	private onSwipe(direction: Direction) {
 		const commandId = this.plugin.settings[SWIPE_COMMAND_KEYS[direction]];
@@ -141,6 +293,7 @@ export default class MobileFab {
 	}
 
 	onunload() {
+		window.removeEventListener("resize", this.onResize);
 		this.workspace.offref(this.leafChangeRef);
 		this.fabEl.remove();
 	}

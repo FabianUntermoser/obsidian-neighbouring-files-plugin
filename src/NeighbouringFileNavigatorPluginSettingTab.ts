@@ -68,12 +68,29 @@ export default class NeighbouringFileNavigatorPluginSettingTab extends PluginSet
 				},
 			},
 			{
-				name: "Mobile navigation button",
-				desc: "Show a floating button on mobile. Tap or swipe left for next file, swipe right for previous file.",
-				control: {
-					type: "toggle",
-					key: "showMobileFab",
-				},
+				type: "group",
+				heading: "Mobile",
+				items: [
+					{
+						name: "Mobile navigation button",
+						desc: "Show a floating button on mobile with configurable swipe gestures and tap actions.",
+						control: {
+							type: "toggle",
+							key: "showMobileFab",
+						},
+					},
+					{
+						name: "Fab gestures",
+						desc: "Configure swipe gestures, tap actions and haptics for the mobile button.",
+						render: (setting) => {
+							setting.addButton((button) => {
+								button.setButtonText("Open fab settings").onClick(() => {
+									this.plugin.openFabConfig();
+								});
+							});
+						},
+					},
+				],
 			},
 			{
 				name: "Extensions",
@@ -157,7 +174,7 @@ export default class NeighbouringFileNavigatorPluginSettingTab extends PluginSet
 		new Setting(containerEl)
 			.setName("Mobile navigation button")
 			.setDesc(
-				"Show a floating button on mobile. Tap or swipe left for next file, swipe right for previous file."
+				"Show a floating button on mobile with configurable swipe gestures and tap actions."
 			)
 			.addToggle((toggle) => {
 				toggle.setValue(this.plugin.settings.showMobileFab);
@@ -165,6 +182,15 @@ export default class NeighbouringFileNavigatorPluginSettingTab extends PluginSet
 					this.plugin.settings.showMobileFab = value;
 					await this.plugin.saveSettings();
 					this.plugin.refreshFab();
+				});
+			});
+
+		new Setting(containerEl)
+			.setName("Fab gestures")
+			.setDesc("Configure swipe gestures, tap actions and haptics for the mobile button.")
+			.addButton((button) => {
+				button.setButtonText("Open fab settings").onClick(() => {
+					this.plugin.openFabConfig();
 				});
 			});
 
