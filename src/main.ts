@@ -7,27 +7,20 @@ import FabConfigModal from "./FabConfigModal";
 import MobileFab from "./MobileFab";
 import { Platform, Plugin } from "obsidian";
 
-interface FabCommand {
-	id: string;
-	name: string;
-	run: () => void;
-}
-
 export default class NeighbouringFileNavigatorPlugin extends Plugin {
 	settings: NeighbouringFileNavigatorPluginSettings;
 	private navigator: NeighbouringFileNavigator;
 	private fab: MobileFab | null = null;
-	private fabCommands: FabCommand[] = [];
 
 	async onload() {
 		await this.loadSettings();
 		this.addSettingTab(new NeighbouringFileNavigatorPluginSettingTab(this.app, this));
 		this.navigator = new NeighbouringFileNavigator(this.settings);
 
-		// Single source of truth: registered as commands and offered in the FAB config.
+		// Navigation commands: registered once, referenced by full id elsewhere.
 		const workspace = this.app.workspace;
 		const nav = this.navigator;
-		this.fabCommands = [
+		const commands: Array<{ id: string; name: string; run: () => void }> = [
 			{
 				id: "next",
 				name: "Navigate to next file",
@@ -100,12 +93,12 @@ export default class NeighbouringFileNavigatorPlugin extends Plugin {
 			},
 		];
 
-		for (const command of this.fabCommands) {
+		for (const command of commands) {
 			this.addCommand({ id: command.id, name: command.name, callback: command.run });
 		}
 
 		// legacy aliases, kept for hotkey compatibility
-		const byId = (id: string) => this.fabCommands.find((command) => command.id === id)!;
+		const byId = (id: string) => commands.find((command) => command.id === id) ?? commands[0];
 		this.addCommand({
 			id: "prev-created",
 			name: byId("older-created").name,
@@ -136,20 +129,6 @@ export default class NeighbouringFileNavigatorPlugin extends Plugin {
 	}
 
 	/**
-	 * Run a navigation command by id (used by the mobile FAB gestures).
-	 */
-	runFabCommand(id: string) {
-		this.fabCommands.find((command) => command.id === id)?.run();
-	}
-
-	/**
-	 * Options for the FAB config screen.
-	 */
-	getFabCommandOptions(): Array<{ id: string; name: string }> {
-		return this.fabCommands.map(({ id, name }) => ({ id, name }));
-	}
-
-	/**
 	 * Open the FAB config screen (tap action of the mobile button).
 	 */
 	openFabConfig() {
@@ -173,6 +152,29 @@ export default class NeighbouringFileNavigatorPlugin extends Plugin {
 		const loaded =
 			(await this.loadData()) as Partial<NeighbouringFileNavigatorPluginSettings> | null;
 		this.settings = Object.assign({}, DEFAULT_SETTINGS, loaded);
+		this.migrateFabCommands();
+	}
+
+	/**
+	 * Older saved values used bare ids ("next", "folder-up"); the FAB now
+	 * runs commands by full Obsidian id ("neighbouring-files:next").
+	 */
+	private migrateFabCommands() {
+		const keys = [
+			"fabSwipeLeftCommand",
+			"fabSwipeRightCommand",
+			"fabSwipeUpCommand",
+			"fabSwipeDownCommand",
+		] as const;
+		let changed = false;
+		for (const key of keys) {
+			const value = this.settings[key];
+			if (value && !value.includes(":")) {
+				this.settings[key] = `neighbouring-files:${value}`;
+				changed = true;
+			}
+		}
+		if (changed) void this.saveSettings();
 	}
 
 	async saveSettings() {

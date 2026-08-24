@@ -16,6 +16,23 @@ const GESTURES: Array<{
 	{ key: "fabSwipeDownCommand", label: "Swipe down" },
 ];
 
+const OWN_PREFIX = "neighbouring-files:";
+
+/**
+ * All app commands ordered for the FAB pickers: this plugin's commands
+ * first, then the rest alphabetically.
+ */
+function fabCommandOptions(app: App): Array<{ id: string; name: string }> {
+	const commands = appCommands(app).listCommands();
+	const own = commands
+		.filter((command) => command.id.startsWith(OWN_PREFIX))
+		.sort((a, b) => a.name.localeCompare(b.name));
+	const rest = commands
+		.filter((command) => !command.id.startsWith(OWN_PREFIX))
+		.sort((a, b) => a.name.localeCompare(b.name));
+	return [...own, ...rest];
+}
+
 /**
  * Config screen opened by long-pressing the mobile FAB.
  * Lets the user pick which commands the tap gestures and swipe directions run.
@@ -33,23 +50,17 @@ export default class FabConfigModal extends Modal {
 		this.titleEl.setText("Mobile navigation button");
 		contentEl.empty();
 
-		const commands = appCommands(this.app)
-			.listCommands()
-			.sort((a, b) => a.name.localeCompare(b.name));
+		const options = fabCommandOptions(this.app);
 
 		new Setting(contentEl)
 			.setName("Single tap")
 			.setDesc("Command run when tapping the button once (delayed to allow double tap)")
 			.addDropdown((dropdown) => {
 				dropdown.addOption("", "Do nothing");
-				for (const command of commands) {
+				for (const command of options) {
 					dropdown.addOption(command.id, command.name);
 				}
-				if (
-					commands.some(
-						(command) => command.id === this.plugin.settings.fabSingleTapCommand
-					)
-				) {
+				if (options.some((c) => c.id === this.plugin.settings.fabSingleTapCommand)) {
 					dropdown.setValue(this.plugin.settings.fabSingleTapCommand);
 				}
 				dropdown.onChange(async (value: string) => {
@@ -63,14 +74,10 @@ export default class FabConfigModal extends Modal {
 			.setDesc("Command run when double tapping the button")
 			.addDropdown((dropdown) => {
 				dropdown.addOption("", "Do nothing");
-				for (const command of commands) {
+				for (const command of options) {
 					dropdown.addOption(command.id, command.name);
 				}
-				if (
-					commands.some(
-						(command) => command.id === this.plugin.settings.fabDoubleTapCommand
-					)
-				) {
+				if (options.some((c) => c.id === this.plugin.settings.fabDoubleTapCommand)) {
 					dropdown.setValue(this.plugin.settings.fabDoubleTapCommand);
 				}
 				dropdown.onChange(async (value: string) => {
@@ -79,20 +86,19 @@ export default class FabConfigModal extends Modal {
 				});
 			});
 
-		const options: Array<{ id: string; name: string }> = [
-			{ id: "", name: "Do nothing" },
-			...this.plugin.getFabCommandOptions(),
-		];
-
 		for (const gesture of GESTURES) {
 			new Setting(contentEl)
 				.setName(gesture.label)
 				.setDesc("Command run when swiping this direction on the button")
 				.addDropdown((dropdown) => {
-					for (const option of options) {
-						dropdown.addOption(option.id, option.name);
+					dropdown.addOption("", "Do nothing");
+					for (const command of options) {
+						dropdown.addOption(command.id, command.name);
 					}
-					dropdown.setValue(this.plugin.settings[gesture.key]);
+					const current = this.plugin.settings[gesture.key];
+					if (current && options.some((c) => c.id === current)) {
+						dropdown.setValue(current);
+					}
 					dropdown.onChange(async (value: string) => {
 						this.plugin.settings[gesture.key] = value;
 						await this.plugin.saveSettings();

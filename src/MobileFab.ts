@@ -206,19 +206,7 @@ export default class MobileFab {
 				if (this.doubleTapTimer !== null) {
 					window.clearTimeout(this.doubleTapTimer);
 					this.doubleTapTimer = null;
-					const commandId = this.plugin.settings.fabDoubleTapCommand;
-					if (commandId) {
-						const result = appCommands(this.plugin.app).executeCommandById(commandId);
-						if (typeof result === "object" && result !== null) {
-							void result.then((executed) => {
-								if (!executed) {
-									new Notice(`Command not found: ${commandId}`);
-								}
-							});
-						} else if (result === false) {
-							new Notice(`Command not found: ${commandId}`);
-						}
-					}
+					this.runCommand(this.plugin.settings.fabDoubleTapCommand);
 				} else {
 					this.doubleTapTimer = window.setTimeout(() => {
 						this.doubleTapTimer = null;
@@ -227,7 +215,7 @@ export default class MobileFab {
 					if (singleTapCommand) {
 						this.singleTapTimer = window.setTimeout(() => {
 							this.singleTapTimer = null;
-							void appCommands(this.plugin.app).executeCommandById(singleTapCommand);
+							this.runCommand(singleTapCommand);
 						}, DOUBLE_TAP_TIMEOUT);
 					}
 				}
@@ -290,7 +278,23 @@ export default class MobileFab {
 
 	private onSwipe(direction: Direction) {
 		const commandId = this.plugin.settings[SWIPE_COMMAND_KEYS[direction]];
-		this.plugin.runFabCommand(commandId);
+		this.runCommand(commandId);
+	}
+
+	/**
+	 * Execute a command by its full Obsidian id (e.g. "neighbouring-files:next").
+	 * Works for this plugin's commands and any other installed command.
+	 */
+	private runCommand(commandId: string) {
+		if (!commandId) return;
+		const result = appCommands(this.plugin.app).executeCommandById(commandId);
+		if (typeof result === "object" && result !== null) {
+			void result.then((executed) => {
+				if (!executed) new Notice(`Command not found: ${commandId}`);
+			});
+		} else if (result === false) {
+			new Notice(`Command not found: ${commandId}`);
+		}
 	}
 
 	onunload() {

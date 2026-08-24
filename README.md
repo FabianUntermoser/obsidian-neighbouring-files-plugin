@@ -79,7 +79,7 @@ On mobile, a floating button appears whenever a note is open. Gestures:
 
 -   **Swipe left / right / up / down**: run a command (defaults: left = next, right = prev, up = folder up, down = folder down)
 -   **Tap**: run a command (default: none)
--   **Double-tap**: run a command (default: open daily note)
+-   **Double-tap**: run a command (default: none)
 -   **Long-press**: open the FAB settings
 -   **Long-press + drag**: reposition the button (position is saved)
 
