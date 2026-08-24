@@ -137,18 +137,32 @@ export default class MobileFab {
 		}, LONG_PRESS_MS);
 	};
 
+	private cancelLongPressOnMove(axisDelta: number) {
+		if (!this.swiped && Math.abs(axisDelta) > MOVE_TOLERANCE && this.longPressTimer !== null) {
+			window.clearTimeout(this.longPressTimer);
+			this.longPressTimer = null;
+		}
+	}
+
+	private nudge(horizontal: boolean, axisDelta: number) {
+		const clampedDelta = Math.max(-NUDGE_DISTANCE, Math.min(NUDGE_DISTANCE, axisDelta));
+		this.fabEl.setCssProps({
+			"--fab-drag-x": horizontal
+				? `${this.offsetX() + clampedDelta}px`
+				: `${this.offsetX()}px`,
+			"--fab-drag-y": horizontal
+				? `${this.offsetY()}px`
+				: `${this.offsetY() + clampedDelta}px`,
+		});
+	}
+
 	private onPointerMove = (ev: PointerEvent) => {
 		if (!this.tracking) return;
 		const dx = ev.clientX - this.startX;
 		const dy = ev.clientY - this.startY;
 		const horizontal = Math.abs(dx) > Math.abs(dy);
 		const axisDelta = horizontal ? dx : dy;
-		if (!this.swiped && Math.abs(axisDelta) > MOVE_TOLERANCE) {
-			if (this.longPressTimer !== null) {
-				window.clearTimeout(this.longPressTimer);
-				this.longPressTimer = null;
-			}
-		}
+		this.cancelLongPressOnMove(axisDelta);
 		if (this.dragging) {
 			this.moveDrag(this.dragBaseX + dx, this.dragBaseY + dy);
 			return;
@@ -161,15 +175,7 @@ export default class MobileFab {
 			this.swiped = true;
 			this.onSwipe(swipeDirection(horizontal, dx, dy));
 		}
-		const clampedDelta = Math.max(-NUDGE_DISTANCE, Math.min(NUDGE_DISTANCE, axisDelta));
-		this.fabEl.setCssProps({
-			"--fab-drag-x": horizontal
-				? `${this.offsetX() + clampedDelta}px`
-				: `${this.offsetX()}px`,
-			"--fab-drag-y": horizontal
-				? `${this.offsetY()}px`
-				: `${this.offsetY() + clampedDelta}px`,
-		});
+		this.nudge(horizontal, axisDelta);
 	};
 
 	private onPointerUp = (ev: PointerEvent) => {
