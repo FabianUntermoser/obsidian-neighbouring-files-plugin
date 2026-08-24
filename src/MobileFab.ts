@@ -24,6 +24,10 @@ function clampOffset(value: number, min: number, max: number) {
 	return Math.max(min, Math.min(max, value));
 }
 
+function swipeDirection(horizontal: boolean, dx: number, dy: number): Direction {
+	return horizontal ? (dx < 0 ? "left" : "right") : dy < 0 ? "up" : "down";
+}
+
 /** app.commands is not in the 1.13.1 d.ts; minimal typed view. */
 export interface AppCommands {
 	executeCommandById(id: string): Promise<boolean> | boolean;
@@ -59,6 +63,7 @@ export default class MobileFab {
 	private longPressTimer: number | null = null;
 	private doubleTapTimer: number | null = null;
 	private singleTapTimer: number | null = null;
+	private pointerHandledTap = false;
 	private startX = 0;
 	private startY = 0;
 	private startTime = 0;
@@ -154,14 +159,7 @@ export default class MobileFab {
 			Math.abs(axisDelta) > MOVE_TOLERANCE
 		) {
 			this.swiped = true;
-			const direction: Direction = horizontal
-				? dx < 0
-					? "left"
-					: "right"
-				: dy < 0
-					? "up"
-					: "down";
-			this.onSwipe(direction);
+			this.onSwipe(swipeDirection(horizontal, dx, dy));
 		}
 		const clampedDelta = Math.max(-NUDGE_DISTANCE, Math.min(NUDGE_DISTANCE, axisDelta));
 		this.fabEl.setCssProps({
@@ -202,26 +200,31 @@ export default class MobileFab {
 		if (!this.swiped) {
 			this.resetPosition();
 			if (Math.hypot(dx, dy) < TAP_THRESHOLD) {
-				// tap: first tap arms, second tap runs the double-tap command
-				if (this.doubleTapTimer !== null) {
-					window.clearTimeout(this.doubleTapTimer);
-					this.doubleTapTimer = null;
-					this.runCommand(this.plugin.settings.fabDoubleTapCommand);
-				} else {
-					this.doubleTapTimer = window.setTimeout(() => {
-						this.doubleTapTimer = null;
-					}, DOUBLE_TAP_TIMEOUT);
-					const singleTapCommand = this.plugin.settings.fabSingleTapCommand;
-					if (singleTapCommand) {
-						this.singleTapTimer = window.setTimeout(() => {
-							this.singleTapTimer = null;
-							this.runCommand(singleTapCommand);
-						}, DOUBLE_TAP_TIMEOUT);
-					}
-				}
+				this.pointerHandledTap = true;
+				this.handleTap();
 			}
 		}
 	};
+
+	private handleTap() {
+		// first tap arms, second tap runs the double-tap command
+		if (this.doubleTapTimer !== null) {
+			window.clearTimeout(this.doubleTapTimer);
+			this.doubleTapTimer = null;
+			this.runCommand(this.plugin.settings.fabDoubleTapCommand);
+			return;
+		}
+		this.doubleTapTimer = window.setTimeout(() => {
+			this.doubleTapTimer = null;
+		}, DOUBLE_TAP_TIMEOUT);
+		const singleTapCommand = this.plugin.settings.fabSingleTapCommand;
+		if (singleTapCommand) {
+			this.singleTapTimer = window.setTimeout(() => {
+				this.singleTapTimer = null;
+				this.runCommand(singleTapCommand);
+			}, DOUBLE_TAP_TIMEOUT);
+		}
+	}
 
 	private offsetX() {
 		return Number(this.plugin.settings.fabOffsetX) || 0;
@@ -250,6 +253,17 @@ export default class MobileFab {
 		this.applyPosition();
 	}
 
+	private onClick = (ev: MouseEvent) => {
+		// Pointer taps are handled in onPointerUp; ignore their trailing click.
+		if (this.pointerHandledTap) {
+			this.pointerHandledTap = false;
+			return;
+		}
+		// Keyboard/assistive activation (no pointer events): run the single-tap command.
+		if (ev.detail > 1) return;
+		this.runCommand(this.plugin.settings.fabSingleTapCommand);
+	};
+
 	private buildFab(): HTMLElement {
 		const doc = window.activeDocument;
 		const fab = doc.createElement("button");
@@ -265,6 +279,7 @@ export default class MobileFab {
 		fab.addEventListener("pointermove", this.onPointerMove);
 		fab.addEventListener("pointerup", this.onPointerUp);
 		fab.addEventListener("pointercancel", this.onPointerUp);
+		fab.addEventListener("click", this.onClick);
 
 		doc.body.appendChild(fab);
 		return fab;
@@ -298,6 +313,20 @@ export default class MobileFab {
 	}
 
 	onunload() {
+		if (this.longPressTimer !== null) {
+			window.clearTimeout(this.longPressTimer);
+			this.longPressTimer = null;
+		}
+		if (this.singleTapTimer !== null) {
+			window.clearTimeout(this.singleTapTimer);
+			this.singleTapTimer = null;
+		}
+		if (this.doubleTapTimer !== null) {
+			window.clearTimeout(this.doubleTapTimer);
+			this.doubleTapTimer = null;
+		}
+		this.tracking = false;
+		this.dragging = false;
 		window.removeEventListener("resize", this.onResize);
 		this.workspace.offref(this.leafChangeRef);
 		this.fabEl.remove();
