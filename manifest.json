@@ -2,7 +2,7 @@
 	"id": "neighbouring-files",
 	"name": "Neighbouring Files",
 	"version": "1.2.0",
-	"minAppVersion": "0.16.0",
+	"minAppVersion": "1.13.0",
 	"description": "Navigate to the next and previous file in the current directory.",
 	"author": "Fabian Untermoser",
 	"authorUrl": "https://www.fabianuntermoser.com",
