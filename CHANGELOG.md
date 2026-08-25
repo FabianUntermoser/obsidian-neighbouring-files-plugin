@@ -2,13 +2,13 @@
 
 ## 1.2.0
 
-### Minor Changes
+### What's New
 
-- 4fdf4c2: Add a mobile-only floating action button (FAB) with configurable gestures: swipe left/right/up/down to run commands, tap and double-tap actions, long-press to open the FAB settings, and long-press + drag to reposition the button. Gesture commands, haptics, and button position are configurable in the plugin settings under Mobile.
+- **Mobile navigation button (FAB).** A floating action button that works only on mobile. Configure four swipe gestures (left, right, up, down) to run commands, plus tap, double-tap, and long-press actions. Long-press then drag to reposition the button. Gesture commands, haptics, and position are all configurable in Settings → Mobile.
 
 ### Dependency Updates
 
-- js-yaml: patched to 4.3.1 / 3.15.1 to close a security advisory
+- js-yaml: bumped to close a security advisory (4.3.1 / 3.15.1)
 - obsidian: 1.12.3 → 1.13.1
 - eslint-plugin-obsidianmd: 0.3.0 → 0.4.1
 - @types/node: 25.9.5 → 26.1.1
