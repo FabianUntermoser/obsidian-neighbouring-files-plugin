@@ -1,7 +1,7 @@
 {
 	"name": "neighbouring-files",
 	"version": "1.2.0",
-	"description": "Navigate to the next and previous file in the current directory",
+	"description": "Navigate to the next and previous file in the current directory.",
 	"main": "main.js",
 	"scripts": {
 		"dev": "node esbuild.config.mjs",
