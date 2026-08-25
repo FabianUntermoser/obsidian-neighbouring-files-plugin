@@ -16,3 +16,40 @@ if (typeof HTMLElement !== "undefined") {
 	};
 	HTMLElement.prototype.setPointerCapture = function () {};
 }
+
+// Obsidian also patches Document with a createEl/createSpan helper. jsdom only
+// has createElement, so mirror the minimal shape MobileFab uses.
+if (typeof Document !== "undefined") {
+	(
+		Document.prototype as unknown as {
+			createEl: (tag: string, options?: Record<string, unknown>) => HTMLElement;
+			createSpan: (options?: Record<string, unknown>) => HTMLSpanElement;
+		}
+	).createEl = function (
+		this: Document,
+		tag: string,
+		options?: Record<string, unknown>
+	): HTMLElement {
+		const el = this.createElement(tag);
+		if (options?.cls) el.className = String(options.cls);
+		const attr = options?.attr as Record<string, string> | undefined;
+		if (attr) {
+			for (const key in attr) {
+				el.setAttribute(key, attr[key]);
+			}
+		}
+		return el;
+	};
+	(
+		Document.prototype as unknown as {
+			createEl: (tag: string, options?: Record<string, unknown>) => HTMLElement;
+			createSpan: (options?: Record<string, unknown>) => HTMLSpanElement;
+		}
+	).createSpan = function (this: Document, options?: Record<string, unknown>): HTMLSpanElement {
+		return (
+			this as unknown as {
+				createEl: (tag: string, options?: Record<string, unknown>) => HTMLElement;
+			}
+		).createEl("span", options) as HTMLSpanElement;
+	};
+}
