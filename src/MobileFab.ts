@@ -328,12 +328,12 @@ export default class MobileFab {
 
 	private buildFab(): HTMLElement {
 		const doc = window.activeDocument;
-		const fab = doc.createElement("button");
-		fab.className = "neighbouring-files-fab";
-		fab.setAttribute("aria-label", "Navigate to neighbouring files");
-		fab.type = "button";
+		const fab = doc.createEl("button", {
+			cls: "neighbouring-files-fab",
+			attr: { "aria-label": "Navigate to neighbouring files", type: "button" },
+		});
 
-		const icon = doc.createElement("span");
+		const icon = doc.createSpan();
 		setIcon(icon, "circle-dot");
 		fab.append(icon);
 

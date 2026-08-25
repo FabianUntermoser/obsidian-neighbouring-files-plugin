@@ -10,121 +10,105 @@
   <img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/FabianUntermoser/obsidian-neighbouring-files-plugin?color=blue&style=flat-square">
 </p>
 
-This [Obsidian](https://obsidian.md/) Plugin adds navigational commands that let you quickly navigate to neighbouring files in your vault.
+This [Obsidian](https://obsidian.md/) Plugin adds commands to quickly navigate between neighbouring files.
 
-### Use Case
+## Installation
 
--   Navigate from one weekly note to another (e.g., `2023-W17` → `2023-W18`)
--   Move between daily notes (e.g., `2023-05-31` → `2023-06-01`)
--   Browse sequentially numbered notes (e.g., `A4` → `A5`)
--   Navigate through project files in a folder
+[Install from the Obsidian community store](https://obsidian.md/plugins?id=neighbouring-files).
+
+## Demo
+
+**Navigating with shortcuts**
 
 [obsidian-neighbouring-files.webm](https://github.com/user-attachments/assets/cdc04e2b-e3d9-4d77-8b2c-cbfa4ef4436d)
 
-### Commands
+**Navigating with the mobile floating action button**
 
-Default Commands:
+[mobile-fab.mp4](https://github.com/user-attachments/assets/573f5428-123b-43c6-98b5-d3f3d9f21493)
 
--   Navigate to next file
--   Navigate to prev file
+## Features
+- Navigate to the next / previous file, alphabetical or by creation / modification date
+- Navigate folders up, down, and between
+- Loop in a folder or continue across folders
+- Mobile floating action button (FAB) with gestures
 
-Commands:
+## Commands
 
--   Navigate to next file (alphabetical)
--   Navigate to prev file (alphabetical)
--   Navigate to older file (creation timestamp)
--   Navigate to newer file (creation timestamp)
--   Navigate to older file (modified timestamp)
--   Navigate to newer file (modified timestamp)
--   Folder up
--   Folder down
--   Next folder
--   Prev folder
+Default commands:
+- Navigate to next file
+- Navigate to prev file
 
-Supported Sorting Modes:
+Additional commands:
+- Navigate to next file (alphabetical)
+- Navigate to prev file (alphabetical)
+- Navigate to older file (creation timestamp)
+- Navigate to newer file (creation timestamp)
+- Navigate to older file (modified timestamp)
+- Navigate to newer file (modified timestamp)
+- Folder up
+- Folder down
+- Next folder
+- Prev folder
 
--   Alphabetical: Ordered by file names.
--   By Modification Timestamp: Based on the file modification date.
--   By Creation Timestamp: Based on the file creation date.
+Sorting modes:
+- **Alphabetical**: by file name
+- **By modification timestamp**
+- **By creation timestamp**
 
 ## Configuration
 
-### Default Sort Order
-
-The default command uses the same sort order as the [File explorer](https://help.obsidian.md/Plugins/File+explorer).
-You can configure a fallback sort order in the plugin settings.
+### Sort Order
+The default command uses the same sort order as the [File explorer](https://help.obsidian.md/Plugins/File+explorer). Set a fallback in the plugin settings.
 
 ### Included File Types
-
-By default, navigation is restricted to markdown files.
-In the settings you can enable support for other file types:
-
--   Limit to Markdown files only
--   Include all file types
--   Specify additional file extensions to include
+Markdown only by default. In the settings you can:
+- Limit to markdown files only
+- Include all file types
+- Add specific file extensions
 
 ### Loop Notes in Folder
-
--   When disabled: Navigation stops at the beginning/end of the current folder.
--   When enabled: Navigation loops back to the first/last note in the same folder.
+- **Disabled**: navigation stops at the folder edges
+- **Enabled**: navigation loops back to the first / last note
 
 ### Continue Across Folders
-
--   When disabled: Navigation stays within the current folder.
--   When enabled: Reaching a folder boundary continues navigation into adjacent folders.
+- **Disabled**: navigation stays within the current folder
+- **Enabled**: navigation continues into adjacent folders
 
 ### Mobile Navigation Button (FAB)
+On mobile, a floating button appears when a note is open. Gestures:
+- **Swipe left / right / up / down**: run a command (defaults: left = next, right = prev, up = folder up, down = folder down)
+- **Tap**: run a command (default: none)
+- **Double-tap**: run a command (default: none)
+- **Long-press**: open FAB settings
+- **Long-press + drag**: reposition the button
 
-On mobile, a floating button appears whenever a note is open. Gestures:
+Set gesture commands in settings under **Mobile**, or long-press the button. Haptics toggle available.
 
--   **Swipe left / right / up / down**: run a command (defaults: left = next, right = prev, up = folder up, down = folder down)
--   **Tap**: run a command (default: none)
--   **Double-tap**: run a command (default: none)
--   **Long-press**: open the FAB settings
--   **Long-press + drag**: reposition the button (position is saved)
+## Keybindings
 
-Configure the gesture commands in the plugin settings under **Mobile**, or long-press the button. A haptics toggle is available for the long-press feedback.
+### Obsidian Hotkeys
+Open `Settings` -> `Hotkeys`, search `neighbouring-files`, and assign keys to the commands you need. The command IDs follow the command names (e.g. `neighbouring-files:next`).
 
-### Configure Obsidian Hotkeys
+### VIMRC Keybindings
+Instead of Obsidian hotkeys, use the [obsidian-vimrc-support](https://github.com/esm7/obsidian-vimrc-support) plugin to map keys like `gn` or `gp`.
 
-In Obsidian, open `Settings` -> `Hotkeys`, search for `neighbouring-files`, and assign keys to the command IDs you want:
+> Caveat: works only when editor mode is on.
 
--   `neighbouring-files:next`
--   `neighbouring-files:prev`
--   `neighbouring-files:next-alphabetical`
--   `neighbouring-files:prev-alphabetical`
--   `neighbouring-files:older-created`
--   `neighbouring-files:newer-created`
--   `neighbouring-files:older-modified`
--   `neighbouring-files:newer-modified`
--   `neighbouring-files:folder-up`
--   `neighbouring-files:folder-down`
--   `neighbouring-files:folder-next`
--   `neighbouring-files:folder-prev`
-
-### Configure VIMRC keybindings
-
-Instead of configuring obsidian hotkeys to trigger the navigation commands,
-you can also use the [obsidian-vimrc-support](https://github.com/esm7/obsidian-vimrc-support) plugin to map more useful hotkeys such as `gn` or `gp`
-(Caveat: This only works when the editor mode is on).
-
-Example `.obsidian.vimrc`.
-
+Example `.obsidian.vimrc`:
 ```vimrc
-" define navigation commands
-exmap next_file              obcommand neighbouring-files:next
-exmap prev_file              obcommand neighbouring-files:prev
+" navigation to neighbouring files
+exmap next_file obcommand neighbouring-files:next
+exmap prev_file obcommand neighbouring-files:prev
 exmap next_file_alphabetical obcommand neighbouring-files:next-alphabetical
 exmap prev_file_alphabetical obcommand neighbouring-files:prev-alphabetical
-exmap older_file_created     obcommand neighbouring-files:older-created
-exmap newer_file_created     obcommand neighbouring-files:newer-created
-exmap older_file_modified    obcommand neighbouring-files:older-modified
-exmap newer_file_modified    obcommand neighbouring-files:newer-modified
-exmap folder_up              obcommand neighbouring-files:folder-up
-exmap folder_down            obcommand neighbouring-files:folder-down
-exmap folder_next            obcommand neighbouring-files:folder-next
-exmap folder_prev            obcommand neighbouring-files:folder-prev
-" add navigation mappings
+exmap older_file_created obcommand neighbouring-files:older-created
+exmap newer_file_created obcommand neighbouring-files:newer-created
+exmap older_file_modified obcommand neighbouring-files:older-modified
+exmap newer_file_modified obcommand neighbouring-files:newer-modified
+exmap folder_up obcommand neighbouring-files:folder-up
+exmap folder_down obcommand neighbouring-files:folder-down
+exmap folder_next obcommand neighbouring-files:folder-next
+exmap folder_prev obcommand neighbouring-files:folder-prev
 nmap gn :next_file<cr>
 nmap gp :prev_file<cr>
 nmap fu :folder_up<cr>
@@ -133,19 +117,8 @@ nmap fn :folder_next<cr>
 nmap fp :folder_prev<cr>
 ```
 
-## Releasing
-
-1. Add a changeset for user-facing changes:
-    ```bash
-    make changeset
-    ```
-2. Publish with the Makefile release target:
-    ```bash
-    make release
-    ```
-
-`make release` runs Changesets versioning, creates the release commit/tag, and pushes tags to trigger the GitHub release workflow.
+## Contributing
+Open source on [GitHub](https://github.com/FabianUntermoser/obsidian-neighbouring-files-plugin). Issues and PRs welcome.
 
 ## License
-
-This project is licensed under [MIT License](LICENSE.md).
+[MIT License](LICENSE.md).
