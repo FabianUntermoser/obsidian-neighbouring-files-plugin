@@ -60,10 +60,14 @@ export default class MobileFab {
 	private dragBaseY = 0;
 	private dragViewportW = 0;
 	private dragViewportH = 0;
+	private lastViewportW = 0;
+	private lastViewportH = 0;
+	private lastSafeAreaRight = 0;
 	private longPressTimer: number | null = null;
 	private doubleTapTimer: number | null = null;
 	private singleTapTimer: number | null = null;
 	private pointerHandledTap = false;
+	private drawerObserver: MutationObserver | null = null;
 	private startX = 0;
 	private startY = 0;
 	private startTime = 0;
@@ -72,7 +76,11 @@ export default class MobileFab {
 		this.plugin = plugin;
 		this.workspace = plugin.app.workspace;
 		this.fabEl = this.buildFab();
+		this.normalizeOffsets();
 		this.applyPosition();
+		this.lastViewportW = window.innerWidth;
+		this.lastViewportH = window.innerHeight;
+		this.lastSafeAreaRight = this.safeAreaRight();
 		this.register();
 	}
 
@@ -81,17 +89,41 @@ export default class MobileFab {
 	};
 
 	private updateVisibility = () => {
-		const show = Boolean(this.workspace.getActiveFile());
+		// hide while a side dock drawer covers the note, so the fab only
+		// shows over the current leaf (state classes live on .workspace)
+		const workspaceEl = this.workspace.containerEl;
+		const dockOpen =
+			Boolean(workspaceEl) &&
+			(workspaceEl.classList.contains("is-left-sidedock-open") ||
+				workspaceEl.classList.contains("is-right-sidedock-open"));
+		const show = Boolean(this.workspace.getActiveFile()) && !dockOpen;
 		if (show === this.visible) return;
 		this.visible = show;
 		this.fabEl.classList.toggle("is-visible", show);
 	};
 
 	private onResize = () => {
+		const vw = window.innerWidth;
+		const vh = window.innerHeight;
+		const safeAreaRight = this.safeAreaRight();
+		// no active drag: rotation or a safe-area change can shrink the usable
+		// viewport, so reclamp persisted offsets that are now out of range
+		if (!this.tracking || !this.dragging) {
+			if (
+				vw !== this.lastViewportW ||
+				vh !== this.lastViewportH ||
+				safeAreaRight !== this.lastSafeAreaRight
+			) {
+				this.normalizeOffsets();
+				this.applyPosition();
+				this.lastViewportW = vw;
+				this.lastViewportH = vh;
+				this.lastSafeAreaRight = safeAreaRight;
+			}
+			return;
+		}
 		// keyboard opening shrinks the viewport and re-anchors the fixed
 		// bottom position; keep the fab under the finger mid-drag
-		if (!this.tracking || !this.dragging) return;
-		const vh = window.innerHeight;
 		const dy = this.dragViewportH - vh;
 		if (dy !== 0) {
 			this.plugin.settings.fabOffsetY = clampOffset(
@@ -203,12 +235,11 @@ export default class MobileFab {
 			}
 			return;
 		}
-		if (!this.swiped) {
-			this.resetPosition();
-			if (Math.hypot(dx, dy) < TAP_THRESHOLD) {
-				this.pointerHandledTap = true;
-				this.handleTap();
-			}
+		// reset the gesture nudge so the button flips back to its resting spot
+		this.resetPosition();
+		if (!this.swiped && Math.hypot(dx, dy) < TAP_THRESHOLD) {
+			this.pointerHandledTap = true;
+			this.handleTap();
 		}
 	};
 
@@ -230,6 +261,29 @@ export default class MobileFab {
 				this.runCommand(singleTapCommand);
 			}, DOUBLE_TAP_TIMEOUT);
 		}
+	}
+
+	private safeAreaRight() {
+		const raw = getComputedStyle(window.activeDocument.documentElement)
+			.getPropertyValue("--safe-area-inset-right")
+			.trim();
+		const px = parseFloat(raw);
+		return Number.isFinite(px) ? px : 0;
+	}
+
+	/**
+	 * Clamp persisted offsets to the current valid range so values written
+	 * under older layouts (centered anchor) can not push the button off screen.
+	 */
+	private normalizeOffsets() {
+		const vw = window.innerWidth;
+		const vh = window.innerHeight;
+		this.plugin.settings.fabOffsetX = clampOffset(
+			this.offsetX(),
+			-(vw - 80 - this.safeAreaRight()),
+			20
+		);
+		this.plugin.settings.fabOffsetY = clampOffset(this.offsetY(), -(vh - 140), 100);
 	}
 
 	private offsetX() {
@@ -254,7 +308,9 @@ export default class MobileFab {
 	private moveDrag(x: number, y: number) {
 		const vw = this.dragViewportW || window.innerWidth;
 		const vh = this.dragViewportH || window.innerHeight;
-		this.plugin.settings.fabOffsetX = clampOffset(x, -(vw / 2 - 40), vw / 2 - 40);
+		// right-anchored: negative x moves left, 20px right padding is the flush
+		// edge; the minimum keeps the button on screen past the safe area
+		this.plugin.settings.fabOffsetX = clampOffset(x, -(vw - 80 - this.safeAreaRight()), 20);
 		this.plugin.settings.fabOffsetY = clampOffset(y, -(vh - 140), 100);
 		this.applyPosition();
 	}
@@ -294,6 +350,16 @@ export default class MobileFab {
 	private register() {
 		this.leafChangeRef = this.workspace.on("active-leaf-change", this.onLeafChange);
 		window.addEventListener("resize", this.onResize);
+		// the mobile drawer slides in/out without an active-leaf change; the
+		// is-open class lives on the workspace container, so watch just that
+		// element instead of the whole document to avoid constant churn
+		this.drawerObserver = new MutationObserver(() => this.updateVisibility());
+		if (this.workspace.containerEl) {
+			this.drawerObserver.observe(this.workspace.containerEl, {
+				attributes: true,
+				attributeFilter: ["class"],
+			});
+		}
 		this.updateVisibility();
 	}
 
@@ -334,6 +400,8 @@ export default class MobileFab {
 		this.tracking = false;
 		this.dragging = false;
 		window.removeEventListener("resize", this.onResize);
+		this.drawerObserver?.disconnect();
+		this.drawerObserver = null;
 		this.workspace.offref(this.leafChangeRef);
 		this.fabEl.remove();
 	}
