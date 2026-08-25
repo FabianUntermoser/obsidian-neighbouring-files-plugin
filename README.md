@@ -85,6 +85,8 @@ On mobile, a floating button appears whenever a note is open. Gestures:
 
 Configure the gesture commands in the plugin settings under **Mobile**, or long-press the button. A haptics toggle is available for the long-press feedback.
 
+[mobile-fab.mp4](https://github.com/user-attachments/assets/573f5428-123b-43c6-98b5-d3f3d9f21493)
+
 ### Configure Obsidian Hotkeys
 
 In Obsidian, open `Settings` -> `Hotkeys`, search for `neighbouring-files`, and assign keys to the command IDs you want:
