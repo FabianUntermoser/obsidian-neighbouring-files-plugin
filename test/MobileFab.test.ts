@@ -208,14 +208,17 @@ describe("MobileFab", () => {
 	});
 
 	describe("visibility", () => {
-		it("hides the fab while a side dock drawer is open", () => {
+		it("hides the fab while a side dock drawer is open", async () => {
 			const { workspace } = mount();
 			const container = workspace.containerEl as HTMLElement;
 			const fab = getFab();
+			jest.useRealTimers();
 			expect(fab.classList.contains("is-visible")).toBe(true);
 			container.classList.add("is-left-sidedock-open");
+			await new Promise((r) => setTimeout(r, 10));
 			expect(fab.classList.contains("is-visible")).toBe(false);
 			container.classList.remove("is-left-sidedock-open");
+			await new Promise((r) => setTimeout(r, 10));
 			expect(fab.classList.contains("is-visible")).toBe(true);
 		});
 	});
