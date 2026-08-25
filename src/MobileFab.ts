@@ -64,6 +64,7 @@ export default class MobileFab {
 	private doubleTapTimer: number | null = null;
 	private singleTapTimer: number | null = null;
 	private pointerHandledTap = false;
+	private drawerObserver: MutationObserver | null = null;
 	private startX = 0;
 	private startY = 0;
 	private startTime = 0;
@@ -81,7 +82,14 @@ export default class MobileFab {
 	};
 
 	private updateVisibility = () => {
-		const show = Boolean(this.workspace.getActiveFile());
+		// hide while a side dock drawer covers the note, so the fab only
+		// shows over the current leaf (state classes live on .workspace)
+		const workspaceEl = this.workspace.containerEl;
+		const dockOpen =
+			Boolean(workspaceEl) &&
+			(workspaceEl.classList.contains("is-left-sidedock-open") ||
+				workspaceEl.classList.contains("is-right-sidedock-open"));
+		const show = Boolean(this.workspace.getActiveFile()) && !dockOpen;
 		if (show === this.visible) return;
 		this.visible = show;
 		this.fabEl.classList.toggle("is-visible", show);
@@ -254,7 +262,8 @@ export default class MobileFab {
 	private moveDrag(x: number, y: number) {
 		const vw = this.dragViewportW || window.innerWidth;
 		const vh = this.dragViewportH || window.innerHeight;
-		this.plugin.settings.fabOffsetX = clampOffset(x, -(vw / 2 - 40), vw / 2 - 40);
+		// right-anchored: negative x moves left, 20px right padding is the flush edge
+		this.plugin.settings.fabOffsetX = clampOffset(x, -(vw - 80), 20);
 		this.plugin.settings.fabOffsetY = clampOffset(y, -(vh - 140), 100);
 		this.applyPosition();
 	}
@@ -294,6 +303,15 @@ export default class MobileFab {
 	private register() {
 		this.leafChangeRef = this.workspace.on("active-leaf-change", this.onLeafChange);
 		window.addEventListener("resize", this.onResize);
+		// the mobile drawer slides in/out without an active-leaf change; watch
+		// the is-open class so the fab hides while it covers the note
+		this.drawerObserver = new MutationObserver(() => this.updateVisibility());
+		this.drawerObserver.observe(window.activeDocument.body, {
+			childList: true,
+			subtree: true,
+			attributes: true,
+			attributeFilter: ["class"],
+		});
 		this.updateVisibility();
 	}
 
@@ -334,6 +352,8 @@ export default class MobileFab {
 		this.tracking = false;
 		this.dragging = false;
 		window.removeEventListener("resize", this.onResize);
+		this.drawerObserver?.disconnect();
+		this.drawerObserver = null;
 		this.workspace.offref(this.leafChangeRef);
 		this.fabEl.remove();
 	}

@@ -23,6 +23,7 @@ const makeWorkspace = (activeFile: unknown = { path: "a.md" }) => {
 		on: jest.fn(() => () => {}),
 		offref: jest.fn(),
 		getActiveFile: jest.fn(() => activeFile),
+		containerEl: document.createElement("div"),
 	};
 	return workspace as unknown as Record<string, unknown> & {
 		on: jest.Mock;
