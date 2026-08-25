@@ -179,6 +179,27 @@ describe("MobileFab", () => {
 		});
 	});
 
+	describe("resize", () => {
+		afterEach(() => {
+			// restore the default viewport between tests
+			Object.defineProperty(window, "innerWidth", {
+				value: 1024,
+				configurable: true,
+			});
+		});
+
+		it("reclamps offsets that fall out of range after a viewport change", () => {
+			// -200 is in range for the default 1024px viewport but not after the
+			// shrink below, so only the resize handler can pull it back in bounds
+			const { plugin } = mount({ fabOffsetX: "-200" });
+			// shrink the viewport, then fire the resize event the handler listens for
+			Object.defineProperty(window, "innerWidth", { value: 200, configurable: true });
+			window.dispatchEvent(new Event("resize"));
+			// min bound at 200px wide minus the 80px fab gutter = -120
+			expect(plugin.settings.fabOffsetX).toBeGreaterThanOrEqual(-120);
+		});
+	});
+
 	describe("keyboard / assistive activation", () => {
 		it("runs the single-tap command from a plain click", () => {
 			mount();

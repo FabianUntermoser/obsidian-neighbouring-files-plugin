@@ -60,6 +60,9 @@ export default class MobileFab {
 	private dragBaseY = 0;
 	private dragViewportW = 0;
 	private dragViewportH = 0;
+	private lastViewportW = 0;
+	private lastViewportH = 0;
+	private lastSafeAreaRight = 0;
 	private longPressTimer: number | null = null;
 	private doubleTapTimer: number | null = null;
 	private singleTapTimer: number | null = null;
@@ -75,6 +78,9 @@ export default class MobileFab {
 		this.fabEl = this.buildFab();
 		this.normalizeOffsets();
 		this.applyPosition();
+		this.lastViewportW = window.innerWidth;
+		this.lastViewportH = window.innerHeight;
+		this.lastSafeAreaRight = this.safeAreaRight();
 		this.register();
 	}
 
@@ -97,10 +103,27 @@ export default class MobileFab {
 	};
 
 	private onResize = () => {
+		const vw = window.innerWidth;
+		const vh = window.innerHeight;
+		const safeAreaRight = this.safeAreaRight();
+		// no active drag: rotation or a safe-area change can shrink the usable
+		// viewport, so reclamp persisted offsets that are now out of range
+		if (!this.tracking || !this.dragging) {
+			if (
+				vw !== this.lastViewportW ||
+				vh !== this.lastViewportH ||
+				safeAreaRight !== this.lastSafeAreaRight
+			) {
+				this.normalizeOffsets();
+				this.applyPosition();
+				this.lastViewportW = vw;
+				this.lastViewportH = vh;
+				this.lastSafeAreaRight = safeAreaRight;
+			}
+			return;
+		}
 		// keyboard opening shrinks the viewport and re-anchors the fixed
 		// bottom position; keep the fab under the finger mid-drag
-		if (!this.tracking || !this.dragging) return;
-		const vh = window.innerHeight;
 		const dy = this.dragViewportH - vh;
 		if (dy !== 0) {
 			this.plugin.settings.fabOffsetY = clampOffset(
