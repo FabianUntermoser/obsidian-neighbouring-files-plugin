@@ -350,15 +350,16 @@ export default class MobileFab {
 	private register() {
 		this.leafChangeRef = this.workspace.on("active-leaf-change", this.onLeafChange);
 		window.addEventListener("resize", this.onResize);
-		// the mobile drawer slides in/out without an active-leaf change; watch
-		// the is-open class so the fab hides while it covers the note
+		// the mobile drawer slides in/out without an active-leaf change; the
+		// is-open class lives on the workspace container, so watch just that
+		// element instead of the whole document to avoid constant churn
 		this.drawerObserver = new MutationObserver(() => this.updateVisibility());
-		this.drawerObserver.observe(window.activeDocument.body, {
-			childList: true,
-			subtree: true,
-			attributes: true,
-			attributeFilter: ["class"],
-		});
+		if (this.workspace.containerEl) {
+			this.drawerObserver.observe(this.workspace.containerEl, {
+				attributes: true,
+				attributeFilter: ["class"],
+			});
+		}
 		this.updateVisibility();
 	}
 
