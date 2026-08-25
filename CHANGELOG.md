@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.2.0
+
+### Minor Changes
+
+- 4fdf4c2: Add a mobile-only floating action button (FAB) with configurable gestures: swipe left/right/up/down to run commands, tap and double-tap actions, long-press to open the FAB settings, and long-press + drag to reposition the button. Gesture commands, haptics, and button position are configurable in the plugin settings under Mobile.
+
+### Dependency Updates
+
+- js-yaml: patched to 4.3.1 / 3.15.1 to close a security advisory
+- obsidian: 1.12.3 → 1.13.1
+- eslint-plugin-obsidianmd: 0.3.0 → 0.4.1
+- @types/node: 25.9.5 → 26.1.1
+- @typescript-eslint/eslint-plugin: 8.63.0
+- CI actions: setup-node → 7.0.0, checkout → 7.0.1, attest-build-provenance updated
+
 ## 1.1.4
 
 ### Patch Changes
@@ -25,8 +40,6 @@
 
 - Add setting to control navigation behaviour on folder end by @FabianUntermoser in https://github.com/FabianUntermoser/obsidian-neighbouring-files-plugin/pull/23
 - Add setting to filter based on extension by @brendon-felix in https://github.com/FabianUntermoser/obsidian-neighbouring-files-plugin/pull/22
-
-## 1.1.0
 
 ## 1.1.0
 
