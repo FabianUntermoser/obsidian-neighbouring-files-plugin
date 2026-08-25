@@ -23,7 +23,8 @@ const makeWorkspace = (activeFile: unknown = { path: "a.md" }) => {
 		on: jest.fn(() => () => {}),
 		offref: jest.fn(),
 		getActiveFile: jest.fn(() => activeFile),
-		containerEl: document.createElement("div"),
+		// appended to the body so the fab's mutation observer sees class changes
+		containerEl: document.body.appendChild(document.createElement("div")),
 	};
 	return workspace as unknown as Record<string, unknown> & {
 		on: jest.Mock;
@@ -203,6 +204,19 @@ describe("MobileFab", () => {
 			fire("pointerup", 0, 0);
 			jest.advanceTimersByTime(DOUBLE_TAP_TIMEOUT + 10);
 			expect(Notice.instances.length).toBeGreaterThan(0);
+		});
+	});
+
+	describe("visibility", () => {
+		it("hides the fab while a side dock drawer is open", () => {
+			const { workspace } = mount();
+			const container = workspace.containerEl as HTMLElement;
+			const fab = getFab();
+			expect(fab.classList.contains("is-visible")).toBe(true);
+			container.classList.add("is-left-sidedock-open");
+			expect(fab.classList.contains("is-visible")).toBe(false);
+			container.classList.remove("is-left-sidedock-open");
+			expect(fab.classList.contains("is-visible")).toBe(true);
 		});
 	});
 
