@@ -73,7 +73,6 @@ export default class MobileFab {
 		this.plugin = plugin;
 		this.workspace = plugin.app.workspace;
 		this.fabEl = this.buildFab();
-		this.normalizeOffsets();
 		this.applyPosition();
 		this.register();
 	}
@@ -212,12 +211,11 @@ export default class MobileFab {
 			}
 			return;
 		}
-		if (!this.swiped) {
-			this.resetPosition();
-			if (Math.hypot(dx, dy) < TAP_THRESHOLD) {
-				this.pointerHandledTap = true;
-				this.handleTap();
-			}
+		// reset the gesture nudge so the button flips back to its resting spot
+		this.resetPosition();
+		if (!this.swiped && Math.hypot(dx, dy) < TAP_THRESHOLD) {
+			this.pointerHandledTap = true;
+			this.handleTap();
 		}
 	};
 
@@ -239,29 +237,6 @@ export default class MobileFab {
 				this.runCommand(singleTapCommand);
 			}, DOUBLE_TAP_TIMEOUT);
 		}
-	}
-
-	private safeAreaRight() {
-		const raw = getComputedStyle(window.activeDocument.documentElement)
-			.getPropertyValue("--safe-area-inset-right")
-			.trim();
-		const px = parseFloat(raw);
-		return Number.isFinite(px) ? px : 0;
-	}
-
-	/**
-	 * Clamp persisted offsets to the current valid range so values written
-	 * under older layouts (centered anchor) can not push the button off screen.
-	 */
-	private normalizeOffsets() {
-		const vw = window.innerWidth;
-		const vh = window.innerHeight;
-		this.plugin.settings.fabOffsetX = clampOffset(
-			this.offsetX(),
-			-(vw - 80 - this.safeAreaRight()),
-			20
-		);
-		this.plugin.settings.fabOffsetY = clampOffset(this.offsetY(), -(vh - 140), 100);
 	}
 
 	private offsetX() {
@@ -286,9 +261,8 @@ export default class MobileFab {
 	private moveDrag(x: number, y: number) {
 		const vw = this.dragViewportW || window.innerWidth;
 		const vh = this.dragViewportH || window.innerHeight;
-		// right-anchored: negative x moves left, 20px right padding is the flush
-		// edge; the minimum keeps the button on screen past the safe area
-		this.plugin.settings.fabOffsetX = clampOffset(x, -(vw - 80 - this.safeAreaRight()), 20);
+		// right-anchored: negative x moves left, 20px right padding is the flush edge
+		this.plugin.settings.fabOffsetX = clampOffset(x, -(vw - 80), 20);
 		this.plugin.settings.fabOffsetY = clampOffset(y, -(vh - 140), 100);
 		this.applyPosition();
 	}
