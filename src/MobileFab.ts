@@ -263,8 +263,16 @@ export default class MobileFab {
 		}
 	}
 
+	/**
+	 * Active document, with fallback for mobile where the popout-window
+	 * API (activeDocument) is not initialized.
+	 */
+	private static activeDoc() {
+		return window.activeDocument ?? window.document;
+	}
+
 	private safeAreaRight() {
-		const raw = getComputedStyle(window.activeDocument.documentElement)
+		const raw = getComputedStyle(MobileFab.activeDoc().documentElement)
 			.getPropertyValue("--safe-area-inset-right")
 			.trim();
 		const px = parseFloat(raw);
@@ -327,15 +335,14 @@ export default class MobileFab {
 	};
 
 	private buildFab(): HTMLElement {
-		const doc = window.activeDocument;
-		const fab = doc.createEl("button", {
+		const doc = MobileFab.activeDoc();
+		const fab = doc.body.createEl("button", {
 			cls: "neighbouring-files-fab",
 			attr: { "aria-label": "Navigate to neighbouring files", type: "button" },
 		});
 
-		const icon = doc.createSpan();
+		const icon = fab.createSpan();
 		setIcon(icon, "circle-dot");
-		fab.append(icon);
 
 		fab.addEventListener("pointerdown", this.onPointerDown);
 		fab.addEventListener("pointermove", this.onPointerMove);
@@ -343,7 +350,6 @@ export default class MobileFab {
 		fab.addEventListener("pointercancel", this.onPointerUp);
 		fab.addEventListener("click", this.onClick);
 
-		doc.body.appendChild(fab);
 		return fab;
 	}
 
