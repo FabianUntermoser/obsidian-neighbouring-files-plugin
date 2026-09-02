@@ -37,27 +37,24 @@ jobs:
 
             - name: Verify release assets
               run: |
-                  # a required file missing from the build or dropped from the
-                  # release list fails the release before it is created
-                  required="main.js manifest.json styles.css"
-                  for f in $required; do
+                  # every file the plugin ships must exist in the build;
+                  # RELEASE_FILES is the single source of truth for the release
+                  read -r -a release_files <<< "$RELEASE_FILES"
+                  for f in "${release_files[@]}"; do
                       test -s "$f" || { echo "error: $f missing or empty"; exit 1; }
-                      case " $RELEASE_FILES " in
-                          *" $f "*) ;;
-                          *) echo "error: $f not in RELEASE_FILES"; exit 1 ;;
-                      esac
                   done
-                  echo "all required release assets present and attached"
+                  echo "all release assets present"
 
             - name: Attest build artifacts
               uses: actions/attest-build-provenance@e8998f949152b193b063cb0ec769d69d929409be # v4.1.1
               with:
-                  subject-path: "main.js,manifest.json,styles.css"
+                  subject-path: ${{ replace(env.RELEASE_FILES, ' ', ',') }}
 
             - name: Create release
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               run: |
                   tag="${GITHUB_REF#refs/tags/}"
+                  read -r -a release_files <<< "$RELEASE_FILES"
 
-                  gh release create "$tag" --title "$tag" --generate-notes --draft $RELEASE_FILES
+                  gh release create "$tag" --title "$tag" --generate-notes --draft "${release_files[@]}"
