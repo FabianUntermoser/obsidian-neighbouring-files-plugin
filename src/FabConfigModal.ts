@@ -75,6 +75,19 @@ export default class FabConfigModal extends Modal {
 		});
 	}
 
+	private paddingSlider(setting: Setting, key: "fabPaddingX" | "fabPaddingY"): Setting {
+		return setting.addSlider((slider) => {
+			slider
+				.setLimits(0, 120, 4)
+				.setValue(this.plugin.settings[key])
+				.onChange(async (value: number) => {
+					this.plugin.settings[key] = value;
+					await this.plugin.saveSettings();
+					this.plugin.updateFabPadding();
+				});
+		});
+	}
+
 	onOpen() {
 		const { contentEl } = this;
 		this.titleEl.setText("Mobile navigation button");
@@ -109,6 +122,16 @@ export default class FabConfigModal extends Modal {
 					await this.plugin.saveSettings();
 				});
 			});
+
+		const padX = new Setting(contentEl)
+			.setName("Horizontal padding")
+			.setDesc("Distance from the left/right screen edges");
+		this.paddingSlider(padX, "fabPaddingX");
+
+		const padY = new Setting(contentEl)
+			.setName("Vertical padding")
+			.setDesc("Distance from the top/bottom screen edges");
+		this.paddingSlider(padY, "fabPaddingY");
 	}
 
 	onClose() {

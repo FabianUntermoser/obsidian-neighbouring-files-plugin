@@ -7,6 +7,9 @@ const MOVE_TOLERANCE = 8;
 const LONG_PRESS_MS = 500;
 const NUDGE_DISTANCE = 6;
 const DOUBLE_TAP_TIMEOUT = 450;
+const FAB_SIZE = 60;
+const FAB_MAX_RIGHT_DRAG = 20; // furthest the fab can be dragged toward the right edge
+const FAB_MAX_BOTTOM_DRAG = 100; // furthest the fab can be dragged toward the bottom edge
 
 type Direction = "left" | "right" | "up" | "down";
 
@@ -128,8 +131,8 @@ export default class MobileFab {
 		if (dy !== 0) {
 			this.plugin.settings.fabOffsetY = clampOffset(
 				this.plugin.settings.fabOffsetY + dy,
-				-(vh - 140),
-				100
+				this.maxOffsetY(vh),
+				FAB_MAX_BOTTOM_DRAG
 			);
 			this.applyPosition();
 		}
@@ -271,12 +274,33 @@ export default class MobileFab {
 		return window.activeDocument ?? window.document;
 	}
 
-	private safeAreaRight() {
+	private safeAreaInset(name: string) {
 		const raw = getComputedStyle(MobileFab.activeDoc().documentElement)
-			.getPropertyValue("--safe-area-inset-right")
+			.getPropertyValue(name)
 			.trim();
 		const px = parseFloat(raw);
 		return Number.isFinite(px) ? px : 0;
+	}
+
+	private safeAreaRight() {
+		return this.safeAreaInset("--safe-area-inset-right");
+	}
+
+	private safeAreaTop() {
+		return this.safeAreaInset("--safe-area-inset-top");
+	}
+
+	/**
+	 * Furthest the fab can be dragged toward the left/top edge while staying
+	 * on screen: the resting padding plus the fab size, minus the safe-area
+	 * inset on that edge.
+	 */
+	private maxOffsetX(vw: number) {
+		return -(vw - this.plugin.settings.fabPaddingX - FAB_SIZE - this.safeAreaRight());
+	}
+
+	private maxOffsetY(vh: number) {
+		return -(vh - this.plugin.settings.fabPaddingY - FAB_SIZE - this.safeAreaTop());
 	}
 
 	/**
@@ -288,10 +312,14 @@ export default class MobileFab {
 		const vh = window.innerHeight;
 		this.plugin.settings.fabOffsetX = clampOffset(
 			this.offsetX(),
-			-(vw - 80 - this.safeAreaRight()),
-			20
+			this.maxOffsetX(vw),
+			FAB_MAX_RIGHT_DRAG
 		);
-		this.plugin.settings.fabOffsetY = clampOffset(this.offsetY(), -(vh - 140), 100);
+		this.plugin.settings.fabOffsetY = clampOffset(
+			this.offsetY(),
+			this.maxOffsetY(vh),
+			FAB_MAX_BOTTOM_DRAG
+		);
 	}
 
 	private offsetX() {
@@ -306,7 +334,18 @@ export default class MobileFab {
 		this.fabEl.setCssProps({
 			"--fab-drag-x": `${this.offsetX()}px`,
 			"--fab-drag-y": `${this.offsetY()}px`,
+			"--fab-pad-right": `${this.plugin.settings.fabPaddingX}px`,
+			"--fab-pad-bottom": `${this.plugin.settings.fabPaddingY}px`,
 		});
+	}
+
+	/**
+	 * Re-apply the resting position after the edge padding changes, so the
+	 * fab stays on screen under the new bounds.
+	 */
+	updatePadding() {
+		this.normalizeOffsets();
+		this.applyPosition();
 	}
 
 	private resetPosition() {
@@ -316,10 +355,10 @@ export default class MobileFab {
 	private moveDrag(x: number, y: number) {
 		const vw = this.dragViewportW || window.innerWidth;
 		const vh = this.dragViewportH || window.innerHeight;
-		// right-anchored: negative x moves left, 20px right padding is the flush
-		// edge; the minimum keeps the button on screen past the safe area
-		this.plugin.settings.fabOffsetX = clampOffset(x, -(vw - 80 - this.safeAreaRight()), 20);
-		this.plugin.settings.fabOffsetY = clampOffset(y, -(vh - 140), 100);
+		// right/bottom-anchored: negative offsets move the fab toward the
+		// left/top edge; the minimum keeps it on screen past the safe area
+		this.plugin.settings.fabOffsetX = clampOffset(x, this.maxOffsetX(vw), FAB_MAX_RIGHT_DRAG);
+		this.plugin.settings.fabOffsetY = clampOffset(y, this.maxOffsetY(vh), FAB_MAX_BOTTOM_DRAG);
 		this.applyPosition();
 	}
 

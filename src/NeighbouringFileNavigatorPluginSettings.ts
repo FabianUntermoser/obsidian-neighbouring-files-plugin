@@ -18,6 +18,8 @@ export const DEFAULT_SETTINGS: NeighbouringFileNavigatorPluginSettings = {
 	fabHaptics: true,
 	fabOffsetX: 0,
 	fabOffsetY: 0,
+	fabPaddingX: 28,
+	fabPaddingY: 80,
 };
 
 export type SORT_ORDER =
@@ -46,4 +48,6 @@ export default interface NeighbouringFileNavigatorPluginSettings {
 	fabHaptics: boolean;
 	fabOffsetX: number;
 	fabOffsetY: number;
+	fabPaddingX: number;
+	fabPaddingY: number;
 }
