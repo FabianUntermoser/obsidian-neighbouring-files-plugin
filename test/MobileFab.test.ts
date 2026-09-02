@@ -45,6 +45,8 @@ const makePlugin = (overrides: Partial<Record<string, string>> = {}) => {
 		fabSwipeDownCommand: "",
 		fabOffsetX: 0,
 		fabOffsetY: 0,
+		fabPaddingX: 28,
+		fabPaddingY: 80,
 		fabHaptics: false,
 		...overrides,
 	};
@@ -186,6 +188,10 @@ describe("MobileFab", () => {
 				value: 1024,
 				configurable: true,
 			});
+			Object.defineProperty(window, "innerHeight", {
+				value: 768,
+				configurable: true,
+			});
 		});
 
 		it("reclamps offsets that fall out of range after a viewport change", () => {
@@ -195,8 +201,21 @@ describe("MobileFab", () => {
 			// shrink the viewport, then fire the resize event the handler listens for
 			Object.defineProperty(window, "innerWidth", { value: 200, configurable: true });
 			window.dispatchEvent(new Event("resize"));
-			// min bound at 200px wide minus the 88px fab gutter = -112
+			// min bound at 200px wide minus the 28px padding and 60px fab = -112
 			expect(plugin.settings.fabOffsetX).toBeGreaterThanOrEqual(-112);
+		});
+
+		it("accounts for the top safe-area inset when clamping the vertical offset", () => {
+			const spy = jest.spyOn(window, "getComputedStyle").mockReturnValue({
+				getPropertyValue: (name: string) =>
+					name === "--safe-area-inset-top" ? "50px" : "",
+			} as CSSStyleDeclaration);
+			const { plugin } = mount({ fabOffsetY: "-1000" });
+			Object.defineProperty(window, "innerHeight", { value: 200, configurable: true });
+			window.dispatchEvent(new Event("resize"));
+			// min bound at 200px tall minus 80px padding, 60px fab and 50px top inset = -10
+			expect(plugin.settings.fabOffsetY).toBeGreaterThanOrEqual(-10);
+			spy.mockRestore();
 		});
 	});
 

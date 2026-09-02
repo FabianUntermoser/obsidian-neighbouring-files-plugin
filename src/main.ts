@@ -148,6 +148,13 @@ export default class NeighbouringFileNavigatorPlugin extends Plugin {
 		this.fab = new MobileFab(this);
 	}
 
+	/**
+	 * Re-apply the FAB position after its edge padding changes.
+	 */
+	updateFabPadding() {
+		this.fab?.updatePadding();
+	}
+
 	async loadSettings() {
 		const loaded =
 			(await this.loadData()) as Partial<NeighbouringFileNavigatorPluginSettings> | null;
