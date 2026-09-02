@@ -16,7 +16,7 @@ jobs:
         env:
             # every file the plugin ships; the verify step and the release
             # command both read this so they can not drift apart
-            RELEASE_FILES: "main.js manifest.json styles.css"
+            RELEASE_FILES: "main.js,manifest.json,styles.css"
 
         steps:
             - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -39,7 +39,7 @@ jobs:
               run: |
                   # every file the plugin ships must exist in the build;
                   # RELEASE_FILES is the single source of truth for the release
-                  read -r -a release_files <<< "$RELEASE_FILES"
+                  IFS=',' read -r -a release_files <<< "$RELEASE_FILES"
                   for f in "${release_files[@]}"; do
                       test -s "$f" || { echo "error: $f missing or empty"; exit 1; }
                   done
@@ -48,13 +48,13 @@ jobs:
             - name: Attest build artifacts
               uses: actions/attest-build-provenance@e8998f949152b193b063cb0ec769d69d929409be # v4.1.1
               with:
-                  subject-path: ${{ replace(env.RELEASE_FILES, ' ', ',') }}
+                  subject-path: ${{ env.RELEASE_FILES }}
 
             - name: Create release
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               run: |
                   tag="${GITHUB_REF#refs/tags/}"
-                  read -r -a release_files <<< "$RELEASE_FILES"
+                  IFS=',' read -r -a release_files <<< "$RELEASE_FILES"
 
                   gh release create "$tag" --title "$tag" --generate-notes --draft "${release_files[@]}"
