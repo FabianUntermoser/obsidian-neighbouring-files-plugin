@@ -195,8 +195,8 @@ describe("MobileFab", () => {
 			// shrink the viewport, then fire the resize event the handler listens for
 			Object.defineProperty(window, "innerWidth", { value: 200, configurable: true });
 			window.dispatchEvent(new Event("resize"));
-			// min bound at 200px wide minus the 80px fab gutter = -120
-			expect(plugin.settings.fabOffsetX).toBeGreaterThanOrEqual(-120);
+			// min bound at 200px wide minus the 88px fab gutter = -112
+			expect(plugin.settings.fabOffsetX).toBeGreaterThanOrEqual(-112);
 		});
 	});
 

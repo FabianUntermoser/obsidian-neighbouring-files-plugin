@@ -128,7 +128,7 @@ export default class MobileFab {
 		if (dy !== 0) {
 			this.plugin.settings.fabOffsetY = clampOffset(
 				this.plugin.settings.fabOffsetY + dy,
-				-(vh - 140),
+				-(vh - 156),
 				100
 			);
 			this.applyPosition();
@@ -288,10 +288,10 @@ export default class MobileFab {
 		const vh = window.innerHeight;
 		this.plugin.settings.fabOffsetX = clampOffset(
 			this.offsetX(),
-			-(vw - 80 - this.safeAreaRight()),
+			-(vw - 88 - this.safeAreaRight()),
 			20
 		);
-		this.plugin.settings.fabOffsetY = clampOffset(this.offsetY(), -(vh - 140), 100);
+		this.plugin.settings.fabOffsetY = clampOffset(this.offsetY(), -(vh - 156), 100);
 	}
 
 	private offsetX() {
@@ -318,8 +318,8 @@ export default class MobileFab {
 		const vh = this.dragViewportH || window.innerHeight;
 		// right-anchored: negative x moves left, 20px right padding is the flush
 		// edge; the minimum keeps the button on screen past the safe area
-		this.plugin.settings.fabOffsetX = clampOffset(x, -(vw - 80 - this.safeAreaRight()), 20);
-		this.plugin.settings.fabOffsetY = clampOffset(y, -(vh - 140), 100);
+		this.plugin.settings.fabOffsetX = clampOffset(x, -(vw - 88 - this.safeAreaRight()), 20);
+		this.plugin.settings.fabOffsetY = clampOffset(y, -(vh - 156), 100);
 		this.applyPosition();
 	}
 
