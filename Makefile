@@ -35,7 +35,11 @@ changeset: ## create a changeset
 release: ## version, changelog, commit and push a release
 	test -z "$$(git status --porcelain)" || (echo "error: working tree not clean" >&2; exit 1)
 	npx changeset version
-	VERSION=$$(node -p "require('./package.json').version"); node version-bump.mjs "$$VERSION"
-	git add .changeset CHANGELOG.md manifest.json versions.json package.json
-	npm version --allow-same-version --force "$$VERSION" -m "release: %s"
+	# capture the bumped version once, in a single shell, so the later steps
+	# (version-bump, npm version) see it; Make runs each recipe line in its
+	# own shell, so a bare assignment does not carry across lines
+	VERSION=$$(node -p "require('./package.json').version"); \
+	node version-bump.mjs "$$VERSION"; \
+	git add .changeset CHANGELOG.md manifest.json versions.json package.json; \
+	npm version --allow-same-version --force "$$VERSION" -m "release: %s"; \
 	git push && git push --tags
