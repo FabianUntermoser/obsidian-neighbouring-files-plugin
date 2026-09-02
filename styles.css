@@ -2,8 +2,8 @@
 
 .neighbouring-files-fab {
 	position: fixed;
-	right: calc(var(--safe-area-inset-right, 0px) + 20px);
-	bottom: calc(var(--safe-area-inset-bottom, 0px) + 64px);
+	right: calc(var(--safe-area-inset-right, 0px) + 28px);
+	bottom: calc(var(--safe-area-inset-bottom, 0px) + 80px);
 	transform: translateX(var(--fab-drag-x, 0px)) translateY(var(--fab-drag-y, 0px));
 	width: 60px;
 	height: 60px;

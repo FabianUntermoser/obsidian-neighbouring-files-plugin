@@ -33,7 +33,7 @@ jobs:
             - name: Attest build artifacts
               uses: actions/attest-build-provenance@e8998f949152b193b063cb0ec769d69d929409be # v4.1.1
               with:
-                  subject-path: "main.js,manifest.json"
+                  subject-path: "main.js,manifest.json,styles.css"
 
             - name: Create release
               env:
@@ -41,4 +41,4 @@ jobs:
               run: |
                   tag="${GITHUB_REF#refs/tags/}"
 
-                  gh release create "$tag" --title "$tag" --generate-notes --draft main.js manifest.json
+                  gh release create "$tag" --title "$tag" --generate-notes --draft main.js manifest.json styles.css
