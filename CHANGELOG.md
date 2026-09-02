@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.1
+
+### Patch Changes
+
+- 1a06656: Fix plugin failing to load on Android: the mobile FAB was created on the popout-window document, which is unavailable on mobile. Create it on the document body instead.
+
 ## 1.2.0
 
 ### What's New
