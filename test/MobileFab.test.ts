@@ -255,4 +255,27 @@ describe("MobileFab", () => {
 			expect(fab).toBeDefined();
 		});
 	});
+
+	describe("activeDoc fallback", () => {
+		// Regression for the mobile path where the popout-window API is
+		// unavailable: activeDoc() must fall back to window.document.
+		const unsetActiveDocument = () => {
+			(window as unknown as { activeDocument: Document | undefined }).activeDocument =
+				undefined;
+		};
+
+		it("creates the fab on the document body when activeDocument is unavailable", () => {
+			unsetActiveDocument();
+			mount();
+			const fabEl = getFab();
+			expect(document.body.contains(fabEl)).toBe(true);
+		});
+
+		it("removes the fab on unload when using the fallback document", () => {
+			unsetActiveDocument();
+			mount();
+			fab.onunload();
+			expect(document.body.querySelector(".neighbouring-files-fab")).toBeNull();
+		});
+	});
 });

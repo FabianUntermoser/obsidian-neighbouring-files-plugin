@@ -17,39 +17,68 @@ if (typeof HTMLElement !== "undefined") {
 	HTMLElement.prototype.setPointerCapture = function () {};
 }
 
-// Obsidian also patches Document with a createEl/createSpan helper. jsdom only
-// has createElement, so mirror the minimal shape MobileFab uses.
+// Obsidian also patches Document and HTMLElement with createEl/createSpan
+// helpers (document.body.createEl, this.contentEl.createSpan, etc.). jsdom
+// only has createElement, so mirror the minimal shape MobileFab uses. Both
+// prototypes share one implementation since the helpers accept any element
+// or document as `this`.
+
+/**
+ * Resolve the owning document for the `this` receiver. A Document is itself
+ * the document; an element exposes it via ownerDocument.
+ */
+const owningDoc = (receiver: unknown): Document => {
+	if (typeof Document !== "undefined" && receiver instanceof Document) return receiver;
+	return (receiver as { ownerDocument?: Document }).ownerDocument ?? (receiver as Document);
+};
+
+/** Minimal shape of the Obsidian createEl options MobileFab uses. */
+type CreateElOptions = {
+	cls?: string;
+	attr?: Record<string, string>;
+};
+
+// Names avoid the ambient `createEl`/`createSpan` globals declared by the
+// Obsidian typings (obsidian.d.ts `declare global`), which would collide.
+const makeEl = function (this: unknown, tag: string, options?: CreateElOptions): HTMLElement {
+	const el = owningDoc(this).createElement(tag);
+	if (options?.cls) el.className = options.cls;
+	const attr = options?.attr;
+	if (attr) {
+		for (const key in attr) {
+			el.setAttribute(key, attr[key]);
+		}
+	}
+	// Obsidian's createEl appends the new element to the receiver by default;
+	// a Document appends to its body.
+	const node = this as Node | null;
+	if (node) {
+		if (node.nodeType === 9) {
+			(node as Document).body.appendChild(el);
+		} else {
+			node.appendChild(el);
+		}
+	}
+	return el;
+};
+const makeSpan = function (this: unknown, options?: CreateElOptions): HTMLSpanElement {
+	return makeEl.call(this, "span", options);
+};
+
+type CreateHelperTarget = {
+	createEl: (this: unknown, tag: string, options?: CreateElOptions) => HTMLElement;
+	createSpan: (this: unknown, options?: CreateElOptions) => HTMLSpanElement;
+};
+
 if (typeof Document !== "undefined") {
-	(
-		Document.prototype as unknown as {
-			createEl: (tag: string, options?: Record<string, unknown>) => HTMLElement;
-			createSpan: (options?: Record<string, unknown>) => HTMLSpanElement;
-		}
-	).createEl = function (
-		this: Document,
-		tag: string,
-		options?: Record<string, unknown>
-	): HTMLElement {
-		const el = this.createElement(tag);
-		if (options?.cls) el.className = String(options.cls);
-		const attr = options?.attr as Record<string, string> | undefined;
-		if (attr) {
-			for (const key in attr) {
-				el.setAttribute(key, attr[key]);
-			}
-		}
-		return el;
-	};
-	(
-		Document.prototype as unknown as {
-			createEl: (tag: string, options?: Record<string, unknown>) => HTMLElement;
-			createSpan: (options?: Record<string, unknown>) => HTMLSpanElement;
-		}
-	).createSpan = function (this: Document, options?: Record<string, unknown>): HTMLSpanElement {
-		return (
-			this as unknown as {
-				createEl: (tag: string, options?: Record<string, unknown>) => HTMLElement;
-			}
-		).createEl("span", options) as HTMLSpanElement;
-	};
+	Object.assign(Document.prototype as unknown as CreateHelperTarget, {
+		createEl: makeEl,
+		createSpan: makeSpan,
+	});
+}
+if (typeof HTMLElement !== "undefined") {
+	Object.assign(HTMLElement.prototype as unknown as CreateHelperTarget, {
+		createEl: makeEl,
+		createSpan: makeSpan,
+	});
 }
