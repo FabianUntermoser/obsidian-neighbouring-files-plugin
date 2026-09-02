@@ -21,7 +21,7 @@
 		"@types/jest": "^30.0.0",
 		"@types/node": "^26.1.1",
 		"@typescript-eslint/eslint-plugin": "8.63.0",
-		"@typescript-eslint/parser": "8.63.0",
+		"@typescript-eslint/parser": "8.67.0",
 		"esbuild": "0.28.1",
 		"eslint": "^10.6.0",
 		"eslint-plugin-obsidianmd": "^0.4.1",
