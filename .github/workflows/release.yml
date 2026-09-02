@@ -13,6 +13,11 @@ jobs:
             id-token: write
             attestations: write
 
+        env:
+            # every file the plugin ships; the verify step and the release
+            # command both read this so they can not drift apart
+            RELEASE_FILES: "main.js manifest.json styles.css"
+
         steps:
             - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
               with:
@@ -30,6 +35,20 @@ jobs:
                   npm run build
                   npm run test
 
+            - name: Verify release assets
+              run: |
+                  # a required file missing from the build or dropped from the
+                  # release list fails the release before it is created
+                  required="main.js manifest.json styles.css"
+                  for f in $required; do
+                      test -s "$f" || { echo "error: $f missing or empty"; exit 1; }
+                      case " $RELEASE_FILES " in
+                          *" $f "*) ;;
+                          *) echo "error: $f not in RELEASE_FILES"; exit 1 ;;
+                      esac
+                  done
+                  echo "all required release assets present and attached"
+
             - name: Attest build artifacts
               uses: actions/attest-build-provenance@e8998f949152b193b063cb0ec769d69d929409be # v4.1.1
               with:
@@ -41,4 +60,4 @@ jobs:
               run: |
                   tag="${GITHUB_REF#refs/tags/}"
 
-                  gh release create "$tag" --title "$tag" --generate-notes --draft main.js manifest.json styles.css
+                  gh release create "$tag" --title "$tag" --generate-notes --draft $RELEASE_FILES
