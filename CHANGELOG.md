@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.2
+
+### Patch Changes
+
+- 5105f86: Fix mobile FAB not displaying on Android: ship styles.css in releases, respect the top safe area, and make edge padding configurable.
+
 ## 1.2.1
 
 ### Patch Changes
