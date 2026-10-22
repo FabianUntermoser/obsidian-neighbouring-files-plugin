@@ -28,7 +28,7 @@ This [Obsidian](https://obsidian.md/) Plugin adds commands to quickly navigate b
 
 ## Commands
 
-- Navigate to next/prev file (File explorer sort, or alphabetical)
+- Navigate to next/prev file (File explorer sort, alphabetical)
 - Navigate to older/newer file (creation timestamp, modification timestamp)
 - Folder up/down
 - Next/prev folder
@@ -97,11 +97,12 @@ Open source on [GitHub](https://github.com/FabianUntermoser/obsidian-neighbourin
 
 ## Releasing
 
-1. `make changeset`, then open the pull request and merge it green.
-2. Run the community branch scan before the release merges: <https://community.obsidian.md/account/plugins/neighbouring-files/review-branch>
-3. `make release`, then push the `release/<version>` branch and merge it.
-4. `PUBLISH_OK=1 make publish`
-5. Publish the draft release on GitHub.
+1. `make changeset`, then open the pull request.
+2. Run the community branch scan: <https://community.obsidian.md/account/plugins/neighbouring-files/review-branch>
+3. Merge it green.
+4. `make release`, then push the `release/<version>` branch and merge it.
+5. `PUBLISH_OK=1 make publish`
+6. Publish the draft release on GitHub.
 
 ## License
 [MIT License](LICENSE.md).
