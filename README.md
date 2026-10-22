@@ -120,5 +120,16 @@ nmap fp :folder_prev<cr>
 ## Contributing
 Open source on [GitHub](https://github.com/FabianUntermoser/obsidian-neighbouring-files-plugin). Issues and PRs welcome.
 
+## Releasing
+
+`main` is protected, so every change arrives as a pull request.
+
+1. Open the pull request with a changeset (`make changeset`). CI must be green.
+2. Run the branch review on the community dashboard: <https://community.obsidian.md/account/plugins/neighbouring-files/review-branch>. It needs the Obsidian account login.
+3. Merge the pull request.
+4. `make release` writes the version bump on a local `release/<version>` branch and pushes nothing. Push that branch and open its pull request, so the bump is reviewed like any other change.
+5. After the bump merges, `PUBLISH_OK=1 make publish` tags the version, and `release.yml` builds a draft release.
+6. Publish that draft on GitHub. Nothing is public before this step.
+
 ## License
 [MIT License](LICENSE.md).
