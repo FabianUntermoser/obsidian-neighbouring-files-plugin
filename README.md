@@ -28,12 +28,11 @@ This [Obsidian](https://obsidian.md/) Plugin adds commands to quickly navigate b
 
 ## Commands
 
-- Next and previous file
-- Next and previous file, alphabetical
-- Older and newer file, by creation timestamp
-- Older and newer file, by modification timestamp
-- Folder up and down
-- Next and previous folder
+- Navigate to next/prev file, the default command
+- Navigate to next/prev file (alphabetical)
+- Navigate to older/newer file (creation, modification)
+- Navigate folder up/down
+- Navigate to next/prev folder
 
 ## Configuration
 
