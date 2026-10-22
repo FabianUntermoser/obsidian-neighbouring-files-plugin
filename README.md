@@ -26,68 +26,24 @@ This [Obsidian](https://obsidian.md/) Plugin adds commands to quickly navigate b
 
 [mobile-fab.mp4](https://github.com/user-attachments/assets/573f5428-123b-43c6-98b5-d3f3d9f21493)
 
-## Features
-- Navigate to the next / previous file, alphabetical or by creation / modification date
-- Navigate folders up, down, and between
-- Loop in a folder or continue across folders
-- Mobile floating action button (FAB) with gestures
-
 ## Commands
 
-Default commands:
-- Navigate to next file
-- Navigate to prev file
-
-Additional commands:
-- Navigate to next file (alphabetical)
-- Navigate to prev file (alphabetical)
-- Navigate to older file (creation timestamp)
-- Navigate to newer file (creation timestamp)
-- Navigate to older file (modified timestamp)
-- Navigate to newer file (modified timestamp)
-- Folder up
-- Folder down
-- Next folder
-- Prev folder
-
-Sorting modes:
-- **Alphabetical**: by file name
-- **By modification timestamp**
-- **By creation timestamp**
+Next and previous file, alphabetical or by creation or modification date, plus folder up, down, next and previous. The command palette lists them all, and the default command follows the sort order of the File explorer.
 
 ## Configuration
 
-### Sort Order
-The default command uses the same sort order as the [File explorer](https://help.obsidian.md/Plugins/File+explorer). Set a fallback in the plugin settings.
+Settings explain themselves in the plugin settings. The mobile floating button is the exception worth knowing before you install:
 
-### Included File Types
-Markdown only by default. In the settings you can:
-- Limit to markdown files only
-- Include all file types
-- Add specific file extensions
-
-### Loop Notes in Folder
-- **Disabled**: navigation stops at the folder edges
-- **Enabled**: navigation loops back to the first / last note
-
-### Continue Across Folders
-- **Disabled**: navigation stays within the current folder
-- **Enabled**: navigation continues into adjacent folders
-
-### Mobile Navigation Button (FAB)
 On mobile, a floating button appears when a note is open. Gestures:
-- **Swipe left / right / up / down**: run a command (defaults: left = next, right = prev, up = folder up, down = folder down)
-- **Tap**: run a command (default: none)
-- **Double-tap**: run a command (default: none)
-- **Long-press**: open FAB settings
-- **Long-press + drag**: reposition the button
 
-Set gesture commands in settings under **Mobile**, or long-press the button. Haptics toggle available.
+- **Swipe left, right, up, down**: run a command, defaults are next, prev, folder up, folder down
+- **Tap and double-tap**: run a command, none by default
+- **Long-press**: open the FAB settings
+- **Long-press and drag**: move the button
+
+Every gesture, the haptics toggle and both paddings are configurable, from settings under **Mobile** or by long-pressing the button.
 
 ## Keybindings
-
-### Obsidian Hotkeys
-Open `Settings` -> `Hotkeys`, search `neighbouring-files`, and assign keys to the commands you need. The command IDs follow the command names (e.g. `neighbouring-files:next`).
 
 ### VIMRC Keybindings
 Instead of Obsidian hotkeys, use the [obsidian-vimrc-support](https://github.com/esm7/obsidian-vimrc-support) plugin to map keys like `gn` or `gp`.
@@ -125,9 +81,9 @@ Open source on [GitHub](https://github.com/FabianUntermoser/obsidian-neighbourin
 `main` is protected, so every change arrives as a pull request.
 
 1. Open the pull request with a changeset (`make changeset`). CI must be green.
-2. Run the branch review on the community dashboard: <https://community.obsidian.md/account/plugins/neighbouring-files/review-branch>. It needs the Obsidian account login.
+2. Run the obsidian community branch scan: <https://community.obsidian.md/account/plugins/neighbouring-files/review-branch>.
 3. Merge the pull request.
-4. `make release` writes the version bump on a local `release/<version>` branch and pushes nothing. Push that branch and open its pull request, so the bump is reviewed like any other change.
+4. `make release` writes the version bump on a local `release/<version>` branch and pushes nothing.
 5. After the bump merges, `PUBLISH_OK=1 make publish` tags the version, and `release.yml` builds a draft release.
 6. Publish that draft on GitHub. Nothing is public before this step.
 
