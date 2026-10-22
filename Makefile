@@ -3,7 +3,7 @@
 VAULT=${HOME}/notes
 FILES=main.js manifest.json styles.css
 
-.PHONY: help clean dev build install install-user-vault install-test-vault changeset release
+.PHONY: help clean dev build verify install install-user-vault install-test-vault changeset release publish
 
 help: ## show this help
 	@echo "Usage: make <target>"
@@ -38,17 +38,14 @@ verify: ## run what CI runs: build, tests, lint, format check
 	npm run lint
 	npm run format:check
 
-smoke: build ## load the built bundle against a stubbed obsidian API
-	node scripts/smoke.cjs
-
 release: ## bump and changelog on a release branch, nothing is pushed
 	test -z "$$(git status --porcelain)" || (echo "error: working tree not clean" >&2; exit 1)
 	npx changeset version
 	VERSION=$$(node -p "require('./package.json').version"); \
-	git switch -c "release/$$VERSION"; \
-	node version-bump.mjs "$$VERSION"; \
-	git add .changeset CHANGELOG.md manifest.json versions.json package.json; \
-	git commit -m "chore(release): $$VERSION"; \
+	git switch -c "release/$$VERSION" && \
+	node version-bump.mjs "$$VERSION" && \
+	git add .changeset CHANGELOG.md manifest.json versions.json package.json && \
+	git commit -m "chore(release): $$VERSION" && \
 	echo "nothing pushed. next: push release/$$VERSION, open its PR, clear the community dashboard review, merge it, then run PUBLISH_OK=1 make publish"
 
 publish: ## tag the merged release so release.yml builds it; needs PUBLISH_OK=1
@@ -57,7 +54,7 @@ publish: ## tag the merged release so release.yml builds it; needs PUBLISH_OK=1
 	test "$$(git branch --show-current)" = "main" || (echo "error: publish runs on main, after the release PR merged" >&2; exit 1)
 	git fetch origin main --tags
 	VERSION=$$(node -p "require('./package.json').version"); \
-	test "$$(git rev-parse HEAD)" = "$$(git rev-parse origin/main)" || (echo "error: HEAD is not origin/main, pull first" >&2; exit 1); \
-	git tag -a "$$VERSION" -m "$$VERSION"; \
-	git push origin "$$VERSION"; \
+	test "$$(git rev-parse HEAD)" = "$$(git rev-parse origin/main)" && \
+	git tag -a "$$VERSION" -m "$$VERSION" && \
+	git push origin "$$VERSION" && \
 	echo "tagged $$VERSION. release.yml builds the draft release, publishing it is the maintainer's call"
