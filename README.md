@@ -32,14 +32,32 @@ Next and previous file, alphabetical or by creation or modification date, plus f
 
 ## Configuration
 
-On mobile a floating button appears when a note is open:
+### Sort Order
+The default command uses the same sort order as the [File explorer](https://help.obsidian.md/Plugins/File+explorer). Set a fallback in the plugin settings.
 
-- **Swipe left, right, up, down**: run a command, defaults are next, prev, folder up, folder down
-- **Tap and double-tap**: run a command, none by default
-- **Long-press**: open the FAB settings
-- **Long-press and drag**: move the button
+### Included File Types
+Markdown only by default. In the settings you can:
+- Limit to markdown files only
+- Include all file types
+- Add specific file extensions
 
-Gestures, haptics and the padding are set under **Mobile** in the settings, or by long-pressing the button.
+### Loop Notes in Folder
+- **Disabled**: navigation stops at the folder edges
+- **Enabled**: navigation loops back to the first / last note
+
+### Continue Across Folders
+- **Disabled**: navigation stays within the current folder
+- **Enabled**: navigation continues into adjacent folders
+
+### Mobile Navigation Button (FAB)
+On mobile, a floating button appears when a note is open. Gestures:
+- **Swipe left / right / up / down**: run a command (defaults: left = next, right = prev, up = folder up, down = folder down)
+- **Tap**: run a command (default: none)
+- **Double-tap**: run a command (default: none)
+- **Long-press**: open FAB settings
+- **Long-press + drag**: reposition the button
+
+Set gesture commands in settings under **Mobile**, or long-press the button. Haptics toggle available.
 
 ## Keybindings
 
