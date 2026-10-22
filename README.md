@@ -30,8 +30,8 @@ This [Obsidian](https://obsidian.md/) plugin adds commands to quickly navigate b
 
 - Navigate to next/prev file (file explorer sort, alphabetical, dfs)
 - Navigate to older/newer file (creation timestamp, modification timestamp)
-- Navigate to folder up/down
-- Navigate to next/prev folder
+- Folder up/down
+- Next/prev folder
 
 ## Configuration
 
