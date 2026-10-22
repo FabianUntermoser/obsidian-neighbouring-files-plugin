@@ -10,7 +10,7 @@
   <img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/FabianUntermoser/obsidian-neighbouring-files-plugin?color=blue&style=flat-square">
 </p>
 
-This [Obsidian](https://obsidian.md/) Plugin adds commands to quickly navigate between neighbouring files.
+This [Obsidian](https://obsidian.md/) plugin adds commands to quickly navigate between neighbouring files.
 
 ## Installation
 
@@ -26,34 +26,12 @@ This [Obsidian](https://obsidian.md/) Plugin adds commands to quickly navigate b
 
 [mobile-fab.mp4](https://github.com/user-attachments/assets/573f5428-123b-43c6-98b5-d3f3d9f21493)
 
-## Features
-- Navigate to the next / previous file, alphabetical or by creation / modification date
-- Navigate folders up, down, and between
-- Loop in a folder or continue across folders
-- Mobile floating action button (FAB) with gestures
-
 ## Commands
 
-Default commands:
-- Navigate to next file
-- Navigate to prev file
-
-Additional commands:
-- Navigate to next file (alphabetical)
-- Navigate to prev file (alphabetical)
-- Navigate to older file (creation timestamp)
-- Navigate to newer file (creation timestamp)
-- Navigate to older file (modified timestamp)
-- Navigate to newer file (modified timestamp)
-- Folder up
-- Folder down
-- Next folder
-- Prev folder
-
-Sorting modes:
-- **Alphabetical**: by file name
-- **By modification timestamp**
-- **By creation timestamp**
+- Navigate to next/prev file (file explorer sort, alphabetical, dfs)
+- Navigate to older/newer file (creation timestamp, modification timestamp)
+- Folder up/down
+- Next/prev folder
 
 ## Configuration
 
@@ -61,10 +39,7 @@ Sorting modes:
 The default command uses the same sort order as the [File explorer](https://help.obsidian.md/Plugins/File+explorer). Set a fallback in the plugin settings.
 
 ### Included File Types
-Markdown only by default. In the settings you can:
-- Limit to markdown files only
-- Include all file types
-- Add specific file extensions
+Markdown only by default, otherwise all file types or specific extensions.
 
 ### Loop Notes in Folder
 - **Disabled**: navigation stops at the folder edges
@@ -82,15 +57,10 @@ On mobile, a floating button appears when a note is open. Gestures:
 - **Long-press**: open FAB settings
 - **Long-press + drag**: reposition the button
 
-Set gesture commands in settings under **Mobile**, or long-press the button. Haptics toggle available.
+Set gestures and haptics under **Mobile** in the settings, or by long-pressing the button.
 
 ## Keybindings
-
-### Obsidian Hotkeys
-Open `Settings` -> `Hotkeys`, search `neighbouring-files`, and assign keys to the commands you need. The command IDs follow the command names (e.g. `neighbouring-files:next`).
-
-### VIMRC Keybindings
-Instead of Obsidian hotkeys, use the [obsidian-vimrc-support](https://github.com/esm7/obsidian-vimrc-support) plugin to map keys like `gn` or `gp`.
+Map keys with the [obsidian-vimrc-support](https://github.com/esm7/obsidian-vimrc-support) plugin, for example `gn` or `gp`.
 
 > Caveat: works only when editor mode is on.
 
@@ -102,9 +72,9 @@ exmap prev_file obcommand neighbouring-files:prev
 exmap next_file_alphabetical obcommand neighbouring-files:next-alphabetical
 exmap prev_file_alphabetical obcommand neighbouring-files:prev-alphabetical
 exmap older_file_created obcommand neighbouring-files:older-created
-exmap newer_file_created obcommand neighbouring-files:newer-created
+exmap newer_file_created obcommand neighbouring-files:next-created
 exmap older_file_modified obcommand neighbouring-files:older-modified
-exmap newer_file_modified obcommand neighbouring-files:newer-modified
+exmap newer_file_modified obcommand neighbouring-files:next-modified
 exmap folder_up obcommand neighbouring-files:folder-up
 exmap folder_down obcommand neighbouring-files:folder-down
 exmap folder_next obcommand neighbouring-files:folder-next
@@ -119,6 +89,15 @@ nmap fp :folder_prev<cr>
 
 ## Contributing
 Open source on [GitHub](https://github.com/FabianUntermoser/obsidian-neighbouring-files-plugin). Issues and PRs welcome.
+
+## Releasing
+
+1. `make changeset`, then open the pull request.
+2. Run the community branch scan: <https://community.obsidian.md/account/plugins/neighbouring-files/review-branch>
+3. Merge it green.
+4. `make release`, then push the `release/<version>` branch and take it through steps 1 to 3.
+5. `PUBLISH_OK=1 make publish`
+6. Publish the draft release on GitHub.
 
 ## License
 [MIT License](LICENSE.md).
