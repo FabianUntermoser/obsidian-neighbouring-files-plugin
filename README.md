@@ -10,7 +10,7 @@
   <img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/FabianUntermoser/obsidian-neighbouring-files-plugin?color=blue&style=flat-square">
 </p>
 
-This [Obsidian](https://obsidian.md/) Plugin adds commands to quickly navigate between neighbouring files.
+This [Obsidian](https://obsidian.md/) plugin adds commands to quickly navigate between neighbouring files.
 
 ## Installation
 
@@ -39,10 +39,7 @@ This [Obsidian](https://obsidian.md/) Plugin adds commands to quickly navigate b
 The default command uses the same sort order as the [File explorer](https://help.obsidian.md/Plugins/File+explorer). Set a fallback in the plugin settings.
 
 ### Included File Types
-Markdown only by default. In the settings you can:
-- Limit to markdown files only
-- Include all file types
-- Add specific file extensions
+Markdown only by default, otherwise all file types or specific extensions.
 
 ### Loop Notes in Folder
 - **Disabled**: navigation stops at the folder edges
@@ -60,12 +57,10 @@ On mobile, a floating button appears when a note is open. Gestures:
 - **Long-press**: open FAB settings
 - **Long-press + drag**: reposition the button
 
-Set gesture commands in settings under **Mobile**, or long-press the button. Haptics toggle available.
+Set gestures and haptics under **Mobile** in the settings, or by long-pressing the button.
 
 ## Keybindings
-
-### VIMRC Keybindings
-Instead of Obsidian hotkeys, use the [obsidian-vimrc-support](https://github.com/esm7/obsidian-vimrc-support) plugin to map keys like `gn` or `gp`.
+Map keys with the [obsidian-vimrc-support](https://github.com/esm7/obsidian-vimrc-support) plugin, for example `gn` or `gp`.
 
 > Caveat: works only when editor mode is on.
 
@@ -100,7 +95,7 @@ Open source on [GitHub](https://github.com/FabianUntermoser/obsidian-neighbourin
 1. `make changeset`, then open the pull request.
 2. Run the community branch scan: <https://community.obsidian.md/account/plugins/neighbouring-files/review-branch>
 3. Merge it green.
-4. `make release`, then push the `release/<version>` branch and merge it.
+4. `make release`, then push the `release/<version>` branch and take it through steps 1 to 3.
 5. `PUBLISH_OK=1 make publish`
 6. Publish the draft release on GitHub.
 
