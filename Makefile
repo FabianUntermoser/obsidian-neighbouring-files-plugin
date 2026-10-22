@@ -32,14 +32,32 @@ install-test-vault: build ## build + install plugin to the test vault
 changeset: ## create a changeset
 	npx changeset
 
-release: ## version, changelog, commit and push a release
+verify: ## run what CI runs: build, tests, lint, format check
+	npm run build
+	npm test
+	npm run lint
+	npm run format:check
+
+smoke: build ## load the built bundle against a stubbed obsidian API
+	node scripts/smoke.cjs
+
+release: ## bump and changelog on a release branch, nothing is pushed
 	test -z "$$(git status --porcelain)" || (echo "error: working tree not clean" >&2; exit 1)
 	npx changeset version
-	# capture the bumped version once, in a single shell, so the later steps
-	# (version-bump, npm version) see it; Make runs each recipe line in its
-	# own shell, so a bare assignment does not carry across lines
 	VERSION=$$(node -p "require('./package.json').version"); \
+	git switch -c "release/$$VERSION"; \
 	node version-bump.mjs "$$VERSION"; \
 	git add .changeset CHANGELOG.md manifest.json versions.json package.json; \
-	npm version --allow-same-version --force "$$VERSION" -m "chore(release): %s"; \
-	git push && git push --tags
+	git commit -m "chore(release): $$VERSION"; \
+	echo "nothing pushed. next: push release/$$VERSION, open its PR, clear the community dashboard review, merge it, then run PUBLISH_OK=1 make publish"
+
+publish: ## tag the merged release so release.yml builds it; needs PUBLISH_OK=1
+	test "$${PUBLISH_OK:-}" = "1" || (echo "error: publish is public. Set PUBLISH_OK=1 once the release PR is merged and reviewed." >&2; exit 1)
+	test -z "$$(git status --porcelain)" || (echo "error: working tree not clean" >&2; exit 1)
+	test "$$(git branch --show-current)" = "main" || (echo "error: publish runs on main, after the release PR merged" >&2; exit 1)
+	git fetch origin main --tags
+	VERSION=$$(node -p "require('./package.json').version"); \
+	test "$$(git rev-parse HEAD)" = "$$(git rev-parse origin/main)" || (echo "error: HEAD is not origin/main, pull first" >&2; exit 1); \
+	git tag -a "$$VERSION" -m "$$VERSION"; \
+	git push origin "$$VERSION"; \
+	echo "tagged $$VERSION. release.yml builds the draft release, publishing it is the maintainer's call"
