@@ -72,9 +72,9 @@ exmap prev_file obcommand neighbouring-files:prev
 exmap next_file_alphabetical obcommand neighbouring-files:next-alphabetical
 exmap prev_file_alphabetical obcommand neighbouring-files:prev-alphabetical
 exmap older_file_created obcommand neighbouring-files:older-created
-exmap newer_file_created obcommand neighbouring-files:newer-created
+exmap newer_file_created obcommand neighbouring-files:next-created
 exmap older_file_modified obcommand neighbouring-files:older-modified
-exmap newer_file_modified obcommand neighbouring-files:newer-modified
+exmap newer_file_modified obcommand neighbouring-files:next-modified
 exmap folder_up obcommand neighbouring-files:folder-up
 exmap folder_down obcommand neighbouring-files:folder-down
 exmap folder_next obcommand neighbouring-files:folder-next
