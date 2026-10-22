@@ -28,20 +28,18 @@ This [Obsidian](https://obsidian.md/) Plugin adds commands to quickly navigate b
 
 ## Commands
 
-Next and previous file, alphabetical or by creation or modification date, plus folder up, down, next and previous. The command palette lists them all, and the default command follows the sort order of the File explorer.
+Next and previous file, alphabetical or by creation or modification date, plus folder up, down, next and previous. The default command follows the sort order of the File explorer.
 
 ## Configuration
 
-Settings explain themselves in the plugin settings. The mobile floating button is the exception worth knowing before you install:
-
-On mobile, a floating button appears when a note is open. Gestures:
+On mobile a floating button appears when a note is open:
 
 - **Swipe left, right, up, down**: run a command, defaults are next, prev, folder up, folder down
 - **Tap and double-tap**: run a command, none by default
 - **Long-press**: open the FAB settings
 - **Long-press and drag**: move the button
 
-Every gesture, the haptics toggle and both paddings are configurable, from settings under **Mobile** or by long-pressing the button.
+Gestures, haptics and the padding are set under **Mobile** in the settings, or by long-pressing the button.
 
 ## Keybindings
 
