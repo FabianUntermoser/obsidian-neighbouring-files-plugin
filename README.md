@@ -28,9 +28,7 @@ This [Obsidian](https://obsidian.md/) plugin adds commands to quickly navigate b
 
 ## Commands
 
-- Navigate to next/prev file
-- Navigate to next/prev file (alphabetical)
-- Navigate to next/prev file (dfs across folders)
+- Navigate to next/prev file (alphabetical, dfs across folders)
 - Navigate to older/newer file (creation timestamp, modification timestamp)
 - Navigate to folder up/down
 - Navigate to next/prev folder
