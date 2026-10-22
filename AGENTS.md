@@ -6,7 +6,7 @@ Obsidian community plugin. TypeScript sources bundled by esbuild, jest tests, sh
 
 ## Release
 
-`main` is protected, and every change arrives as a pull request, a release bump included.
+`main` is protected server side, so every change arrives as a pull request, a release bump included.
 
 1. A change carries a changeset (`.changeset/<name>.md`) and its pull request is green.
 2. A human runs the Obsidian community scan at <https://community.obsidian.md/account/plugins/neighbouring-files/review-branch>. It needs the account login, so an agent cannot run it. Ask for it, never assume it happened.
@@ -16,9 +16,8 @@ Obsidian community plugin. TypeScript sources bundled by esbuild, jest tests, sh
 
 ## Never
 
-- push `main` or create a tag outside step 4
+- create or delete a release tag outside step 4, which is the one action no rule blocks
 - publish a draft release without an explicit yes
-- amend, force-push, or delete a release tag
 - call a release out before the draft is published
 
 ## Conventions
