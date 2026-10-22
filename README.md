@@ -78,14 +78,11 @@ Open source on [GitHub](https://github.com/FabianUntermoser/obsidian-neighbourin
 
 ## Releasing
 
-`main` is protected, so every change arrives as a pull request.
-
-1. Open the pull request with a changeset (`make changeset`). CI must be green.
-2. Run the obsidian community branch scan: <https://community.obsidian.md/account/plugins/neighbouring-files/review-branch>.
-3. Merge the pull request.
-4. `make release` writes the version bump on a local `release/<version>` branch and pushes nothing.
-5. After the bump merges, `PUBLISH_OK=1 make publish` tags the version, and `release.yml` builds a draft release.
-6. Publish that draft on GitHub. Nothing is public before this step.
+1. `make changeset`, then open the pull request and merge it green.
+2. Run the community branch scan before the release merges: <https://community.obsidian.md/account/plugins/neighbouring-files/review-branch>
+3. `make release`, then push the `release/<version>` branch and merge it.
+4. `PUBLISH_OK=1 make publish`
+5. Publish the draft release on GitHub.
 
 ## License
 [MIT License](LICENSE.md).
