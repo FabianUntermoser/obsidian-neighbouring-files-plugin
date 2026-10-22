@@ -41,5 +41,5 @@ release: ## version, changelog, commit and push a release
 	VERSION=$$(node -p "require('./package.json').version"); \
 	node version-bump.mjs "$$VERSION"; \
 	git add .changeset CHANGELOG.md manifest.json versions.json package.json; \
-	npm version --allow-same-version --force "$$VERSION" -m "release: %s"; \
+	npm version --allow-same-version --force "$$VERSION" -m "chore(release): %s"; \
 	git push && git push --tags
