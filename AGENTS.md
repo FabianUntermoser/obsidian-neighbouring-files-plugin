@@ -1,25 +1,16 @@
 # neighbouring-files
 
-Obsidian community plugin. TypeScript sources bundled by esbuild, jest tests, ships `main.js`, `manifest.json` and `styles.css` to the community store.
+Obsidian community plugin, TypeScript bundled by esbuild, jest tests.
 
-`make help` lists the targets. This file holds only what a target cannot say.
+`make help` lists the targets. What follows is what no target, hook or rule can say.
 
 ## Release
 
-`main` is protected server side, so every change arrives as a pull request, a release bump included.
+1. A change, and the bump that `make release` writes on a local `release/<version>` branch, is a pull request, and it goes green.
+2. The Obsidian community scan must pass before that pull request merges: <https://community.obsidian.md/account/plugins/neighbouring-files/review-branch>. It needs the account login, so it stays manual.
+3. After the bump merges, `PUBLISH_OK=1 make publish` tags it and `release.yml` builds a **draft** release. The draft goes public only on a manual publish.
 
-1. A change carries a changeset (`.changeset/<name>.md`) and its pull request is green.
-2. A human runs the Obsidian community scan at <https://community.obsidian.md/account/plugins/neighbouring-files/review-branch>. It needs the account login, so an agent cannot run it. Ask for it, never assume it happened.
-3. `make release` writes the bump on a local `release/<version>` branch and pushes nothing. Push that branch and open its pull request, so the bump is reviewed like any other change. A tooling fix rides this branch, never a release of its own.
-4. After the bump merges, `PUBLISH_OK=1 make publish` tags it, and `release.yml` builds that tag into a **draft** release.
-5. Publishing the draft is public and takes an explicit human yes.
+## Gaps
 
-## Never
-
-- create or delete a release tag outside step 4, which is the one action no rule blocks
-- publish a draft release without an explicit yes
-- call a release out before the draft is published
-
-## Conventions
-
-Conventional commits, `type(scope): what it does`. The `commit-msg` and `pre-push` hooks in the global git config refuse a bad subject or a push to `main`: reword or open a pull request, never bypass. `versions.json` maps every released version to its `minAppVersion`.
+- Tags: the `main` ruleset covers the branch, not `refs/tags/*`, so `make publish` is the only thing between a release and a hand-made tag.
+- `versions.json` maps every released version to its `minAppVersion`, and nothing checks it.
