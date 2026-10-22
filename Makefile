@@ -36,7 +36,7 @@ release: ## bump, changelog and commit on a release branch, nothing is pushed
 	test -z "$$(git status --porcelain)" || (echo "error: working tree not clean" >&2; exit 1)
 	npx changeset version
 	# capture the bumped version once, in a single shell, so the later steps
-	# (version-bump, npm version) see it; Make runs each recipe line in its
+	# (version-bump, git commit) see it; Make runs each recipe line in its
 	# own shell, so a bare assignment does not carry across lines
 	VERSION=$$(node -p "require('./package.json').version"); \
 	git switch -c "release/$$VERSION" && \
