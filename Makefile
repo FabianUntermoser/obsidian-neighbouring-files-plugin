@@ -57,4 +57,4 @@ publish: ## tag the merged release so release.yml builds it; needs PUBLISH_OK=1
 	test "$$(git rev-parse HEAD)" = "$$(git rev-parse origin/main)" && \
 	git tag -a "$$VERSION" -m "$$VERSION" && \
 	git push origin "$$VERSION" && \
-	echo "tagged $$VERSION. release.yml builds the draft release, publishing it is the maintainer's call"
+	echo "tagged $$VERSION. release.yml builds the draft release, publishing it is a human decision"
